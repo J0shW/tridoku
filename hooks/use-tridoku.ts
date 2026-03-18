@@ -5,7 +5,9 @@ import {
   Cell, 
   CellId,
   TRIDOKU_BOARD,
-  getPuzzleNumber
+  getPuzzleNumber,
+  loadPuzzle,
+  EXAMPLE_PUZZLE
 } from "@/lib/tridoku"
 
 export interface GameStats {
@@ -67,7 +69,7 @@ function getTodayString(): string {
 
 export function useTridoku() {
   const [gameState, setGameState] = useState<GameState>({
-    cells: TRIDOKU_BOARD,
+    cells: loadPuzzle(EXAMPLE_PUZZLE),
     selectedCellId: null,
     isComplete: false,
     isPaused: false,
@@ -159,7 +161,7 @@ export function useTridoku() {
   const resetPuzzle = useCallback(() => {
     setGameState(prev => ({
       ...prev,
-      cells: TRIDOKU_BOARD,
+      cells: loadPuzzle(EXAMPLE_PUZZLE),
       selectedCellId: null,
       isComplete: false,
       elapsedTime: 0,
