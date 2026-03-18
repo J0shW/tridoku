@@ -16,7 +16,7 @@ const HEIGHT = SIDE * Math.sqrt(3) / 2 // Height of equilateral triangle
 export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps) {
   const [hoveredCell, setHoveredCell] = useState<number | null>(null)
 
-  // Calculate triangle positions
+  // Calculate triangle positions and region boundaries
   const triangleData = useMemo(() => {
     const numRows = 9
     // Total width needed: bottom row has (2*numRows - 1) triangles
@@ -44,6 +44,8 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
 
       // Generate triangle points
       let points: string
+      let edges: Array<{x1: number, y1: number, x2: number, y2: number, side: 'left'|'right'|'base'}>
+      
       if (isUpward) {
         // Upward pointing triangle: top vertex, bottom-right, bottom-left
         const topX = x + SIDE / 2
@@ -53,6 +55,12 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
         const bottomRightX = x + SIDE
         const bottomRightY = y + HEIGHT
         points = `${topX},${topY} ${bottomRightX},${bottomRightY} ${bottomLeftX},${bottomLeftY}`
+        
+        edges = [
+          { x1: topX, y1: topY, x2: bottomRightX, y2: bottomRightY, side: 'right' },
+          { x1: bottomRightX, y1: bottomRightY, x2: bottomLeftX, y2: bottomLeftY, side: 'base' },
+          { x1: bottomLeftX, y1: bottomLeftY, x2: topX, y2: topY, side: 'left' }
+        ]
       } else {
         // Downward pointing triangle: bottom vertex, top-left, top-right
         const bottomX = x + SIDE / 2
@@ -62,6 +70,12 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
         const topRightX = x + SIDE
         const topRightY = y
         points = `${topLeftX},${topLeftY} ${topRightX},${topRightY} ${bottomX},${bottomY}`
+        
+        edges = [
+          { x1: topLeftX, y1: topLeftY, x2: topRightX, y2: topRightY, side: 'base' },
+          { x1: topRightX, y1: topRightY, x2: bottomX, y2: bottomY, side: 'right' },
+          { x1: bottomX, y1: bottomY, x2: topLeftX, y2: topLeftY, side: 'left' }
+        ]
       }
 
       // Calculate centroid for text placement
@@ -74,6 +88,7 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
         centroidX,
         centroidY,
         isUpward,
+        edges,
       }
     })
   }, [cells])
@@ -81,14 +96,14 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
   // Color functions - using explicit hex values for SVG compatibility
   const getBackgroundColor = useCallback((cell: Cell, isHovered: boolean) => {
     if (cell.hasError) return "#ef4444" // red-500
-    if (cell.isSelected) return "#fcd34d" // amber-300
-    if (isHovered) return "#fcd34d" // amber-300
+    if (cell.isSelected) return "#fde047" // yellow-300 (brighter when selected)
+    if (isHovered) return "#fde047" // yellow-300
     
-    // Use color category for base coloring - explicit hex colors
+    // Use color category for base coloring - explicit hex colors matching reference
     const colorMap = {
-      'outer': '#d97706',      // dark orange (amber-600)
-      'intersection': '#f59e0b', // medium orange (amber-500)
-      'inner': '#fde047',      // light yellow (yellow-300)
+      'yellow': '#fef08a',     // yellow-200 (pale yellow like reference)
+      'blue': '#bfdbfe',       // blue-200 (light blue like reference)
+      'green': '#bbf7d0',      // green-200 (light green for overlaps)
       'white': '#ffffff',      // white
     }
     return colorMap[cell.colorCategory]
@@ -99,6 +114,16 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
     if (cell.isGiven) return "#1f2937" // gray-800
     return "#3b82f6" // blue-500
   }, [])
+
+  // Helper to check if an edge is a region boundary
+  const isRegionBoundary = useCallback((cell: Cell, neighborRow: number, neighborCol: number) => {
+    if (neighborRow < 0 || neighborRow >= 9) return false
+    const neighborIndex = neighborRow * neighborRow + neighborCol
+    if (neighborIndex < 0 || neighborIndex >= cells.length) return false
+    const neighbor = cells[neighborIndex]
+    if (!neighbor) return false
+    return cell.region !== neighbor.region
+  }, [cells])
 
   if (isPaused) {
     return (
@@ -123,14 +148,15 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
         role="grid"
         aria-label="Tridoku puzzle grid"
       >
+        {/* Draw triangles first */}
         {triangleData.map(({ cell, points, centroidX, centroidY }) => (
           <g key={cell.id} role="gridcell">
             {/* Triangle shape */}
             <polygon
               points={points}
               fill={getBackgroundColor(cell, hoveredCell === cell.id)}
-              stroke="#e5e7eb"
-              strokeWidth="1.5"
+              stroke="#d1d5db"
+              strokeWidth="0.5"
               className="cursor-pointer transition-colors duration-100"
               onClick={() => onCellClick(cell.id)}
               onMouseEnter={() => setHoveredCell(cell.id)}
@@ -156,6 +182,60 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
             )}
           </g>
         ))}
+        
+        {/* Draw thick black borders */}
+        {triangleData.map(({ cell, edges }) => {
+          const row = cell.row
+          const col = cell.col
+          const isUpward = col % 2 === 0
+          const colsInRow = 2 * row + 1
+          
+          return edges.map((edge, idx) => {
+            let shouldDrawThick = false
+            
+            // 1. OUTER BORDER: Draw around entire board
+            if (row === 8) {
+              // Bottom row - draw base of all upward triangles
+              if (isUpward && edge.side === 'base') shouldDrawThick = true
+            }
+            if (col === 0 && isUpward && edge.side === 'left') {
+              // Leftmost edge
+              shouldDrawThick = true
+            }
+            if (col === colsInRow - 1 && isUpward && edge.side === 'right') {
+              // Rightmost edge
+              shouldDrawThick = true
+            }
+            
+            // 2. HORIZONTAL BORDER after row 2
+            if (row === 2 && isUpward && edge.side === 'base') {
+              shouldDrawThick = true
+            }
+            
+            // 3. HORIZONTAL BORDER after row 5
+            if (row === 5 && isUpward && edge.side === 'base') {
+              shouldDrawThick = true
+            }
+            
+            if (shouldDrawThick) {
+              return (
+                <line
+                  key={`${cell.id}-border-${idx}`}
+                  x1={edge.x1}
+                  y1={edge.y1}
+                  x2={edge.x2}
+                  y2={edge.y2}
+                  stroke="#000000"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="miter"
+                  className="pointer-events-none"
+                />
+              )
+            }
+            return null
+          })
+        })}
       </svg>
     </div>
   )
