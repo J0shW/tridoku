@@ -3,12 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { 
   Cell, 
-  TridokuPuzzle, 
-  generateDailyPuzzle, 
-  validateSolution, 
-  checkCellConflicts,
-  getPuzzleNumber,
-  getDailySeed
+  TridokuPuzzle,
+  getPuzzleNumber
 } from "@/lib/tridoku"
 
 export interface GameStats {
@@ -90,54 +86,13 @@ export function useTridoku() {
   // Initialize or load game
   useEffect(() => {
     try {
-      const todaySeed = getDailySeed()
-      const stored = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null
-      
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored)
-          // Check if it's the same day's puzzle
-          if (parsed.seed === todaySeed) {
-            setGameState(parsed.state)
-            setIsLoading(false)
-            return
-          }
-        } catch (e) {
-          console.log("[v0] Failed to parse stored game state:", e)
-        }
-      }
-
-      // Generate new puzzle
-      console.log("[v0] Generating new puzzle...")
-      const puzzle = generateDailyPuzzle()
-      console.log("[v0] Puzzle generated with", puzzle.cells.length, "cells")
-      
-      setGameState({
-        cells: puzzle.cells,
-        solution: puzzle.solution,
-        selectedCell: null,
-        isComplete: false,
-        isPaused: false,
-        elapsedTime: 0,
-        showErrors: false,
-      })
+      // TRY LOAD GAME
       setIsLoading(false)
     } catch (error) {
       console.error("[v0] Error initializing game:", error)
       setIsLoading(false)
     }
   }, [])
-
-  // Save game state whenever it changes
-  useEffect(() => {
-    if (gameState && !isLoading) {
-      const todaySeed = getDailySeed()
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        seed: todaySeed,
-        state: gameState,
-      }))
-    }
-  }, [gameState, isLoading])
 
   // Timer
   useEffect(() => {
@@ -153,131 +108,11 @@ export function useTridoku() {
     return () => clearInterval(interval)
   }, [gameState?.isComplete, gameState?.isPaused])
 
-  // Select a cell
-  const selectCell = useCallback((cellId: number | null) => {
-    setGameState(prev => {
-      if (!prev) return prev
-      return {
-        ...prev,
-        selectedCell: cellId,
-        cells: prev.cells.map(cell => ({
-          ...cell,
-          isSelected: cell.id === cellId,
-        })),
-      }
-    })
-  }, [])
-
-  // Set a value in the selected cell
-  const setValue = useCallback((value: number | null) => {
-    setGameState(prev => {
-      if (!prev || prev.selectedCell === null || prev.isComplete) return prev
-
-      const cell = prev.cells[prev.selectedCell]
-      if (cell.isGiven) return prev
-
-      const newCells = prev.cells.map(c => {
-        if (c.id === prev.selectedCell) {
-          return { ...c, value, hasError: false }
-        }
-        return c
-      })
-
-      // Check for conflicts if showErrors is enabled
-      if (prev.showErrors && value !== null) {
-        const hasConflict = checkCellConflicts(newCells, prev.selectedCell)
-        if (hasConflict) {
-          newCells[prev.selectedCell] = { ...newCells[prev.selectedCell], hasError: true }
-        }
-      }
-
-      // Check if puzzle is complete
-      const { isComplete, errors } = validateSolution(newCells, prev.solution)
-
-      if (isComplete) {
-        // Update stats
-        const today = getTodayString()
-        const newStats = { ...stats }
-        newStats.gamesPlayed++
-        newStats.gamesWon++
-        
-        if (newStats.lastPlayedDate === today) {
-          // Already played today, don't update streak
-        } else {
-          const yesterday = new Date()
-          yesterday.setDate(yesterday.getDate() - 1)
-          const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`
-          
-          if (newStats.lastPlayedDate === yesterdayStr) {
-            newStats.currentStreak++
-          } else {
-            newStats.currentStreak = 1
-          }
-          
-          newStats.maxStreak = Math.max(newStats.maxStreak, newStats.currentStreak)
-          newStats.lastPlayedDate = today
-        }
-
-        if (!newStats.bestTime || prev.elapsedTime < newStats.bestTime) {
-          newStats.bestTime = prev.elapsedTime
-        }
-
-        setStats(newStats)
-        saveStats(newStats)
-      }
-
-      return {
-        ...prev,
-        cells: newCells,
-        isComplete,
-      }
-    })
-  }, [stats])
-
-  // Clear the selected cell
-  const clearCell = useCallback(() => {
-    setValue(null)
-  }, [setValue])
-
-  // Toggle error highlighting
-  const toggleErrors = useCallback(() => {
-    setGameState(prev => {
-      if (!prev) return prev
-
-      const showErrors = !prev.showErrors
-      
-      // Update error states for all cells
-      const newCells = prev.cells.map(cell => {
-        if (!showErrors || cell.value === null) {
-          return { ...cell, hasError: false }
-        }
-        const hasConflict = checkCellConflicts(prev.cells, cell.id)
-        return { ...cell, hasError: hasConflict }
-      })
-
-      return { ...prev, showErrors, cells: newCells }
-    })
-  }, [])
-
   // Toggle pause
   const togglePause = useCallback(() => {
     setGameState(prev => {
       if (!prev) return prev
       return { ...prev, isPaused: !prev.isPaused }
-    })
-  }, [])
-
-  // Reset today's puzzle
-  const resetPuzzle = useCallback(() => {
-    const puzzle = generateDailyPuzzle()
-    setGameState({
-      cells: puzzle.cells,
-      solution: puzzle.solution,
-      selectedCell: null,
-      isComplete: false,
-      isPaused: false,
-      elapsedTime: 0,
-      showErrors: false,
     })
   }, [])
 
@@ -303,12 +138,7 @@ export function useTridoku() {
     showErrors: gameState?.showErrors ?? false,
     stats,
     isLoading,
-    selectCell,
-    setValue,
-    clearCell,
-    toggleErrors,
     togglePause,
-    resetPuzzle,
     getShareText,
   }
 }
