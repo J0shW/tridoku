@@ -25,6 +25,66 @@ function getTrianglePoints(row: number, col: number, direction: "up" | "down"): 
   }
 }
 
+// For each non-hidden cell, check its 3 edges. If the neighbor across that edge
+// is in a different boldedRegion (or doesn't exist), that edge is a region boundary.
+type Edge = { x1: number; y1: number; x2: number; y2: number }
+
+function getRegionFromBoard(row: number, col: number): number | null {
+  if (row < 0 || row >= 9 || col < 0 || col >= 17) return null
+  const cell = TRIDOKU_BOARD[row][col]
+  if (cell.hidden) return null
+  return cell.boldedRegion
+}
+
+function computeBoldEdges(): Edge[] {
+  const edges: Edge[] = []
+
+  for (const boardRow of TRIDOKU_BOARD) {
+    for (const cell of boardRow) {
+      if (cell.hidden) continue
+      const { row, col, direction, boldedRegion } = cell
+
+      if (direction === "up") {
+        const yBase = (row + 1) * ROW_HEIGHT
+        const yTop = row * ROW_HEIGHT
+
+        // Left slant edge: (col, yBase) → (col+1, yTop) — neighbor is (row, col-1)
+        if (getRegionFromBoard(row, col - 1) !== boldedRegion) {
+          edges.push({ x1: col, y1: yBase, x2: col + 1, y2: yTop })
+        }
+        // Right slant edge: (col+1, yTop) → (col+2, yBase) — neighbor is (row, col+1)
+        if (getRegionFromBoard(row, col + 1) !== boldedRegion) {
+          edges.push({ x1: col + 1, y1: yTop, x2: col + 2, y2: yBase })
+        }
+        // Bottom horizontal edge: (col, yBase) → (col+2, yBase) — neighbor is (row+1, col)
+        if (getRegionFromBoard(row + 1, col) !== boldedRegion) {
+          edges.push({ x1: col, y1: yBase, x2: col + 2, y2: yBase })
+        }
+      } else {
+        const yTop = row * ROW_HEIGHT
+        const yBottom = (row + 1) * ROW_HEIGHT
+
+        // Left slant edge: (col, yTop) → (col+1, yBottom) — neighbor is (row, col-1)
+        if (getRegionFromBoard(row, col - 1) !== boldedRegion) {
+          edges.push({ x1: col, y1: yTop, x2: col + 1, y2: yBottom })
+        }
+        // Right slant edge: (col+2, yTop) → (col+1, yBottom) — neighbor is (row, col+1)
+        if (getRegionFromBoard(row, col + 1) !== boldedRegion) {
+          edges.push({ x1: col + 2, y1: yTop, x2: col + 1, y2: yBottom })
+        }
+        // Top horizontal edge: (col, yTop) → (col+2, yTop) — neighbor is (row-1, col)
+        if (getRegionFromBoard(row - 1, col) !== boldedRegion) {
+          edges.push({ x1: col, y1: yTop, x2: col + 2, y2: yTop })
+        }
+      }
+    }
+  }
+
+  return edges
+}
+
+const BOLD_EDGES = computeBoldEdges()
+
 interface TridokuBoardProps {
   cells: Cell[]
   onCellClick: (cellId: CellId) => void
@@ -64,6 +124,18 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
               />
             ))
         )}
+        {BOLD_EDGES.map((edge, i) => (
+          <line
+            key={`bold-${i}`}
+            x1={edge.x1}
+            y1={edge.y1}
+            x2={edge.x2}
+            y2={edge.y2}
+            stroke="#000"
+            strokeWidth={0.12}
+            strokeLinecap="round"
+          />
+        ))}
       </svg>
     </div>
   )
