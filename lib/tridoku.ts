@@ -112,6 +112,50 @@ export function createEmptyBoard(): Board {
     board.push(cells)
   }
 
+  // Compute neighbors: two cells are neighbors if they share any vertex.
+  // Build a map from each vertex point to all cell IDs touching it.
+  // Vertex key uses integer coordinates: x is the column, y is the row boundary index (0-9).
+  const vertexMap = new Map<string, CellId[]>()
+  function addVertex(key: string, cellId: CellId) {
+    if (!vertexMap.has(key)) vertexMap.set(key, [])
+    vertexMap.get(key)!.push(cellId)
+  }
+
+  for (const boardRow of board) {
+    for (const cell of boardRow) {
+      if (cell.hidden) continue
+      const { row: r, col: c, direction: dir, id } = cell
+      if (dir === 'up') {
+        // Vertices: bottom-left (c, r+1), top (c+1, r), bottom-right (c+2, r+1)
+        addVertex(`${c},${r + 1}`, id)
+        addVertex(`${c + 1},${r}`, id)
+        addVertex(`${c + 2},${r + 1}`, id)
+      } else {
+        // Vertices: top-left (c, r), top-right (c+2, r), bottom (c+1, r+1)
+        addVertex(`${c},${r}`, id)
+        addVertex(`${c + 2},${r}`, id)
+        addVertex(`${c + 1},${r + 1}`, id)
+      }
+    }
+  }
+
+  for (const boardRow of board) {
+    for (const cell of boardRow) {
+      if (cell.hidden) continue
+      const { row: r, col: c, direction: dir, id } = cell
+      const vertices = dir === 'up'
+        ? [`${c},${r + 1}`, `${c + 1},${r}`, `${c + 2},${r + 1}`]
+        : [`${c},${r}`, `${c + 2},${r}`, `${c + 1},${r + 1}`]
+      const neighborSet = new Set<CellId>()
+      for (const v of vertices) {
+        for (const nid of vertexMap.get(v)!) {
+          if (nid !== id) neighborSet.add(nid)
+        }
+      }
+      cell.neighbors = Array.from(neighborSet)
+    }
+  }
+
   return board
 }
 
@@ -135,17 +179,43 @@ export function loadPuzzle(data: string): Board {
   return board
 }
 
+// Validate adjacency: mark cells as errors if any neighbor has the same value.
+// Returns a new board with hasError updated on all cells.
+export function validateBoard(board: Board): Board {
+  // First pass: determine which cells have adjacency conflicts
+  const errorIds = new Set<CellId>()
+  for (const row of board) {
+    for (const cell of row) {
+      if (cell.hidden || cell.value == null) continue
+      for (const nid of cell.neighbors) {
+        const [nr, nc] = nid.split('-').map(Number)
+        const neighbor = board[nr][nc]
+        if (neighbor.value === cell.value) {
+          errorIds.add(cell.id)
+          errorIds.add(nid)
+        }
+      }
+    }
+  }
+  // Second pass: update hasError on all non-hidden cells
+  return board.map(row =>
+    row.map(cell =>
+      cell.hidden ? cell : { ...cell, hasError: errorIds.has(cell.id) }
+    )
+  )
+}
+
 // Example puzzle from the reference image
 export const EXAMPLE_PUZZLE =
   '6' +           // row 0
   '004' +         // row 1
   '02080' +       // row 2
-  '0037201' +     // row 3
-  '010000500' +   // row 4
-  '00200008030' + // row 5
-  '6000503007008' + // row 6
-  '050370010065040' + // row 7
-  '10400600460504003'  // row 8
+  '0030721' +     // row 3
+  '001000050' +   // row 4
+  '00002000803' + // row 5
+  '0600500300708' + // row 6
+  '005370010065400' + // row 7
+  '01040006004020030'  // row 8
 
 // Get puzzle number based on days since launch
 export function getPuzzleNumber(): number {

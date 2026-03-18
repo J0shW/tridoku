@@ -15,6 +15,7 @@ const FILL_COLORS: Record<Cell["color"], string> = {
 
 const SELECTED_FILL = "rgba(206, 96, 250, 0.315)"
 const SELECTED_STROKE = "rgb(168, 50, 216)"
+const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
   if (direction === "up") {
@@ -145,6 +146,13 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused }: T
                       style={{ pointerEvents: "none" }}
                     />
                   )}
+                  {gameCell?.hasError && !isSelected && (
+                    <polygon
+                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                      fill={ERROR_FILL}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
                   {gameCell?.value != null && (
                     <text
                       x={centroid.x}
@@ -153,7 +161,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused }: T
                       dominantBaseline="central"
                       fontSize={0.85}
                       fontWeight={gameCell.isGiven ? "bold" : "normal"}
-                      fill="#000"
+                      fill={gameCell.hasError ? "#DC2626" : "#000"}
                       style={{ pointerEvents: "none", userSelect: "none" }}
                     >
                       {gameCell.value}

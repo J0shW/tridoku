@@ -7,6 +7,7 @@ import {
   TRIDOKU_BOARD,
   getPuzzleNumber,
   loadPuzzle,
+  validateBoard,
   EXAMPLE_PUZZLE
 } from "@/lib/tridoku"
 
@@ -119,12 +120,12 @@ export function useTridoku() {
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
 
-      const newCells = prev.cells.map((r, ri) =>
+      const updatedCells = prev.cells.map((r, ri) =>
         ri === row
           ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
           : r
       )
-      return { ...prev, cells: newCells }
+      return { ...prev, cells: validateBoard(updatedCells) }
     })
   }, [])
 
@@ -138,12 +139,12 @@ export function useTridoku() {
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
 
-      const newCells = prev.cells.map((r, ri) =>
+      const updatedCells = prev.cells.map((r, ri) =>
         ri === row
           ? r.map((c, ci) => (ci === col ? { ...c, value: null } : c))
           : r
       )
-      return { ...prev, cells: newCells }
+      return { ...prev, cells: validateBoard(updatedCells) }
     })
   }, [])
 
