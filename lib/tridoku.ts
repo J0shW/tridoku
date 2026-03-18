@@ -11,6 +11,7 @@ export interface Cell {
   hasError: boolean
   row: number
   col: number
+  direction: 'up' | 'down' // Orientation of the triangle (pointing up or down)
   neighbors: CellId[] // IDs of neighboring cells that share an edge or vertex (for validation) (up to 12 neighbors, 1 along each of the 3 sides of the triangle and 3 at each corner)
   
   // Constraint regions (for validation)
