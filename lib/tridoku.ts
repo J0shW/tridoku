@@ -44,6 +44,18 @@ const INNER_LEFT_EDGE_MAP: Record<number, Set<number>> = {
   8: new Set([7, 8]),
 }
 
+// The big triangle is a macro-grid of side 3. Each macro-row spans 3 micro-rows.
+// Macro-row 0 (rows 0-2): 1 region, macro-row 1 (rows 3-5): 3 regions, macro-row 2 (rows 6-8): 5 regions.
+// Within each macro-row, regions alternate upward/downward triangles of 9 cells each.
+function getBoldedRegion(row: number, nhIndex: number): number {
+  const macroRow = Math.floor(row / 3)
+  const localRow = row % 3
+  const p = Math.floor(nhIndex / 6)
+  const isUpward = nhIndex <= 6 * p + 2 * localRow
+  const j = isUpward ? 2 * p : 2 * p + 1
+  return macroRow * macroRow + j
+}
+
 export function createEmptyBoard(): Board {
   const board: Board = []
 
@@ -86,7 +98,7 @@ export function createEmptyBoard(): Board {
         col,
         direction,
         neighbors: [],
-        boldedRegion: 0,
+        boldedRegion: hidden ? -1 : getBoldedRegion(row, nhIndex),
         isOuterLeftEdge,
         isOuterRightEdge,
         isOuterBottomEdge,
