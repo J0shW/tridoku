@@ -39,12 +39,12 @@ export function NumberPad({ onNumberClick, onClear, disabled }: NumberPadProps) 
         disabled={disabled}
         className={cn(
           "h-14 w-14 rounded-xl transition-all duration-150",
-          "hover:bg-destructive hover:text-destructive-foreground hover:scale-105 hover:border-destructive",
+          "hover:bg-destructive hover:text-white hover:scale-105 hover:border-destructive",
           "active:scale-95"
         )}
         aria-label="Clear cell"
       >
-        <Delete className="h-6 w-6" />
+        <Delete className="size-6 -ml-0.5"/>
       </Button>
     </div>
   )
