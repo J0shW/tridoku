@@ -1,6 +1,6 @@
 "use client"
 
-import { Cell, CellId, TRIDOKU_BOARD } from "@/lib/tridoku"
+import { Cell, CellId, Board, TRIDOKU_BOARD } from "@/lib/tridoku"
 
 const ROW_HEIGHT = Math.sqrt(3)
 const SVG_WIDTH = 18
@@ -12,6 +12,9 @@ const FILL_COLORS: Record<Cell["color"], string> = {
   green: "var(--tridoku-green)",
   white: "var(--tridoku-white)",
 }
+
+const SELECTED_FILL = "rgba(206, 96, 250, 0.315)"
+const SELECTED_STROKE = "rgb(168, 50, 216)"
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
   if (direction === "up") {
@@ -85,13 +88,22 @@ function computeBoldEdges(): Edge[] {
 
 const BOLD_EDGES = computeBoldEdges()
 
+function getTriangleCentroid(row: number, col: number, direction: "up" | "down"): { x: number; y: number } {
+  if (direction === "up") {
+    return { x: col + 1, y: row * ROW_HEIGHT + ROW_HEIGHT * 2 / 3 }
+  } else {
+    return { x: col + 1, y: row * ROW_HEIGHT + ROW_HEIGHT / 3 }
+  }
+}
+
 interface TridokuBoardProps {
-  cells: Cell[]
+  cells: Board
+  selectedCellId: CellId | null
   onCellClick: (cellId: CellId) => void
   isPaused: boolean
 }
 
-export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps) {
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -112,17 +124,44 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
         {TRIDOKU_BOARD.map((row) =>
           row
             .filter((cell) => !cell.hidden)
-            .map((cell) => (
-              <polygon
-                key={cell.id}
-                points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                fill={FILL_COLORS[cell.color]}
-                stroke="#000"
-                strokeWidth={0.01}
-                className="cursor-pointer"
-                onClick={() => onCellClick(cell.id)}
-              />
-            ))
+            .map((cell) => {
+              const gameCell = cells[cell.row]?.[cell.col]
+              const isSelected = cell.id === selectedCellId
+              const centroid = getTriangleCentroid(cell.row, cell.col, cell.direction)
+              return (
+                <g key={cell.id} className="cursor-pointer" onClick={() => onCellClick(cell.id)}>
+                  <polygon
+                    points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                    fill={FILL_COLORS[cell.color]}
+                    stroke="#000"
+                    strokeWidth={0.01}
+                  />
+                  {isSelected && (
+                    <polygon
+                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                      fill={SELECTED_FILL}
+                      stroke={SELECTED_STROKE}
+                      strokeWidth={0.08}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
+                  {gameCell?.value != null && (
+                    <text
+                      x={centroid.x}
+                      y={centroid.y}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={0.85}
+                      fontWeight={gameCell.isGiven ? "bold" : "normal"}
+                      fill="#000"
+                      style={{ pointerEvents: "none", userSelect: "none" }}
+                    >
+                      {gameCell.value}
+                    </text>
+                  )}
+                </g>
+              )
+            })
         )}
         {BOLD_EDGES.map((edge, i) => (
           <line

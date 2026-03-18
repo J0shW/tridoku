@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from "react"
 import { 
   Cell, 
-  TridokuPuzzle,
+  CellId,
+  TRIDOKU_BOARD,
   getPuzzleNumber
 } from "@/lib/tridoku"
 
@@ -17,9 +18,8 @@ export interface GameStats {
 }
 
 interface GameState {
-  cells: Cell[]
-  solution: number[]
-  selectedCell: number | null
+  cells: Cell[][]
+  selectedCellId: CellId | null
   isComplete: boolean
   isPaused: boolean
   elapsedTime: number
@@ -66,7 +66,14 @@ function getTodayString(): string {
 }
 
 export function useTridoku() {
-  const [gameState, setGameState] = useState<GameState | null>(null)
+  const [gameState, setGameState] = useState<GameState>({
+    cells: TRIDOKU_BOARD,
+    selectedCellId: null,
+    isComplete: false,
+    isPaused: false,
+    elapsedTime: 0,
+    showErrors: false,
+  })
   const [stats, setStats] = useState<GameStats>({
     gamesPlayed: 0,
     gamesWon: 0,
@@ -81,64 +88,110 @@ export function useTridoku() {
   useEffect(() => {
     const loadedStats = getStoredStats()
     setStats(loadedStats)
-  }, [])
-
-  // Initialize or load game
-  useEffect(() => {
-    try {
-      // TRY LOAD GAME
-      setIsLoading(false)
-    } catch (error) {
-      console.error("[v0] Error initializing game:", error)
-      setIsLoading(false)
-    }
+    setIsLoading(false)
   }, [])
 
   // Timer
   useEffect(() => {
-    if (!gameState || gameState.isComplete || gameState.isPaused) return
+    if (gameState.isComplete || gameState.isPaused) return
 
     const interval = setInterval(() => {
-      setGameState(prev => {
-        if (!prev) return prev
-        return { ...prev, elapsedTime: prev.elapsedTime + 1 }
-      })
+      setGameState(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }))
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [gameState?.isComplete, gameState?.isPaused])
+  }, [gameState.isComplete, gameState.isPaused])
+
+  // Select a cell by CellId
+  const selectCell = useCallback((cellId: CellId | null) => {
+    setGameState(prev => ({ ...prev, selectedCellId: cellId }))
+  }, [])
+
+  // Set value on the selected cell
+  const setValue = useCallback((value: number) => {
+    setGameState(prev => {
+      if (!prev.selectedCellId) return prev
+      const [rowStr, colStr] = prev.selectedCellId.split("-")
+      const row = parseInt(rowStr)
+      const col = parseInt(colStr)
+      const cell = prev.cells[row][col]
+      if (cell.hidden || cell.isGiven) return prev
+
+      const newCells = prev.cells.map((r, ri) =>
+        ri === row
+          ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
+          : r
+      )
+      return { ...prev, cells: newCells }
+    })
+  }, [])
+
+  // Clear the selected cell
+  const clearCell = useCallback(() => {
+    setGameState(prev => {
+      if (!prev.selectedCellId) return prev
+      const [rowStr, colStr] = prev.selectedCellId.split("-")
+      const row = parseInt(rowStr)
+      const col = parseInt(colStr)
+      const cell = prev.cells[row][col]
+      if (cell.hidden || cell.isGiven) return prev
+
+      const newCells = prev.cells.map((r, ri) =>
+        ri === row
+          ? r.map((c, ci) => (ci === col ? { ...c, value: null } : c))
+          : r
+      )
+      return { ...prev, cells: newCells }
+    })
+  }, [])
+
+  // Toggle error highlighting
+  const toggleErrors = useCallback(() => {
+    setGameState(prev => ({ ...prev, showErrors: !prev.showErrors }))
+  }, [])
 
   // Toggle pause
   const togglePause = useCallback(() => {
-    setGameState(prev => {
-      if (!prev) return prev
-      return { ...prev, isPaused: !prev.isPaused }
-    })
+    setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }))
+  }, [])
+
+  // Reset puzzle
+  const resetPuzzle = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      cells: TRIDOKU_BOARD,
+      selectedCellId: null,
+      isComplete: false,
+      elapsedTime: 0,
+      showErrors: false,
+    }))
   }, [])
 
   // Generate share text
   const getShareText = useCallback(() => {
-    if (!gameState?.isComplete) return ""
+    if (!gameState.isComplete) return ""
     
     const puzzleNum = getPuzzleNumber()
     const time = formatTime(gameState.elapsedTime)
     
     return `Daily Tridoku #${puzzleNum}\n⏱️ ${time}\n🔥 Streak: ${stats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
-  }, [gameState?.isComplete, gameState?.elapsedTime, stats.currentStreak])
-
-  console.log("[v0] useTridoku state:", { isLoading, hasGameState: !!gameState, cellCount: gameState?.cells.length })
+  }, [gameState.isComplete, gameState.elapsedTime, stats.currentStreak])
 
   return {
-    cells: gameState?.cells ?? [],
-    solution: gameState?.solution ?? [],
-    selectedCell: gameState?.selectedCell ?? null,
-    isComplete: gameState?.isComplete ?? false,
-    isPaused: gameState?.isPaused ?? false,
-    elapsedTime: gameState?.elapsedTime ?? 0,
-    showErrors: gameState?.showErrors ?? false,
+    cells: gameState.cells,
+    selectedCellId: gameState.selectedCellId,
+    isComplete: gameState.isComplete,
+    isPaused: gameState.isPaused,
+    elapsedTime: gameState.elapsedTime,
+    showErrors: gameState.showErrors,
     stats,
     isLoading,
+    selectCell,
+    setValue,
+    clearCell,
+    toggleErrors,
     togglePause,
+    resetPuzzle,
     getShareText,
   }
 }

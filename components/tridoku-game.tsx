@@ -17,7 +17,7 @@ import { Spinner } from "@/components/ui/spinner"
 export function TridokuGame() {
   const {
     cells,
-    selectedCell,
+    selectedCellId,
     isComplete,
     isPaused,
     elapsedTime,
@@ -142,6 +142,7 @@ export function TridokuGame() {
           <div className="w-full max-w-md">
             <TridokuBoard
               cells={cells}
+              selectedCellId={selectedCellId}
               onCellClick={selectCell}
               isPaused={isPaused}
             />
@@ -153,7 +154,7 @@ export function TridokuGame() {
           <NumberPad
             onNumberClick={setValue}
             onClear={clearCell}
-            disabled={isPaused || isComplete || selectedCell === null}
+            disabled={isPaused || isComplete || selectedCellId === null}
           />
         </div>
 
