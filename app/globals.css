@@ -48,10 +48,10 @@
   --region-inner: oklch(0.92 0.05 250);
   
   /* Tridoku cell colors */
-  --tridoku-white: oklch(1 0 0);
-  --tridoku-inner: oklch(0.85 0.15 45);
-  --tridoku-intersection: oklch(0.7 0.2 40);
-  --tridoku-outer: oklch(0.55 0.22 35);
+  --tridoku-yellow: #FDE68A;
+  --tridoku-blue: #93C5FD;
+  --tridoku-green: #86EFAC;
+  --tridoku-white: #FFFFFF;
 }
 
 .dark {
