@@ -199,11 +199,15 @@ export function validateBoard(board: Board): Board {
     }
   }
 
-  // 2. Outer edges: no duplicate values within the same edge
-  const edgeGroups: { key: 'isOuterLeftEdge' | 'isOuterRightEdge' | 'isOuterBottomEdge' }[] = [
+  // 2. Edges: no duplicate values within the same outer or inner edge
+  type EdgeKey = 'isOuterLeftEdge' | 'isOuterRightEdge' | 'isOuterBottomEdge' | 'isInnerLeftEdge' | 'isInnerRightEdge' | 'isInnerTopEdge'
+  const edgeGroups: { key: EdgeKey }[] = [
     { key: 'isOuterLeftEdge' },
     { key: 'isOuterRightEdge' },
     { key: 'isOuterBottomEdge' },
+    { key: 'isInnerLeftEdge' },
+    { key: 'isInnerRightEdge' },
+    { key: 'isInnerTopEdge' },
   ]
   for (const { key } of edgeGroups) {
     const byValue = new Map<number, CellId[]>()
