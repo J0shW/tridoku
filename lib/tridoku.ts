@@ -225,6 +225,28 @@ export function validateBoard(board: Board): Board {
     }
   }
 
+  // 3. Bolded regions: no duplicate values within the same region
+  const regionCells = new Map<number, { value: number; id: CellId }[]>()
+  for (const row of board) {
+    for (const cell of row) {
+      if (cell.hidden || cell.value == null) continue
+      if (!regionCells.has(cell.boldedRegion)) regionCells.set(cell.boldedRegion, [])
+      regionCells.get(cell.boldedRegion)!.push({ value: cell.value, id: cell.id })
+    }
+  }
+  for (const cells of regionCells.values()) {
+    const byValue = new Map<number, CellId[]>()
+    for (const { value, id } of cells) {
+      if (!byValue.has(value)) byValue.set(value, [])
+      byValue.get(value)!.push(id)
+    }
+    for (const ids of byValue.values()) {
+      if (ids.length > 1) {
+        for (const id of ids) errorIds.add(id)
+      }
+    }
+  }
+
   // Update hasError on all non-hidden cells
   return board.map(row =>
     row.map(cell =>
