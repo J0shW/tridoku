@@ -10,7 +10,7 @@ import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
 import { Button } from "@/components/ui/button"
-import { getPuzzleNumber } from "@/lib/tridoku"
+import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 
@@ -68,7 +68,16 @@ export function TridokuGame() {
       selectCell(null)
       return
     }
-  }, [isComplete, isPaused, setValue, clearCell, selectCell])
+
+    // Arrow keys to move selection
+    if (selectedCellId && (key === "ArrowUp" || key === "ArrowDown" || key === "ArrowLeft" || key === "ArrowRight")) {
+      e.preventDefault()
+      const dir = key === "ArrowUp" ? "up" : key === "ArrowDown" ? "down" : key === "ArrowLeft" ? "left" : "right"
+      const target = getArrowTarget(TRIDOKU_BOARD, selectedCellId, dir)
+      if (target) selectCell(target)
+      return
+    }
+  }, [isComplete, isPaused, setValue, clearCell, selectCell, selectedCellId])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)

@@ -276,6 +276,46 @@ export function getPuzzleNumber(): number {
   return diffDays
 }
 
+// Arrow key navigation: returns the CellId to move to, or null if at edge.
+export function getArrowTarget(
+  board: Board,
+  currentId: CellId,
+  direction: 'up' | 'down' | 'left' | 'right'
+): CellId | null {
+  const [row, col] = currentId.split('-').map(Number)
+
+  if (direction === 'left') {
+    // Move to prev non-hidden cell in same row
+    for (let c = col - 1; c >= 0; c--) {
+      if (!board[row][c].hidden) return board[row][c].id
+    }
+    return null
+  }
+  if (direction === 'right') {
+    // Move to next non-hidden cell in same row
+    for (let c = col + 1; c < 17; c++) {
+      if (!board[row][c].hidden) return board[row][c].id
+    }
+    return null
+  }
+
+  // Up/Down: go to adjacent row, pick the non-hidden cell with closest column
+  const targetRow = direction === 'up' ? row - 1 : row + 1
+  if (targetRow < 0 || targetRow >= 9) return null
+
+  let best: Cell | null = null
+  let bestDist = Infinity
+  for (const cell of board[targetRow]) {
+    if (cell.hidden) continue
+    const dist = Math.abs(cell.col - col)
+    if (dist < bestDist) {
+      bestDist = dist
+      best = cell
+    }
+  }
+  return best?.id ?? null
+}
+
 // Format time in mm:ss
 export function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
