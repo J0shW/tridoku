@@ -117,6 +117,36 @@ export function createEmptyBoard(): Board {
 
 export const TRIDOKU_BOARD: Board = createEmptyBoard()
 
+// A puzzle is a string of 81 characters, one per non-hidden cell (row-major, left to right).
+// '1'-'9' = given value, '0' = empty.
+export function loadPuzzle(data: string): Board {
+  const board = createEmptyBoard()
+  let i = 0
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      if (board[row][col].hidden) continue
+      const ch = data[i++]
+      const val = parseInt(ch)
+      if (val >= 1 && val <= 9) {
+        board[row][col] = { ...board[row][col], value: val, isGiven: true }
+      }
+    }
+  }
+  return board
+}
+
+// Example puzzle from the reference image
+export const EXAMPLE_PUZZLE =
+  '6' +           // row 0
+  '004' +         // row 1
+  '02080' +       // row 2
+  '0037201' +     // row 3
+  '010000500' +   // row 4
+  '00200008030' + // row 5
+  '6000503007008' + // row 6
+  '050370010065040' + // row 7
+  '10400600460504003'  // row 8
+
 // Get puzzle number based on days since launch
 export function getPuzzleNumber(): number {
   const launchDate = new Date('2026-01-01')
