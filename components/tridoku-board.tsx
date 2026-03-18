@@ -47,7 +47,7 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
     <div className="w-full">
       <svg
         viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-        className="w-full h-auto"
+        className="w-full h-auto p-2"
       >
         {TRIDOKU_BOARD.map((row) =>
           row
@@ -58,7 +58,7 @@ export function TridokuBoard({ cells, onCellClick, isPaused }: TridokuBoardProps
                 points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                 fill={FILL_COLORS[cell.color]}
                 stroke="#000"
-                strokeWidth={0.04}
+                strokeWidth={0.01}
                 className="cursor-pointer"
                 onClick={() => onCellClick(cell.id)}
               />
