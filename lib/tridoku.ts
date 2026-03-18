@@ -179,11 +179,12 @@ export function loadPuzzle(data: string): Board {
   return board
 }
 
-// Validate adjacency: mark cells as errors if any neighbor has the same value.
+// Validate adjacency and edge constraints.
 // Returns a new board with hasError updated on all cells.
 export function validateBoard(board: Board): Board {
-  // First pass: determine which cells have adjacency conflicts
   const errorIds = new Set<CellId>()
+
+  // 1. Adjacency: no two neighboring cells may share the same value
   for (const row of board) {
     for (const cell of row) {
       if (cell.hidden || cell.value == null) continue
@@ -197,7 +198,30 @@ export function validateBoard(board: Board): Board {
       }
     }
   }
-  // Second pass: update hasError on all non-hidden cells
+
+  // 2. Outer edges: no duplicate values within the same edge
+  const edgeGroups: { key: 'isOuterLeftEdge' | 'isOuterRightEdge' | 'isOuterBottomEdge' }[] = [
+    { key: 'isOuterLeftEdge' },
+    { key: 'isOuterRightEdge' },
+    { key: 'isOuterBottomEdge' },
+  ]
+  for (const { key } of edgeGroups) {
+    const byValue = new Map<number, CellId[]>()
+    for (const row of board) {
+      for (const cell of row) {
+        if (cell.hidden || !cell[key] || cell.value == null) continue
+        if (!byValue.has(cell.value)) byValue.set(cell.value, [])
+        byValue.get(cell.value)!.push(cell.id)
+      }
+    }
+    for (const ids of byValue.values()) {
+      if (ids.length > 1) {
+        for (const id of ids) errorIds.add(id)
+      }
+    }
+  }
+
+  // Update hasError on all non-hidden cells
   return board.map(row =>
     row.map(cell =>
       cell.hidden ? cell : { ...cell, hasError: errorIds.has(cell.id) }
