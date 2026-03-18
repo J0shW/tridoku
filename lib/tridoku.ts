@@ -34,6 +34,77 @@ export interface TridokuPuzzle {
   solution: number[]
 }
 
+export type Board = Cell[][]
+
+// Inner left edge lookup: row -> set of non-hidden indices that have isInnerLeftEdge
+const INNER_LEFT_EDGE_MAP: Record<number, Set<number>> = {
+  5: new Set([1, 2]),
+  6: new Set([3, 4]),
+  7: new Set([5, 6]),
+  8: new Set([7, 8]),
+}
+
+export function createEmptyBoard(): Board {
+  const board: Board = []
+
+  for (let row = 0; row < 9; row++) {
+    const cells: Cell[] = []
+    const firstNonHidden = 8 - row
+    const lastNonHidden = 8 + row
+
+    for (let col = 0; col < 17; col++) {
+      const hidden = col < firstNonHidden || col > lastNonHidden
+      const nhIndex = col - firstNonHidden // offset among non-hidden cells
+      const direction: 'up' | 'down' = hidden ? 'up' : (nhIndex % 2 === 0 ? 'up' : 'down')
+
+      // Edge booleans (only meaningful for non-hidden cells)
+      const isOuterLeftEdge = !hidden && nhIndex === 0
+      const isOuterRightEdge = !hidden && nhIndex === 2 * row
+      const isOuterBottomEdge = !hidden && row === 8 && direction === 'up'
+      const isInnerTopEdge = !hidden && row === 4
+      const isInnerLeftEdge = !hidden && (INNER_LEFT_EDGE_MAP[row]?.has(nhIndex) ?? false)
+      const isInnerRightEdge = !hidden && row >= 5 && (nhIndex === 8 || nhIndex === 9)
+
+      // Color derivation
+      const hasOuter = isOuterLeftEdge || isOuterRightEdge || isOuterBottomEdge
+      const hasInner = isInnerLeftEdge || isInnerRightEdge || isInnerTopEdge
+      let color: Cell['color'] = 'white'
+      if (!hidden) {
+        if (hasOuter && hasInner) color = 'green'
+        else if (hasOuter) color = 'yellow'
+        else if (hasInner) color = 'blue'
+      }
+
+      cells.push({
+        id: `${row}-${col}`,
+        hidden,
+        value: null,
+        isGiven: false,
+        isSelected: false,
+        hasError: false,
+        row,
+        col,
+        direction,
+        neighbors: [],
+        boldedRegion: 0,
+        isOuterLeftEdge,
+        isOuterRightEdge,
+        isOuterBottomEdge,
+        isInnerLeftEdge,
+        isInnerRightEdge,
+        isInnerTopEdge,
+        color,
+      })
+    }
+
+    board.push(cells)
+  }
+
+  return board
+}
+
+export const TRIDOKU_BOARD: Board = createEmptyBoard()
+
 // Get puzzle number based on days since launch
 export function getPuzzleNumber(): number {
   const launchDate = new Date('2026-01-01')
