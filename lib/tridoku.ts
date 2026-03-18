@@ -5,6 +5,7 @@ export type CellId = string // Format: "row-col" (e.g. "0-0", "1-2")
 
 export interface Cell {
   id: CellId
+  hidden: boolean; // some cells are hidden to create the triangular shape, these cannot be filled in by the player and are not part of the solution
   value: number | null
   isGiven: boolean // Means the cell is pre-filled and cannot be changed by the player
   isSelected: boolean
@@ -16,12 +17,16 @@ export interface Cell {
   
   // Constraint regions (for validation)
   boldedRegion: number  // 0-8 (one of 9 bolded regions with 1-9 each)
-  outerEdge: number | null  // 0=left side, 1=right side, 2=bottom side, null=not in any outer yellow edge
-  innerEdge: number | null  // 0=top inner, 1=bottom-left inner, 2=bottom-right inner, null=not in any inner blue edge
+  isOuterLeftEdge: boolean // cells on the left edge of the triangle
+  isOuterRightEdge: boolean
+  isOuterBottomEdge: boolean
+  isInnerLeftEdge: boolean
+  isInnerRightEdge: boolean
+  isInnerTopEdge: boolean
   
   // Visual display (derived from constraint membership)
   // yellow = outer edge, blue = inner edge, green = outer and inner edge, white = none
-  colorCategory: 'yellow' | 'blue' | 'green' | 'white'
+  color: 'yellow' | 'blue' | 'green' | 'white'
 }
 
 export interface TridokuPuzzle {
