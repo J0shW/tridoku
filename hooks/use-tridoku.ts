@@ -242,12 +242,12 @@ export function useTridoku() {
   }, [gameState.isComplete, gameState.elapsedTime, stats.currentStreak])
 
   // Load a puzzle (fetches from pre-generated puzzles)
-  const generateNewPuzzle = useCallback(async (difficulty?: Difficulty, customDate?: Date) => {
+  const generateNewPuzzle = useCallback(async (difficulty: Difficulty = 'medium', customDate?: Date) => {
     setIsGenerating(true)
     
     try {
       // Fetch the daily puzzle from pre-generated puzzles
-      const dailyPuzzle = await getDailyPuzzle(customDate)
+      const dailyPuzzle = await getDailyPuzzle(customDate, difficulty)
       console.log(`[useTridoku] Loaded ${dailyPuzzle.difficulty} puzzle for ${dailyPuzzle.date}`)
       
       const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)

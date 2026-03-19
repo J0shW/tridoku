@@ -118,7 +118,7 @@ export function GameControls({
             <DialogHeader>
               <DialogTitle>Generate New Puzzle</DialogTitle>
               <DialogDescription>
-                Select a difficulty level. Generation may take 5-10 seconds.
+                Select a difficulty level. Generation may take a few seconds.
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col gap-4 py-4">
@@ -127,9 +127,9 @@ export function GameControls({
                 disabled={isGenerating}
               />
               <div className="text-xs text-muted-foreground">
-                <p><strong>Easy:</strong> 40-45 starting numbers</p>
-                <p><strong>Medium:</strong> 30-35 starting numbers</p>
-                <p><strong>Hard:</strong> 22-27 starting numbers</p>
+                <p><strong>Easy:</strong> 60-65 starting numbers</p>
+                <p><strong>Medium:</strong> 50-55 starting numbers</p>
+                <p><strong>Hard:</strong> 40-45 starting numbers</p>
               </div>
             </div>
           </DialogContent>

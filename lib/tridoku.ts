@@ -390,9 +390,9 @@ interface DifficultyConfig {
 }
 
 const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
-  easy: { minGivens: 60, maxGivens: 65 },
-  medium: { minGivens: 50, maxGivens: 55 },
-  hard: { minGivens: 40, maxGivens: 45 }
+  easy: { minGivens: 40, maxGivens: 50 },
+  medium: { minGivens: 30, maxGivens: 40 },
+  hard: { minGivens: 22, maxGivens: 30 }
 }
 
 // Check if placing a value at (row, col) violates any constraints
@@ -444,7 +444,7 @@ function isValidPlacement(board: Board, row: number, col: number, value: number)
 export function countSolutions(board: Board, limit: number = 2): number {
   let count = 0
   let iterations = 0
-  const MAX_ITERATIONS = 10000 // Reduced for faster timeout
+  const MAX_ITERATIONS = 1000000 // Very high limit for offline generation
 
   function backtrack(): void {
     if (count >= limit) return // Early exit
@@ -536,59 +536,115 @@ export function solvePuzzle(board: Board): Board | null {
 
 // Generate a complete valid solution using randomized backtracking
 export function generateCompleteSolution(seed?: number): Board {
-  console.log('[Generator] Starting complete solution generation...')
+  console.log('[Generator] Starting complete solution generation with backtracking...')
   const startTime = Date.now()
   
-  // Use template-based generation for reliability
-  const board = generateFromTemplate(seed)
+  let attemptNumber = 0
+  const MAX_ATTEMPTS = 10
+  const ITERATIONS_PER_ATTEMPT = 100000
   
-  const duration = Date.now() - startTime
-  console.log(`[Generator] Complete solution generated in ${duration}ms using template permutation`)
-  return board
-}
-
-// Generate a valid solution by starting with a known valid pattern and permuting it
-function generateFromTemplate(seed?: number): Board {
-  const rng = seed !== undefined ? createSeededRandom(seed) : null
-  
-  // Start with a known valid complete solution
-  // This is a solved version (filled completely)
-  const template =
-    '6' +           // row 0
-    '134' +         // row 1
-    '72589' +       // row 2
-    '5438721' +     // row 3
-    '371926452' +   // row 4
-    '49862517863' + // row 5
-    '9621598341728' + // row 6
-    '275374219865467' + // row 7
-    '81346897634529135'  // row 8
-  
-  const board = loadPuzzle(template)
-  
-  // Apply number permutation for variety
-  if (rng) {
-    const permutation = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    // Shuffle using Fisher-Yates
-    for (let i = permutation.length - 1; i > 0; i--) {
-      const j = Math.floor(rng.next() * (i + 1))
-      ;[permutation[i], permutation[j]] = [permutation[j], permutation[i]]
+  while (attemptNumber < MAX_ATTEMPTS) {
+    // Use a different seed for each attempt
+    const attemptSeed = seed !== undefined ? seed + attemptNumber * Math.floor(Math.random() * 999999) : undefined
+    const rng = attemptSeed !== undefined ? createSeededRandom(attemptSeed) : null
+    
+    if (attemptNumber > 0) {
+      console.log(`[Generator] Retry ${attemptNumber + 1} with modified seed...`)
     }
     
-    console.log(`[Generator] Applying permutation: ${permutation.join(',')}`)
+    const board = createEmptyBoard()
+    let iterations = 0
     
-    // Apply permutation to all cells
-    for (const row of board) {
-      for (const cell of row) {
-        if (!cell.hidden && cell.value !== null) {
-          cell.value = permutation[cell.value - 1]
-          cell.isGiven = false // Reset given status
+    // Start by placing values strategically in first region to create a foundation
+    // Region 0 is the top triangle (row 0-2)
+    const startValues = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    if (rng) {
+      for (let i = startValues.length - 1; i > 0; i--) {
+        const j = Math.floor(rng.next() * (i + 1))
+        ;[startValues[i], startValues[j]] = [startValues[j], startValues[i]]
+      }
+    }
+    
+    // Place initial values in region 0
+    let valueIndex = 0
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 17; col++) {
+        const cell = board[row][col]
+        if (!cell.hidden && cell.boldedRegion === 0) {
+          cell.value = startValues[valueIndex++]
         }
       }
     }
+    
+    function backtrackFill(): boolean {
+      iterations++
+      
+      // Abort this attempt if we've exceeded iterations for this try
+      if (iterations > ITERATIONS_PER_ATTEMPT) {
+        return false
+      }
+      
+      // Find next empty cell using MRV heuristic
+      let minCell: { row: number; col: number; candidates: number[] } | null = null
+      
+      for (let row = 0; row < 9; row++) {
+        for (let col = 0; col < 17; col++) {
+          const cell = board[row][col]
+          if (cell.hidden || cell.value !== null) continue
+
+          const candidates: number[] = []
+          for (let val = 1; val <= 9; val++) {
+            if (isValidPlacement(board, row, col, val)) {
+              candidates.push(val)
+            }
+          }
+
+          if (candidates.length === 0) return false
+          
+          if (!minCell || candidates.length < minCell.candidates.length) {
+            minCell = { row, col, candidates }
+          }
+        }
+      }
+
+      // No empty cell found - solution complete
+      if (!minCell) {
+        return true
+      }
+
+      // Shuffle candidates for randomization
+      const candidates = [...minCell.candidates]
+      if (rng) {
+        for (let i = candidates.length - 1; i > 0; i--) {
+          const j = Math.floor(rng.next() * (i + 1))
+          ;[candidates[i], candidates[j]] = [candidates[j], candidates[i]]
+        }
+      }
+
+      // Try each candidate
+      for (const val of candidates) {
+        board[minCell.row][minCell.col].value = val
+        if (backtrackFill()) return true
+        board[minCell.row][minCell.col].value = null
+      }
+
+      return false
+    }
+
+    const success = backtrackFill()
+    
+    if (success) {
+      const duration = Date.now() - startTime
+      console.log(`[Generator] Complete solution generated in ${duration}ms (attempt ${attemptNumber + 1}, ${iterations} iterations)`)
+      return board
+    }
+    
+    // Move to next attempt
+    attemptNumber++
   }
   
-  return board
+  // All attempts failed
+  throw new Error('Failed to generate complete solution after ' + MAX_ATTEMPTS + ' attempts')
 }
 
 // Remove cells while maintaining unique solution
@@ -600,75 +656,76 @@ function removeCellsWithUniqueness(
   console.log(`[Generator] Starting cell removal (target: ${targetGivens} givens)...`)
   const rng = seed !== undefined ? createSeededRandom(seed + 1000) : null
   const startTime = Date.now()
-  const MAX_TIME = 3000 // Maximum 3 seconds for cell removal
 
-  // Get all non-hidden cell positions
-  const positions: { row: number; col: number }[] = []
-  for (let row = 0; row < 9; row++) {
-    for (let col = 0; col < 17; col++) {
-      if (!board[row][col].hidden) {
-        positions.push({ row, col })
+  let currentGivens = 81 // Start with all 81 cells filled
+  let totalAttempts = 0
+  let totalRemovals = 0
+  let passNumber = 0
+  
+  // Keep trying passes until we reach target or make no progress
+  while (currentGivens > targetGivens) {
+    passNumber++
+    
+    // Get all non-hidden cells with values
+    const positions: { row: number; col: number }[] = []
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 17; col++) {
+        if (!board[row][col].hidden && board[row][col].value !== null) {
+          positions.push({ row, col })
+        }
       }
     }
-  }
 
-  // Shuffle positions using Fisher-Yates
-  for (let i = positions.length - 1; i > 0; i--) {
-    const rand = rng ? rng.next() : Math.random()
-    const j = Math.floor(rand * (i + 1))
-    ;[positions[i], positions[j]] = [positions[j], positions[i]]
-  }
+    // Shuffle positions for this pass
+    for (let i = positions.length - 1; i > 0; i--) {
+      const rand = rng ? rng.next() : Math.random()
+      const j = Math.floor(rand * (i + 1))
+      ;[positions[i], positions[j]] = [positions[j], positions[i]]
+    }
 
-  let currentGivens = positions.length // Start with all 81 cells filled
-  let attempts = 0
-  let successfulRemovals = 0
-  const MAX_ATTEMPTS = 30 // Reduced from 100 for faster generation
+    let removalThisPass = 0
 
-  // Try removing cells one by one
-  for (const { row, col } of positions) {
-    // Check time limit
-    if (Date.now() - startTime > MAX_TIME) {
-      console.log(`[Generator] Time limit reached after ${attempts} attempts, ${successfulRemovals} successful removals`)
+    for (const { row, col } of positions) {
+      if (currentGivens <= targetGivens) break
+      totalAttempts++
+
+      if (totalAttempts % 100 === 0) {
+        console.log(`[Generator] Pass ${passNumber}, attempt ${totalAttempts}: ${currentGivens} givens`)
+      }
+
+      const cell = board[row][col]
+      const originalValue = cell.value
+
+      cell.value = null
+
+      const solutions = countSolutions(board, 2)
+
+      if (solutions === 1) {
+        currentGivens--
+        totalRemovals++
+        removalThisPass++
+      } else {
+        cell.value = originalValue
+      }
+    }
+    
+    console.log(`[Generator] Pass ${passNumber}: ${removalThisPass} cells removed, ${currentGivens} givens remaining`)
+    
+    // If we made no progress this pass, we're done
+    if (removalThisPass === 0) {
+      console.log(`[Generator] No more cells can be removed while maintaining uniqueness`)
       break
     }
     
-    if (currentGivens <= targetGivens) break
-    if (attempts++ > MAX_ATTEMPTS) {
-      console.log(`[Generator] Max attempts (${MAX_ATTEMPTS}) reached, stopping`)
+    // Safety check: if we've done too many passes, stop
+    if (passNumber >= 10) {
+      console.log(`[Generator] Maximum passes reached`)
       break
-    }
-
-    if (attempts % 5 === 0) {
-      console.log(`[Generator] Attempt ${attempts}: ${currentGivens} givens, ${successfulRemovals} removed`)
-    }
-
-    const cell = board[row][col]
-    const originalValue = cell.value
-
-    // Temporarily remove the cell
-    cell.value = null
-
-    // Check if puzzle still has unique solution
-    const checkStart = Date.now()
-    const solutions = countSolutions(board, 2)
-    const checkDuration = Date.now() - checkStart
-    
-    if (checkDuration > 500) {
-      console.log(`[Generator] Slow uniqueness check: ${checkDuration}ms`)
-    }
-
-    if (solutions === 1) {
-      // Keep the removal
-      currentGivens--
-      successfulRemovals++
-    } else {
-      // Restore the value
-      cell.value = originalValue
     }
   }
   
   const totalDuration = Date.now() - startTime
-  console.log(`[Generator] Cell removal complete in ${totalDuration}ms: ${currentGivens} givens (${successfulRemovals} removed)`)
+  console.log(`[Generator] Cell removal complete in ${totalDuration}ms: ${currentGivens} givens (${totalRemovals} removed)`)
 
   // Mark remaining filled cells as givens
   for (let row = 0; row < 9; row++) {

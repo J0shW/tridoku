@@ -1,5 +1,7 @@
 // Puzzle fetch service - loads pre-generated puzzles from JSON files
 
+export type Difficulty = 'easy' | 'medium' | 'hard'
+
 export interface DailyPuzzle {
   date: string
   difficulty: string
@@ -13,8 +15,14 @@ export interface DailyPuzzle {
   }
 }
 
+interface DailyPuzzleSet {
+  easy: DailyPuzzle
+  medium: DailyPuzzle
+  hard: DailyPuzzle
+}
+
 interface PuzzleCache {
-  [date: string]: DailyPuzzle
+  [date: string]: DailyPuzzleSet
 }
 
 let puzzleCache: PuzzleCache | null = null
@@ -31,10 +39,10 @@ async function fetchPuzzlesForYear(year: number): Promise<PuzzleCache> {
 }
 
 /**
- * Get the puzzle for a specific date
+ * Get the puzzle for a specific date and difficulty
  * Fetches and caches the year's puzzles on first call
  */
-export async function getDailyPuzzle(date?: Date): Promise<DailyPuzzle> {
+export async function getDailyPuzzle(date?: Date, difficulty: Difficulty = 'medium'): Promise<DailyPuzzle> {
   const targetDate = date || new Date()
   const year = targetDate.getFullYear()
   const month = String(targetDate.getMonth() + 1).padStart(2, '0')
@@ -45,17 +53,17 @@ export async function getDailyPuzzle(date?: Date): Promise<DailyPuzzle> {
   if (!puzzleCache) {
     console.log(`[PuzzleService] Fetching puzzles for ${year}...`)
     puzzleCache = await fetchPuzzlesForYear(year)
-    console.log(`[PuzzleService] Loaded ${Object.keys(puzzleCache).length} puzzles`)
+    console.log(`[PuzzleService] Loaded ${Object.keys(puzzleCache).length} puzzle sets`)
   }
 
-  const puzzle = puzzleCache[dateStr]
+  const puzzleSet = puzzleCache[dateStr]
   
-  if (!puzzle) {
+  if (!puzzleSet || !puzzleSet[difficulty]) {
     // Fallback to a default puzzle if date not found
-    console.warn(`[PuzzleService] No puzzle found for ${dateStr}, using fallback`)
+    console.warn(`[PuzzleService] No ${difficulty} puzzle found for ${dateStr}, using fallback`)
     return {
       date: dateStr,
-      difficulty: 'medium',
+      difficulty,
       seed: parseInt(dateStr.replace(/-/g, '')),
       puzzle: '6004020800030721001000050000020008030600500300708005370010065400010400060040200030',
       metadata: {
@@ -65,7 +73,7 @@ export async function getDailyPuzzle(date?: Date): Promise<DailyPuzzle> {
     }
   }
 
-  return puzzle
+  return puzzleSet[difficulty]
 }
 
 /**
