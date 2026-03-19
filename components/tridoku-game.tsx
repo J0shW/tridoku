@@ -299,6 +299,7 @@ export function TridokuGame() {
                   selectedCellId={selectedCellId}
                   onCellClick={selectCell}
                   isPaused={isPaused}
+                  difficulty={difficulty}
                 />
               </div>
             </div>

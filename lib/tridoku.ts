@@ -26,7 +26,7 @@ export interface Cell {
   
   // Visual display (derived from constraint membership)
   // yellow = outer edge, blue = inner edge, green = outer and inner edge, white = none
-  color: 'yellow' | 'blue' | 'green' | 'white'
+  color: 'outer' | 'inner' | 'overlap' | 'none'
 }
 
 export interface TridokuPuzzle {
@@ -84,11 +84,11 @@ export function createEmptyBoard(): Board {
       // Color derivation
       const hasOuter = isOuterLeftEdge || isOuterRightEdge || isOuterBottomEdge
       const hasInner = isInnerLeftEdge || isInnerRightEdge || isInnerTopEdge
-      let color: Cell['color'] = 'white'
+      let color: Cell['color'] = 'none'
       if (!hidden) {
-        if (hasOuter && hasInner) color = 'green'
-        else if (hasOuter) color = 'yellow'
-        else if (hasInner) color = 'blue'
+        if (hasOuter && hasInner) color = 'overlap'
+        else if (hasOuter) color = 'outer'
+        else if (hasInner) color = 'inner'
       }
 
       cells.push({

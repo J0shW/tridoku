@@ -1,21 +1,49 @@
 "use client"
 
-import { Cell, CellId, Board, TRIDOKU_BOARD } from "@/lib/tridoku"
+import { Cell, CellId, Board, TRIDOKU_BOARD, Difficulty } from "@/lib/tridoku"
 
 const ROW_HEIGHT = Math.sqrt(3)
 const SVG_WIDTH = 18
 const SVG_HEIGHT = 9 * ROW_HEIGHT
 
-const FILL_COLORS: Record<Cell["color"], string> = {
-  yellow: "var(--tridoku-yellow)",
-  blue: "var(--tridoku-blue)",
-  green: "var(--tridoku-green)",
-  white: "var(--tridoku-white)",
+const EASY_FILL_COLORS: Record<Cell["color"], string> = {
+  outer: "var(--tridoku-easy-outer)",
+  inner: "var(--tridoku-easy-inner)",
+  overlap: "var(--tridoku-easy-overlap)",
+  none: "var(--tridoku-easy-none)",
+}
+
+const MEDIUM_FILL_COLORS: Record<Cell["color"], string> = {
+  outer: "var(--tridoku-medium-outer)",
+  inner: "var(--tridoku-medium-inner)",
+  overlap: "var(--tridoku-medium-overlap)",
+  none: "var(--tridoku-medium-none)",
+}
+
+const HARD_FILL_COLORS: Record<Cell["color"], string> = {
+  outer: "var(--tridoku-hard-outer)",
+  inner: "var(--tridoku-hard-inner)",
+  overlap: "var(--tridoku-hard-overlap)",
+  none: "var(--tridoku-hard-none)",
 }
 
 const SELECTED_FILL = "rgba(206, 96, 250, 0.315)"
 const SELECTED_STROKE = "rgb(168, 50, 216)"
 const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
+
+function getDifficultyBasedColor(color: Cell["color"], difficulty: Difficulty | null | undefined): string {
+  if (!difficulty) return "var(--tridoku-easy-none)" // default to easy colors if difficulty is not provided
+  switch (difficulty) {
+    case "easy":
+      return EASY_FILL_COLORS[color]
+    case "medium":
+      return MEDIUM_FILL_COLORS[color]
+    case "hard":
+      return HARD_FILL_COLORS[color]
+    default:
+      return "var(--tridoku-easy-none)"
+  }
+}
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
   if (direction === "up") {
@@ -102,9 +130,10 @@ interface TridokuBoardProps {
   selectedCellId: CellId | null
   onCellClick: (cellId: CellId) => void
   isPaused: boolean
+  difficulty?: Difficulty | null
 }
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused }: TridokuBoardProps) {
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -133,7 +162,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused }: T
                 <g key={cell.id} className="cursor-pointer" onClick={() => onCellClick(cell.id)}>
                   <polygon
                     points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                    fill={FILL_COLORS[cell.color]}
+                    fill={getDifficultyBasedColor(cell.color, difficulty)}
                     stroke="#000"
                     strokeWidth={0.01}
                   />

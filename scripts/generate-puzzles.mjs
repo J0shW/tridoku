@@ -55,11 +55,11 @@ function createEmptyBoard() {
 
       const hasOuter = isOuterLeftEdge || isOuterRightEdge || isOuterBottomEdge
       const hasInner = isInnerLeftEdge || isInnerRightEdge || isInnerTopEdge
-      let color = 'white'
+      let color = 'none'
       if (!hidden) {
-        if (hasOuter && hasInner) color = 'green'
-        else if (hasOuter) color = 'yellow'
-        else if (hasInner) color = 'blue'
+        if (hasOuter && hasInner) color = 'overlap'
+        else if (hasOuter) color = 'outer'
+        else if (hasInner) color = 'inner'
       }
 
       cells.push({

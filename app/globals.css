@@ -47,11 +47,25 @@
   --region-outer: oklch(0.95 0.03 45);
   --region-inner: oklch(0.92 0.05 250);
   
-  /* Tridoku cell colors */
-  --tridoku-yellow: #FDE68A;
-  --tridoku-blue: #93C5FD;
-  --tridoku-green: #86EFAC;
-  --tridoku-white: #FFFFFF;
+  /* Tridoku difficulty colors */
+  /* Easy - Blue, Yellow, Green */
+  --tridoku-easy-outer: #93C5FD;
+  --tridoku-easy-inner: #FDE68A;
+  --tridoku-easy-overlap: #86EFAC;
+  
+  /* Medium - Orange, Pink, Gray */
+  --tridoku-medium-outer: #F3A67E;
+  --tridoku-medium-inner: #F0B3D3;
+  --tridoku-medium-overlap: #E5E3DD;
+  
+  /* Hard - Pink, Blue, White */
+  --tridoku-hard-outer: #EC4899;
+  --tridoku-hard-inner: #7DD3FC;
+  --tridoku-hard-overlap: #FFFFFF;
+
+  --tridoku-easy-none: #FFFFFF;
+  --tridoku-medium-none: #FFFFFF;
+  --tridoku-hard-none: #FFFFFF;
 }
 
 .dark {
@@ -96,6 +110,26 @@
   --cell-correct: oklch(0.35 0.12 160);
   --region-outer: oklch(0.28 0.04 45);
   --region-inner: oklch(0.3 0.05 250);
+  
+  /* Tridoku difficulty colors - slightly muted for dark mode */
+  /* Easy - Blue, Yellow, Green */
+  --tridoku-easy-outer: #a5b3b5;
+  --tridoku-easy-inner: #c4ad77;
+  --tridoku-easy-overlap: #798571;
+  
+  /* Medium - Orange, Pink, Gray */
+  --tridoku-medium-outer: #d4a553;
+  --tridoku-medium-inner: #c7949b;
+  --tridoku-medium-overlap: #bd6a42;
+  
+  /* Hard - Pink, Blue, White */
+  --tridoku-hard-outer: #c65a6e;
+  --tridoku-hard-inner: #84a1a6;
+  --tridoku-hard-overlap: #7e506b;
+
+  --tridoku-easy-none: #FFFFFF;
+  --tridoku-medium-none: #FFFFFF;
+  --tridoku-hard-none: #FFFFFF;
 }
 
 @theme inline {
