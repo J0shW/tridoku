@@ -38,6 +38,7 @@ export type Board = Cell[][]
 
 // Inner left edge lookup: row -> set of non-hidden indices that have isInnerLeftEdge
 const INNER_LEFT_EDGE_MAP: Record<number, Set<number>> = {
+  4: new Set([0]),
   5: new Set([1, 2]),
   6: new Set([3, 4]),
   7: new Set([5, 6]),
@@ -75,7 +76,10 @@ export function createEmptyBoard(): Board {
       const isOuterBottomEdge = !hidden && row === 8 && direction === 'up'
       const isInnerTopEdge = !hidden && row === 4
       const isInnerLeftEdge = !hidden && (INNER_LEFT_EDGE_MAP[row]?.has(nhIndex) ?? false)
-      const isInnerRightEdge = !hidden && row >= 5 && (nhIndex === 8 || nhIndex === 9)
+      const isInnerRightEdge = !hidden && (
+        (row === 4 && nhIndex === 8) ||
+        (row >= 5 && (nhIndex === 8 || nhIndex === 9))
+      )
 
       // Color derivation
       const hasOuter = isOuterLeftEdge || isOuterRightEdge || isOuterBottomEdge
