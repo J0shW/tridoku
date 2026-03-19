@@ -24,6 +24,7 @@ export function TridokuGame() {
     showErrors,
     stats,
     isLoading,
+    isGenerating,
     selectCell,
     setValue,
     clearCell,
@@ -32,6 +33,7 @@ export function TridokuGame() {
     resetPuzzle,
     loadTestSolve,
     getShareText,
+    generateNewPuzzle,
   } = useTridoku()
 
   const [showStats, setShowStats] = useState(false)
@@ -144,7 +146,9 @@ export function TridokuGame() {
             onToggleErrors={toggleErrors}
             onReset={resetPuzzle}
             onTestSolve={loadTestSolve}
+            onGenerateNew={generateNewPuzzle}
             isComplete={isComplete}
+            isGenerating={isGenerating}
           />
         </div>
 

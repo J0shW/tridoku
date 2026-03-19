@@ -9,7 +9,10 @@ import {
   loadPuzzle,
   validateBoard,
   EXAMPLE_PUZZLE,
-  TEST_NEARLY_SOLVED
+  TEST_NEARLY_SOLVED,
+  generatePuzzle,
+  getDailySeed,
+  Difficulty
 } from "@/lib/tridoku"
 
 export interface GameStats {
@@ -87,6 +90,7 @@ export function useTridoku() {
     lastPlayedDate: null,
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [isGenerating, setIsGenerating] = useState(false)
 
   // Load stats on mount (client-side only)
   useEffect(() => {
@@ -192,6 +196,39 @@ export function useTridoku() {
     return `Daily Tridoku #${puzzleNum}\n⏱️ ${time}\n🔥 Streak: ${stats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
   }, [gameState.isComplete, gameState.elapsedTime, stats.currentStreak])
 
+  // Generate a new puzzle
+  const generateNewPuzzle = useCallback(async (difficulty: Difficulty = 'medium', seed?: number) => {
+    setIsGenerating(true)
+    
+    // Run generation in a setTimeout to allow UI to update
+    setTimeout(() => {
+      try {
+        const newPuzzle = generatePuzzle(difficulty, seed)
+        setGameState({
+          cells: newPuzzle,
+          selectedCellId: null,
+          isComplete: false,
+          isPaused: false,
+          elapsedTime: 0,
+          showErrors: false,
+        })
+      } catch (error) {
+        console.error('Failed to generate puzzle:', error)
+        // Fall back to example puzzle on error
+        setGameState(prev => ({
+          ...prev,
+          cells: loadPuzzle(EXAMPLE_PUZZLE),
+          selectedCellId: null,
+          isComplete: false,
+          elapsedTime: 0,
+          showErrors: false,
+        }))
+      } finally {
+        setIsGenerating(false)
+      }
+    }, 100)
+  }, [])
+
   return {
     cells: gameState.cells,
     selectedCellId: gameState.selectedCellId,
@@ -201,6 +238,7 @@ export function useTridoku() {
     showErrors: gameState.showErrors,
     stats,
     isLoading,
+    isGenerating,
     selectCell,
     setValue,
     clearCell,
@@ -209,6 +247,7 @@ export function useTridoku() {
     resetPuzzle,
     loadTestSolve,
     getShareText,
+    generateNewPuzzle,
   }
 }
 

@@ -277,7 +277,18 @@ export const TEST_NEARLY_SOLVED =
   '49862500863' + // row 5
   '9621598341728' + // row 6
   '275374215965467' + // row 7
-  '81346896734829135'  // row 8 (3 empty cells for testing)
+  '81346896734829135'  // row 8
+
+export const IS_THIS_SOLVABLE =
+  '0' +           // row 0
+  '905' +         // row 1
+  '62400' +       // row 2
+  '4075031' +     // row 3
+  '010946050' +   // row 4
+  '05008090600' + // row 5
+  '0800000581300' + // row 6
+  '170650869200800' + // row 7
+  '09608000450621540'  // row 8
 
 // Get puzzle number based on days since launch
 export function getPuzzleNumber(): number {
@@ -333,4 +344,287 @@ export function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
   const secs = seconds % 60
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+}
+
+// ============================================================================
+// PUZZLE GENERATOR
+// ============================================================================
+
+// Seeded random number generator (Mulberry32)
+export function createSeededRandom(seed: number) {
+  let state = seed
+  return {
+    next(): number {
+      state = (state + 0x6D2B79F5) | 0
+      let t = Math.imul(state ^ (state >>> 15), 1 | state)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  }
+}
+
+// Convert date to seed for daily puzzles
+export function getDailySeed(): number {
+  const today = new Date()
+  return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate()
+}
+
+// Difficulty levels for puzzle generation
+export type Difficulty = 'easy' | 'medium' | 'hard'
+
+interface DifficultyConfig {
+  minGivens: number
+  maxGivens: number
+}
+
+const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
+  easy: { minGivens: 40, maxGivens: 45 },
+  medium: { minGivens: 30, maxGivens: 35 },
+  hard: { minGivens: 22, maxGivens: 27 }
+}
+
+// Check if placing a value at (row, col) violates any constraints
+function isValidPlacement(board: Board, row: number, col: number, value: number): boolean {
+  const cell = board[row][col]
+  if (cell.hidden) return false
+
+  // Check adjacency: no neighbors may have the same value
+  for (const nid of cell.neighbors) {
+    const [nr, nc] = nid.split('-').map(Number)
+    const neighbor = board[nr][nc]
+    if (neighbor.value === value) return false
+  }
+
+  // Check edge constraints
+  type EdgeKey = 'isOuterLeftEdge' | 'isOuterRightEdge' | 'isOuterBottomEdge' | 
+                 'isInnerLeftEdge' | 'isInnerRightEdge' | 'isInnerTopEdge'
+  const edgeKeys: EdgeKey[] = [
+    'isOuterLeftEdge', 'isOuterRightEdge', 'isOuterBottomEdge',
+    'isInnerLeftEdge', 'isInnerRightEdge', 'isInnerTopEdge'
+  ]
+  
+  for (const key of edgeKeys) {
+    if (!cell[key]) continue
+    // Check if any other cell on this edge has the same value
+    for (const boardRow of board) {
+      for (const otherCell of boardRow) {
+        if (otherCell.hidden || otherCell.id === cell.id) continue
+        if (otherCell[key] && otherCell.value === value) return false
+      }
+    }
+  }
+
+  // Check bolded region: no duplicate in the same region
+  for (const boardRow of board) {
+    for (const otherCell of boardRow) {
+      if (otherCell.hidden || otherCell.id === cell.id) continue
+      if (otherCell.boldedRegion === cell.boldedRegion && otherCell.value === value) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
+// Count solutions using backtracking (limit to avoid checking all solutions)
+// Exported for testing purposes
+export function countSolutions(board: Board, limit: number = 2): number {
+  let count = 0
+
+  function backtrack(): void {
+    if (count >= limit) return // Early exit
+
+    // Find next empty cell
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 17; col++) {
+        const cell = board[row][col]
+        if (cell.hidden || cell.value !== null) continue
+
+        // Try each value 1-9
+        for (let val = 1; val <= 9; val++) {
+          if (isValidPlacement(board, row, col, val)) {
+            cell.value = val
+            backtrack()
+            cell.value = null
+            if (count >= limit) return // Early exit
+          }
+        }
+        return // Tried all values for this cell
+      }
+    }
+
+    // No empty cell found - solution is complete
+    count++
+  }
+
+  backtrack()
+  return count
+}
+
+// Solve puzzle and return the solution (or null if unsolvable)
+export function solvePuzzle(board: Board): Board | null {
+  // Create a deep copy of the board to avoid modifying the original
+  const solvedBoard = board.map(row => 
+    row.map(cell => ({ ...cell }))
+  )
+
+  function backtrack(): boolean {
+    // Find next empty cell
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 17; col++) {
+        const cell = solvedBoard[row][col]
+        if (cell.hidden || cell.value !== null) continue
+
+        // Try each value 1-9
+        for (let val = 1; val <= 9; val++) {
+          if (isValidPlacement(solvedBoard, row, col, val)) {
+            cell.value = val
+            if (backtrack()) return true
+            cell.value = null
+          }
+        }
+        return false // No valid value found
+      }
+    }
+
+    // No empty cell found - solution is complete
+    return true
+  }
+
+  if (backtrack()) {
+    return solvedBoard
+  }
+  return null
+}
+
+// Generate a complete valid solution using randomized backtracking
+export function generateCompleteSolution(seed?: number): Board {
+  const board = createEmptyBoard()
+  const rng = seed !== undefined ? createSeededRandom(seed) : null
+
+  // Shuffle array using Fisher-Yates
+  function shuffle<T>(array: T[]): T[] {
+    const arr = [...array]
+    for (let i = arr.length - 1; i > 0; i--) {
+      const rand = rng ? rng.next() : Math.random()
+      const j = Math.floor(rand * (i + 1))
+      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+  }
+
+  function fillBoard(): boolean {
+    // Find next empty cell
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 17; col++) {
+        const cell = board[row][col]
+        if (cell.hidden || cell.value !== null) continue
+
+        // Try values in random order
+        const values = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9])
+        for (const val of values) {
+          if (isValidPlacement(board, row, col, val)) {
+            cell.value = val
+            if (fillBoard()) return true
+            cell.value = null
+          }
+        }
+        return false // No valid value found
+      }
+    }
+
+    // All cells filled successfully
+    return true
+  }
+
+  if (!fillBoard()) {
+    throw new Error('Failed to generate complete solution')
+  }
+
+  return board
+}
+
+// Remove cells while maintaining unique solution
+function removeCellsWithUniqueness(
+  board: Board,
+  targetGivens: number,
+  seed?: number
+): Board {
+  const rng = seed !== undefined ? createSeededRandom(seed + 1000) : null
+
+  // Get all non-hidden cell positions
+  const positions: { row: number; col: number }[] = []
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      if (!board[row][col].hidden) {
+        positions.push({ row, col })
+      }
+    }
+  }
+
+  // Shuffle positions using Fisher-Yates
+  for (let i = positions.length - 1; i > 0; i--) {
+    const rand = rng ? rng.next() : Math.random()
+    const j = Math.floor(rand * (i + 1))
+    ;[positions[i], positions[j]] = [positions[j], positions[i]]
+  }
+
+  let currentGivens = positions.length // Start with all 81 cells filled
+
+  // Try removing cells one by one
+  for (const { row, col } of positions) {
+    if (currentGivens <= targetGivens) break
+
+    const cell = board[row][col]
+    const originalValue = cell.value
+
+    // Temporarily remove the cell
+    cell.value = null
+
+    // Check if puzzle still has unique solution
+    const solutions = countSolutions(board, 2)
+
+    if (solutions === 1) {
+      // Keep the removal
+      currentGivens--
+    } else {
+      // Restore the value
+      cell.value = originalValue
+    }
+  }
+
+  // Mark remaining filled cells as givens
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      const cell = board[row][col]
+      if (!cell.hidden && cell.value !== null) {
+        cell.isGiven = true
+      }
+    }
+  }
+
+  return board
+}
+
+// Main puzzle generation function
+export function generatePuzzle(difficulty: Difficulty = 'medium', seed?: number): Board {
+  const config = DIFFICULTY_CONFIGS[difficulty]
+  
+  // Use seed or generate random seed
+  const generationSeed = seed !== undefined ? seed : Math.floor(Math.random() * 1000000)
+  
+  // Generate complete solution
+  const board = generateCompleteSolution(generationSeed)
+  
+  // Calculate target givens (random within the difficulty range)
+  const rng = createSeededRandom(generationSeed + 500)
+  const targetGivens = Math.floor(
+    config.minGivens + rng.next() * (config.maxGivens - config.minGivens + 1)
+  )
+  
+  // Remove cells while maintaining unique solution
+  const puzzle = removeCellsWithUniqueness(board, targetGivens, generationSeed)
+  
+  return puzzle
 }
