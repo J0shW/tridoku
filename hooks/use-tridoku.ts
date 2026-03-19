@@ -11,10 +11,9 @@ import {
   isPuzzleComplete,
   EXAMPLE_PUZZLE,
   TEST_NEARLY_SOLVED,
-  generatePuzzle,
-  getDailySeed,
   Difficulty
 } from "@/lib/tridoku"
+import { getDailyPuzzle } from "@/lib/puzzle-service"
 
 export interface GameStats {
   gamesPlayed: number
@@ -242,37 +241,38 @@ export function useTridoku() {
     return `Daily Tridoku #${puzzleNum}\n⏱️ ${time}\n🔥 Streak: ${stats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
   }, [gameState.isComplete, gameState.elapsedTime, stats.currentStreak])
 
-  // Generate a new puzzle
-  const generateNewPuzzle = useCallback(async (difficulty: Difficulty = 'medium', seed?: number) => {
+  // Load a puzzle (fetches from pre-generated puzzles)
+  const generateNewPuzzle = useCallback(async (difficulty?: Difficulty, customDate?: Date) => {
     setIsGenerating(true)
     
-    // Run generation in a setTimeout to allow UI to update
-    setTimeout(() => {
-      try {
-        const newPuzzle = generatePuzzle(difficulty, seed)
-        setGameState({
-          cells: newPuzzle,
-          selectedCellId: null,
-          isComplete: false,
-          isPaused: false,
-          elapsedTime: 0,
-          showErrors: false,
-        })
-      } catch (error) {
-        console.error('Failed to generate puzzle:', error)
-        // Fall back to example puzzle on error
-        setGameState(prev => ({
-          ...prev,
-          cells: loadPuzzle(EXAMPLE_PUZZLE),
-          selectedCellId: null,
-          isComplete: false,
-          elapsedTime: 0,
-          showErrors: false,
-        }))
-      } finally {
-        setIsGenerating(false)
-      }
-    }, 100)
+    try {
+      // Fetch the daily puzzle from pre-generated puzzles
+      const dailyPuzzle = await getDailyPuzzle(customDate)
+      console.log(`[useTridoku] Loaded ${dailyPuzzle.difficulty} puzzle for ${dailyPuzzle.date}`)
+      
+      const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
+      setGameState({
+        cells: puzzleCells,
+        selectedCellId: null,
+        isComplete: false,
+        isPaused: false,
+        elapsedTime: 0,
+        showErrors: false,
+      })
+    } catch (error) {
+      console.error('Failed to fetch puzzle:', error)
+      // Fall back to example puzzle on error
+      setGameState(prev => ({
+        ...prev,
+        cells: loadPuzzle(EXAMPLE_PUZZLE),
+        selectedCellId: null,
+        isComplete: false,
+        elapsedTime: 0,
+        showErrors: false,
+      }))
+    } finally {
+      setIsGenerating(false)
+    }
   }, [])
 
   return {

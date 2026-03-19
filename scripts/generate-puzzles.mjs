@@ -1,0 +1,499 @@
+// Puzzle Generator - Offline Node.js Script
+// Generates Tridoku puzzles and saves them to JSON files
+// Run with: node scripts/generate-puzzles.mjs
+
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// ============================================================================
+// TRIDOKU CORE LOGIC (copied from lib/tridoku.ts)
+// ============================================================================
+
+const INNER_LEFT_EDGE_MAP = {
+  4: new Set([0]),
+  5: new Set([1, 2]),
+  6: new Set([3, 4]),
+  7: new Set([5, 6]),
+  8: new Set([7, 8]),
+}
+
+function getBoldedRegion(row, nhIndex) {
+  const macroRow = Math.floor(row / 3)
+  const localRow = row % 3
+  const p = Math.floor(nhIndex / 6)
+  const isUpward = nhIndex <= 6 * p + 2 * localRow
+  const j = isUpward ? 2 * p : 2 * p + 1
+  return macroRow * macroRow + j
+}
+
+function createEmptyBoard() {
+  const board = []
+
+  for (let row = 0; row < 9; row++) {
+    const cells = []
+    const firstNonHidden = 8 - row
+    const lastNonHidden = 8 + row
+
+    for (let col = 0; col < 17; col++) {
+      const hidden = col < firstNonHidden || col > lastNonHidden
+      const nhIndex = col - firstNonHidden
+      const direction = hidden ? 'up' : (nhIndex % 2 === 0 ? 'up' : 'down')
+
+      const isOuterLeftEdge = !hidden && nhIndex === 0
+      const isOuterRightEdge = !hidden && nhIndex === 2 * row
+      const isOuterBottomEdge = !hidden && row === 8 && direction === 'up'
+      const isInnerTopEdge = !hidden && row === 4
+      const isInnerLeftEdge = !hidden && (INNER_LEFT_EDGE_MAP[row]?.has(nhIndex) ?? false)
+      const isInnerRightEdge = !hidden && (
+        (row === 4 && nhIndex === 8) ||
+        (row >= 5 && (nhIndex === 8 || nhIndex === 9))
+      )
+
+      const hasOuter = isOuterLeftEdge || isOuterRightEdge || isOuterBottomEdge
+      const hasInner = isInnerLeftEdge || isInnerRightEdge || isInnerTopEdge
+      let color = 'white'
+      if (!hidden) {
+        if (hasOuter && hasInner) color = 'green'
+        else if (hasOuter) color = 'yellow'
+        else if (hasInner) color = 'blue'
+      }
+
+      cells.push({
+        id: `${row}-${col}`,
+        hidden,
+        value: null,
+        isGiven: false,
+        isSelected: false,
+        hasError: false,
+        row,
+        col,
+        direction,
+        neighbors: [],
+        boldedRegion: hidden ? -1 : getBoldedRegion(row, nhIndex),
+        isOuterLeftEdge,
+        isOuterRightEdge,
+        isOuterBottomEdge,
+        isInnerLeftEdge,
+        isInnerRightEdge,
+        isInnerTopEdge,
+        color,
+      })
+    }
+
+    board.push(cells)
+  }
+
+  // Compute neighbors
+  const vertexMap = new Map()
+  function addVertex(key, cellId) {
+    if (!vertexMap.has(key)) vertexMap.set(key, [])
+    vertexMap.get(key).push(cellId)
+  }
+
+  for (const boardRow of board) {
+    for (const cell of boardRow) {
+      if (cell.hidden) continue
+      const { row: r, col: c, direction: dir, id } = cell
+      if (dir === 'up') {
+        addVertex(`${c},${r + 1}`, id)
+        addVertex(`${c + 1},${r}`, id)
+        addVertex(`${c + 2},${r + 1}`, id)
+      } else {
+        addVertex(`${c},${r}`, id)
+        addVertex(`${c + 2},${r}`, id)
+        addVertex(`${c + 1},${r + 1}`, id)
+      }
+    }
+  }
+
+  for (const boardRow of board) {
+    for (const cell of boardRow) {
+      if (cell.hidden) continue
+      const { row: r, col: c, direction: dir, id } = cell
+      const vertices = dir === 'up'
+        ? [`${c},${r + 1}`, `${c + 1},${r}`, `${c + 2},${r + 1}`]
+        : [`${c},${r}`, `${c + 2},${r}`, `${c + 1},${r + 1}`]
+      const neighborSet = new Set()
+      for (const v of vertices) {
+        for (const nid of vertexMap.get(v)) {
+          if (nid !== id) neighborSet.add(nid)
+        }
+      }
+      cell.neighbors = Array.from(neighborSet)
+    }
+  }
+
+  return board
+}
+
+function loadPuzzle(data) {
+  const board = createEmptyBoard()
+  let i = 0
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      if (board[row][col].hidden) continue
+      const ch = data[i++]
+      const val = parseInt(ch)
+      if (val >= 1 && val <= 9) {
+        board[row][col] = { ...board[row][col], value: val, isGiven: true }
+      }
+    }
+  }
+  return board
+}
+
+function boardToString(board) {
+  let result = ''
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      if (board[row][col].hidden) continue
+      result += board[row][col].value || '0'
+    }
+  }
+  return result
+}
+
+// Seeded random number generator (Mulberry32)
+function createSeededRandom(seed) {
+  let state = seed
+  return {
+    next() {
+      state = (state + 0x6D2B79F5) | 0
+      let t = Math.imul(state ^ (state >>> 15), 1 | state)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  }
+}
+
+const DIFFICULTY_CONFIGS = {
+  easy: { minGivens: 60, maxGivens: 65 },
+  medium: { minGivens: 50, maxGivens: 55 },
+  hard: { minGivens: 40, maxGivens: 45 }
+}
+
+function isValidPlacement(board, row, col, value) {
+  const cell = board[row][col]
+  if (cell.hidden) return false
+
+  // Check adjacency
+  for (const nid of cell.neighbors) {
+    const [nr, nc] = nid.split('-').map(Number)
+    const neighbor = board[nr][nc]
+    if (neighbor.value === value) return false
+  }
+
+  // Check edge constraints
+  const edgeKeys = [
+    'isOuterLeftEdge', 'isOuterRightEdge', 'isOuterBottomEdge',
+    'isInnerLeftEdge', 'isInnerRightEdge', 'isInnerTopEdge'
+  ]
+  
+  for (const key of edgeKeys) {
+    if (!cell[key]) continue
+    for (const boardRow of board) {
+      for (const otherCell of boardRow) {
+        if (otherCell.hidden || otherCell.id === cell.id) continue
+        if (otherCell[key] && otherCell.value === value) return false
+      }
+    }
+  }
+
+  // Check bolded region
+  for (const boardRow of board) {
+    for (const otherCell of boardRow) {
+      if (otherCell.hidden || otherCell.id === cell.id) continue
+      if (otherCell.boldedRegion === cell.boldedRegion && otherCell.value === value) {
+        return false
+      }
+    }
+  }
+
+  return true
+}
+
+function countSolutions(board, limit = 2) {
+  let count = 0
+  let iterations = 0
+  const MAX_ITERATIONS = 10000
+
+  function backtrack() {
+    if (count >= limit) return
+    if (iterations++ > MAX_ITERATIONS) return
+
+    let minCell = null
+    
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 17; col++) {
+        const cell = board[row][col]
+        if (cell.hidden || cell.value !== null) continue
+
+        const candidates = []
+        for (let val = 1; val <= 9; val++) {
+          if (isValidPlacement(board, row, col, val)) {
+            candidates.push(val)
+          }
+        }
+
+        if (candidates.length === 0) return
+        
+        if (!minCell || candidates.length < minCell.candidates.length) {
+          minCell = { row, col, candidates }
+          if (candidates.length === 1) break
+        }
+      }
+      if (minCell && minCell.candidates.length === 1) break
+    }
+
+    if (!minCell) {
+      count++
+      return
+    }
+
+    for (const val of minCell.candidates) {
+      board[minCell.row][minCell.col].value = val
+      backtrack()
+      board[minCell.row][minCell.col].value = null
+      if (count >= limit) return
+    }
+  }
+
+  backtrack()
+  return count
+}
+
+function generateFromTemplate(seed) {
+  const rng = seed !== undefined ? createSeededRandom(seed) : null
+  
+  const template =
+    '6' +
+    '134' +
+    '72589' +
+    '5438721' +
+    '371926452' +
+    '49862517863' +
+    '9621598341728' +
+    '275374219865467' +
+    '81346897634529135'
+  
+  const board = loadPuzzle(template)
+  
+  if (rng) {
+    const permutation = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    for (let i = permutation.length - 1; i > 0; i--) {
+      const j = Math.floor(rng.next() * (i + 1))
+      ;[permutation[i], permutation[j]] = [permutation[j], permutation[i]]
+    }
+    
+    console.log(`  [Generator] Number permutation: ${permutation.join(',')}`)
+    
+    for (const row of board) {
+      for (const cell of row) {
+        if (!cell.hidden && cell.value !== null) {
+          cell.value = permutation[cell.value - 1]
+          cell.isGiven = false
+        }
+      }
+    }
+  }
+  
+  return board
+}
+
+function generateCompleteSolution(seed) {
+  console.log('  [Generator] Generating complete solution...')
+  const board = generateFromTemplate(seed)
+  return board
+}
+
+function removeCellsWithUniqueness(board, targetGivens, seed) {
+  console.log(`  [Generator] Removing cells (target: ${targetGivens} givens)...`)
+  const rng = seed !== undefined ? createSeededRandom(seed + 1000) : null
+  const startTime = Date.now()
+  const MAX_TIME = 3000
+
+  const positions = []
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      if (!board[row][col].hidden) {
+        positions.push({ row, col })
+      }
+    }
+  }
+
+  for (let i = positions.length - 1; i > 0; i--) {
+    const rand = rng ? rng.next() : Math.random()
+    const j = Math.floor(rand * (i + 1))
+    ;[positions[i], positions[j]] = [positions[j], positions[i]]
+  }
+
+  let currentGivens = positions.length
+  let attempts = 0
+  let successfulRemovals = 0
+  const MAX_ATTEMPTS = 30
+
+  for (const { row, col } of positions) {
+    if (Date.now() - startTime > MAX_TIME) {
+      console.log(`  [Generator] Time limit reached after ${attempts} attempts`)
+      break
+    }
+    
+    if (currentGivens <= targetGivens) break
+    if (attempts++ > MAX_ATTEMPTS) {
+      console.log(`  [Generator] Max attempts reached`)
+      break
+    }
+
+    const cell = board[row][col]
+    const originalValue = cell.value
+
+    cell.value = null
+
+    const solutions = countSolutions(board, 2)
+
+    if (solutions === 1) {
+      currentGivens--
+      successfulRemovals++
+    } else {
+      cell.value = originalValue
+    }
+  }
+  
+  const totalDuration = Date.now() - startTime
+  console.log(`  [Generator] Removed ${successfulRemovals} cells in ${totalDuration}ms: ${currentGivens} givens`)
+
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      const cell = board[row][col]
+      if (!cell.hidden && cell.value !== null) {
+        cell.isGiven = true
+      }
+    }
+  }
+
+  return board
+}
+
+function generatePuzzle(difficulty = 'medium', seed) {
+  const config = DIFFICULTY_CONFIGS[difficulty]
+  const generationSeed = seed !== undefined ? seed : Math.floor(Math.random() * 1000000)
+  
+  const board = generateCompleteSolution(generationSeed)
+  
+  const rng = createSeededRandom(generationSeed + 500)
+  const targetGivens = Math.floor(
+    config.minGivens + rng.next() * (config.maxGivens - config.minGivens + 1)
+  )
+  console.log(`  [Generator] Target givens: ${targetGivens}`)
+  
+  const puzzle = removeCellsWithUniqueness(board, targetGivens, generationSeed)
+  
+  return puzzle
+}
+
+// ============================================================================
+// PUZZLE GENERATION FOR DATES
+// ============================================================================
+
+const OUTPUT_DIR = path.join(__dirname, '..', 'public', 'puzzles')
+
+// Ensure output directory exists
+if (!fs.existsSync(OUTPUT_DIR)) {
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true })
+}
+
+function generatePuzzleForDate(year, month, day) {
+  const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  const seed = year * 10000 + month * 100 + day
+  
+  console.log(`\nGenerating puzzle for ${dateStr} (seed: ${seed})...`)
+  const startTime = Date.now()
+  
+  const board = generatePuzzle('medium', seed)
+  const puzzleString = boardToString(board)
+  
+  // Count givens
+  let givens = 0
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      if (!board[row][col].hidden && board[row][col].value !== null) {
+        givens++
+      }
+    }
+  }
+  
+  const duration = Date.now() - startTime
+  console.log(`✓ Generated in ${duration}ms with ${givens} givens`)
+  
+  return {
+    date: dateStr,
+    difficulty: 'medium',
+    seed: seed,
+    puzzle: puzzleString,
+    metadata: {
+      generatedAt: new Date().toISOString(),
+      generationTime: duration,
+      givens: givens
+    }
+  }
+}
+
+function generatePuzzlesForYear(year, startMonth = 1, startDay = 1, endMonth = 12, endDay = null) {
+  const puzzles = {}
+  const totalStart = Date.now()
+  
+  let totalCount = 0
+  
+  for (let month = startMonth; month <= endMonth; month++) {
+    const daysInMonth = new Date(year, month, 0).getDate()
+    const firstDay = month === startMonth ? startDay : 1
+    const lastDay = month === endMonth && endDay !== null ? endDay : daysInMonth
+    
+    for (let day = firstDay; day <= lastDay; day++) {
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+      puzzles[dateStr] = generatePuzzleForDate(year, month, day)
+      totalCount++
+    }
+  }
+  
+  const totalDuration = Date.now() - totalStart
+  const avgTime = Math.round(totalDuration / totalCount)
+  console.log(`\n${'='.repeat(60)}`)
+  console.log(`✓ Generated ${totalCount} puzzles in ${Math.round(totalDuration / 1000)}s`)
+  console.log(`  Average time per puzzle: ${avgTime}ms`)
+  console.log(`${'='.repeat(60)}`)
+  
+  return puzzles
+}
+
+// ============================================================================
+// MAIN EXECUTION
+// ============================================================================
+
+console.log('Tridoku Puzzle Generator')
+console.log('========================\n')
+
+// For testing, generate just a few days worth of puzzles
+// Change these parameters to generate more puzzles
+const YEAR = 2026
+const START_MONTH = 3  // March
+const START_DAY = 19
+const END_MONTH = 3    // March
+const END_DAY = 21     // Generate through March 21
+
+console.log(`Generating puzzles for ${YEAR}...`)
+console.log(`Range: ${START_MONTH}/${START_DAY} to ${END_MONTH}/${END_DAY}`)
+
+const puzzles = generatePuzzlesForYear(YEAR, START_MONTH, START_DAY, END_MONTH, END_DAY)
+
+// Save to file
+const outputFile = path.join(OUTPUT_DIR, `${YEAR}.json`)
+fs.writeFileSync(outputFile, JSON.stringify(puzzles, null, 2))
+
+console.log(`\n✓ Saved to ${outputFile}`)
+console.log('\nTo generate more puzzles, edit the date range in this script.')
+console.log('To generate a full year, set END_MONTH = 12 and END_DAY = null')
