@@ -30,6 +30,7 @@ export function TridokuGame() {
     toggleErrors,
     togglePause,
     resetPuzzle,
+    loadTestSolve,
     getShareText,
   } = useTridoku()
 
@@ -142,6 +143,7 @@ export function TridokuGame() {
             onTogglePause={togglePause}
             onToggleErrors={toggleErrors}
             onReset={resetPuzzle}
+            onTestSolve={loadTestSolve}
             isComplete={isComplete}
           />
         </div>

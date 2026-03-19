@@ -267,6 +267,18 @@ export const EXAMPLE_PUZZLE =
   '005370010065400' + // row 7
   '01040006004020030'  // row 8
 
+// Nearly-solved puzzle for testing (only a few cells empty)
+export const TEST_NEARLY_SOLVED =
+  '6' +           // row 0
+  '134' +         // row 1
+  '72589' +       // row 2
+  '5431721' +     // row 3
+  '371006452' +   // row 4
+  '49862500863' + // row 5
+  '9621598341728' + // row 6
+  '275374215965467' + // row 7
+  '81346896734829135'  // row 8 (3 empty cells for testing)
+
 // Get puzzle number based on days since launch
 export function getPuzzleNumber(): number {
   const launchDate = new Date('2026-01-01')

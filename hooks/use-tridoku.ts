@@ -8,7 +8,8 @@ import {
   getPuzzleNumber,
   loadPuzzle,
   validateBoard,
-  EXAMPLE_PUZZLE
+  EXAMPLE_PUZZLE,
+  TEST_NEARLY_SOLVED
 } from "@/lib/tridoku"
 
 export interface GameStats {
@@ -170,6 +171,17 @@ export function useTridoku() {
     }))
   }, [])
 
+  // Load nearly-solved puzzle for testing
+  const loadTestSolve = useCallback(() => {
+    setGameState(prev => ({
+      ...prev,
+      cells: loadPuzzle(TEST_NEARLY_SOLVED),
+      selectedCellId: null,
+      isComplete: false,
+      showErrors: false,
+    }))
+  }, [])
+
   // Generate share text
   const getShareText = useCallback(() => {
     if (!gameState.isComplete) return ""
@@ -195,6 +207,7 @@ export function useTridoku() {
     toggleErrors,
     togglePause,
     resetPuzzle,
+    loadTestSolve,
     getShareText,
   }
 }
