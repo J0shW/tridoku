@@ -24,13 +24,13 @@ export function DifficultySelector({
   disabled = false
 }: DifficultySelectorProps) {
   const difficulties: Array<{ value: Difficulty; label: string; bgColor: string; hoverColor: string }> = [
-    { value: 'easy', label: 'Easy', bgColor: 'bg-green-500', hoverColor: 'hover:bg-green-500' },
-    { value: 'medium', label: 'Medium', bgColor: 'bg-yellow-500', hoverColor: 'hover:bg-yellow-500' },
-    { value: 'hard', label: 'Hard', bgColor: 'bg-red-500', hoverColor: 'hover:bg-red-500' },
+    { value: 'easy', label: 'Easy', bgColor: 'bg-[var(--tridoku-easy-outer)]', hoverColor: 'hover:bg-white hover:border-[var(--tridoku-easy-overlap)]' },
+    { value: 'medium', label: 'Medium', bgColor: 'bg-[var(--tridoku-medium-outer)]', hoverColor: 'hover:bg-white hover:border-[var(--tridoku-medium-overlap)]' },
+    { value: 'hard', label: 'Hard', bgColor: 'bg-[var(--tridoku-hard-outer)]', hoverColor: 'hover:bg-white hover:border-[var(--tridoku-hard-overlap)]' },
   ]
 
   return (
-    <div className="flex gap-2 justify-center items-center">
+    <div className="flex gap-3 justify-center items-center">
       {difficulties.map(({ value, label, bgColor, hoverColor }) => {
         const isActive = currentDifficulty === value
         const isCompleted = stats[value].completedToday
@@ -38,13 +38,13 @@ export function DifficultySelector({
         return (
           <Button
             key={value}
-            onClick={() => onDifficultyChange(value)}
-            disabled={disabled || isActive}
+            onClick={() => !isActive && onDifficultyChange(value)}
+            disabled={disabled}
             variant={isActive ? "default" : "outline"}
             className={`
-              relative min-w-22.5
-              ${isActive ? bgColor : ''}
-              ${hoverColor}
+              relative min-w-22.5 text-black
+              ${isActive ? bgColor : 'border-2'}
+              ${isActive ? `hover:${bgColor}` : hoverColor}
             `}
           >
             {label}

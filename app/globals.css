@@ -49,19 +49,19 @@
   
   /* Tridoku difficulty colors */
   /* Easy - Blue, Yellow, Green */
-  --tridoku-easy-outer: #93C5FD;
-  --tridoku-easy-inner: #FDE68A;
-  --tridoku-easy-overlap: #86EFAC;
+  --tridoku-easy-outer: #bfdde2;
+  --tridoku-easy-inner: #eed496;
+  --tridoku-easy-overlap: #98ac8b;
   
   /* Medium - Orange, Pink, Gray */
-  --tridoku-medium-outer: #F3A67E;
-  --tridoku-medium-inner: #F0B3D3;
-  --tridoku-medium-overlap: #E5E3DD;
+  --tridoku-medium-outer: #ecbd6c;
+  --tridoku-medium-inner: #e7a3bf;
+  --tridoku-medium-overlap: #e2885b;
   
   /* Hard - Pink, Blue, White */
-  --tridoku-hard-outer: #EC4899;
-  --tridoku-hard-inner: #7DD3FC;
-  --tridoku-hard-overlap: #FFFFFF;
+  --tridoku-hard-outer: #e26495;
+  --tridoku-hard-inner: #8cc7d1;
+  --tridoku-hard-overlap: #b47098;
 
   --tridoku-easy-none: #FFFFFF;
   --tridoku-medium-none: #FFFFFF;
@@ -112,20 +112,20 @@
   --region-inner: oklch(0.3 0.05 250);
   
   /* Tridoku difficulty colors - slightly muted for dark mode */
-  /* Easy - Blue, Yellow, Green */
-  --tridoku-easy-outer: #a5b3b5;
-  --tridoku-easy-inner: #c4ad77;
-  --tridoku-easy-overlap: #798571;
+   /* Easy - Blue, Yellow, Green */
+  --tridoku-easy-outer: #bfdde2;
+  --tridoku-easy-inner: #eed496;
+  --tridoku-easy-overlap: #98ac8b;
   
   /* Medium - Orange, Pink, Gray */
-  --tridoku-medium-outer: #d4a553;
-  --tridoku-medium-inner: #c7949b;
-  --tridoku-medium-overlap: #bd6a42;
+  --tridoku-medium-outer: #ecbd6c;
+  --tridoku-medium-inner: #e7a3bf;
+  --tridoku-medium-overlap: #e2885b;
   
   /* Hard - Pink, Blue, White */
-  --tridoku-hard-outer: #c65a6e;
-  --tridoku-hard-inner: #84a1a6;
-  --tridoku-hard-overlap: #7e506b;
+  --tridoku-hard-outer: #e26495;
+  --tridoku-hard-inner: #8cc7d1;
+  --tridoku-hard-overlap: #b47098;
 
   --tridoku-easy-none: #FFFFFF;
   --tridoku-medium-none: #FFFFFF;
@@ -178,6 +178,20 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+    /* Tridoku difficulty colors */
+  --color-tridoku-easy-outer: var(--tridoku-easy-outer);
+  --color-tridoku-easy-inner: var(--tridoku-easy-inner);
+  --color-tridoku-easy-overlap: var(--tridoku-easy-overlap);
+  --color-tridoku-easy-none: var(--tridoku-easy-none);
+  --color-tridoku-medium-outer: var(--tridoku-medium-outer);
+  --color-tridoku-medium-inner: var(--tridoku-medium-inner);
+  --color-tridoku-medium-overlap: var(--tridoku-medium-overlap);
+  --color-tridoku-medium-none: var(--tridoku-medium-none);
+  --color-tridoku-hard-outer: var(--tridoku-hard-outer);
+  --color-tridoku-hard-inner: var(--tridoku-hard-inner);
+  --color-tridoku-hard-overlap: var(--tridoku-hard-overlap);
+  --color-tridoku-hard-none: var(--tridoku-hard-none);
 }
 
 @layer base {
