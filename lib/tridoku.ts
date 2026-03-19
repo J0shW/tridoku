@@ -259,6 +259,25 @@ export function validateBoard(board: Board): Board {
   )
 }
 
+// Check if the puzzle is complete (all cells filled, no errors)
+export function isPuzzleComplete(board: Board): boolean {
+  for (const row of board) {
+    for (const cell of row) {
+      // Skip hidden cells
+      if (cell.hidden) continue
+      
+      // If any cell is empty, puzzle is not complete
+      if (cell.value === null) return false
+      
+      // If any cell has an error, puzzle is not complete
+      if (cell.hasError) return false
+    }
+  }
+  
+  // All cells filled and no errors
+  return true
+}
+
 // Example puzzle from the reference image
 export const EXAMPLE_PUZZLE =
   '6' +           // row 0

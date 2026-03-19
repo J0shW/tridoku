@@ -8,6 +8,7 @@ import {
   getPuzzleNumber,
   loadPuzzle,
   validateBoard,
+  isPuzzleComplete,
   EXAMPLE_PUZZLE,
   TEST_NEARLY_SOLVED,
   generatePuzzle,
@@ -110,6 +111,48 @@ export function useTridoku() {
     return () => clearInterval(interval)
   }, [gameState.isComplete, gameState.isPaused])
 
+  // Handle puzzle completion
+  useEffect(() => {
+    if (!gameState.isComplete) return
+    
+    // Update stats
+    const today = getTodayString()
+    const newStats = { ...stats }
+    
+    // Check if this is a new win (not already counted)
+    if (stats.lastPlayedDate !== today) {
+      newStats.gamesPlayed = (newStats.gamesPlayed || 0) + 1
+      newStats.gamesWon = (newStats.gamesWon || 0) + 1
+      
+      // Update streak
+      if (stats.lastPlayedDate) {
+        const yesterday = new Date()
+        yesterday.setDate(yesterday.getDate() - 1)
+        const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`
+        
+        if (stats.lastPlayedDate === yesterdayStr) {
+          newStats.currentStreak = (stats.currentStreak || 0) + 1
+        } else {
+          newStats.currentStreak = 1
+        }
+      } else {
+        newStats.currentStreak = 1
+      }
+      
+      newStats.maxStreak = Math.max(newStats.maxStreak || 0, newStats.currentStreak)
+      
+      // Update best time
+      if (!newStats.bestTime || gameState.elapsedTime < newStats.bestTime) {
+        newStats.bestTime = gameState.elapsedTime
+      }
+      
+      newStats.lastPlayedDate = today
+      
+      setStats(newStats)
+      saveStats(newStats)
+    }
+  }, [gameState.isComplete, gameState.elapsedTime, stats])
+
   // Select a cell by CellId
   const selectCell = useCallback((cellId: CellId | null) => {
     setGameState(prev => ({ ...prev, selectedCellId: cellId }))
@@ -130,7 +173,10 @@ export function useTridoku() {
           ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
           : r
       )
-      return { ...prev, cells: validateBoard(updatedCells) }
+      const validatedCells = validateBoard(updatedCells)
+      const isComplete = isPuzzleComplete(validatedCells)
+      
+      return { ...prev, cells: validatedCells, isComplete }
     })
   }, [])
 
