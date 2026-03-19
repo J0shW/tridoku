@@ -1,82 +1,64 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Difficulty } from "@/lib/tridoku"
+import { DifficultyStats } from "@/hooks/use-tridoku"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Check } from "lucide-react"
 
 interface DifficultySelectorProps {
-  onDifficultyChange?: (difficulty: Difficulty) => void
+  currentDifficulty: Difficulty
+  stats: {
+    easy: DifficultyStats
+    medium: DifficultyStats
+    hard: DifficultyStats
+  }
+  onDifficultyChange: (difficulty: Difficulty) => void
   disabled?: boolean
 }
 
-const STORAGE_KEY = "tridoku-difficulty"
-
-function getStoredDifficulty(): Difficulty {
-  if (typeof window === "undefined") return "medium"
-  const stored = localStorage.getItem(STORAGE_KEY)
-  if (stored === "easy" || stored === "medium" || stored === "hard") {
-    return stored
-  }
-  return "medium"
-}
-
-function saveDifficulty(difficulty: Difficulty) {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(STORAGE_KEY, difficulty)
-  }
-}
-
-export function DifficultySelector({ onDifficultyChange, disabled }: DifficultySelectorProps) {
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("medium")
-
-  useEffect(() => {
-    const stored = getStoredDifficulty()
-    setSelectedDifficulty(stored)
-  }, [])
-
-  const handleSelect = (difficulty: Difficulty) => {
-    setSelectedDifficulty(difficulty)
-    saveDifficulty(difficulty)
-    onDifficultyChange?.(difficulty)
-  }
+export function DifficultySelector({ 
+  currentDifficulty, 
+  stats,
+  onDifficultyChange,
+  disabled = false
+}: DifficultySelectorProps) {
+  const difficulties: Array<{ value: Difficulty; label: string; bgColor: string; hoverColor: string }> = [
+    { value: 'easy', label: 'Easy', bgColor: 'bg-green-500', hoverColor: 'hover:bg-green-500' },
+    { value: 'medium', label: 'Medium', bgColor: 'bg-yellow-500', hoverColor: 'hover:bg-yellow-500' },
+    { value: 'hard', label: 'Hard', bgColor: 'bg-red-500', hoverColor: 'hover:bg-red-500' },
+  ]
 
   return (
-    <div className="flex gap-2">
-      <Button
-        size="sm"
-        variant={selectedDifficulty === "easy" ? "default" : "outline"}
-        onClick={() => handleSelect("easy")}
-        disabled={disabled}
-      >
-        Easy
-      </Button>
-      <Button
-        size="sm"
-        variant={selectedDifficulty === "medium" ? "default" : "outline"}
-        onClick={() => handleSelect("medium")}
-        disabled={disabled}
-      >
-        Medium
-      </Button>
-      <Button
-        size="sm"
-        variant={selectedDifficulty === "hard" ? "default" : "outline"}
-        onClick={() => handleSelect("hard")}
-        disabled={disabled}
-      >
-        Hard
-      </Button>
+    <div className="flex gap-2 justify-center items-center">
+      {difficulties.map(({ value, label, bgColor, hoverColor }) => {
+        const isActive = currentDifficulty === value
+        const isCompleted = stats[value].completedToday
+        
+        return (
+          <Button
+            key={value}
+            onClick={() => onDifficultyChange(value)}
+            disabled={disabled || isActive}
+            variant={isActive ? "default" : "outline"}
+            className={`
+              relative min-w-22.5
+              ${isActive ? bgColor : ''}
+              ${hoverColor}
+            `}
+          >
+            {label}
+            {isCompleted && (
+              <Badge 
+                variant="secondary" 
+                className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-green-600 hover:bg-green-600"
+              >
+                <Check className="h-3 w-3 text-white" />
+              </Badge>
+            )}
+          </Button>
+        )
+      })}
     </div>
   )
-}
-
-export function useStoredDifficulty(): Difficulty {
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium")
-
-  useEffect(() => {
-    const stored = getStoredDifficulty()
-    setDifficulty(stored)
-  }, [])
-
-  return difficulty
 }

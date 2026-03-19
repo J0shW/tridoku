@@ -3,18 +3,17 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Pause, Play, RotateCcw, Eye, EyeOff, FlaskConical, Sparkles } from "lucide-react"
-import { DifficultySelector, useStoredDifficulty } from "@/components/difficulty-selector"
-import { Difficulty } from "@/lib/tridoku"
-import { Spinner } from "@/components/ui/spinner"
+import { Pause, Play, RotateCcw, Eye, EyeOff, FlaskConical } from "lucide-react"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface GameControlsProps {
   isPaused: boolean
@@ -23,8 +22,9 @@ interface GameControlsProps {
   onToggleErrors: () => void
   onReset: () => void
   onTestSolve?: () => void
-  onGenerateNew?: (difficulty: Difficulty) => void
+  onGenerateNew?: () => void
   isComplete: boolean
+  isViewMode?: boolean
   isGenerating?: boolean
 }
 
@@ -35,17 +35,24 @@ export function GameControls({
   onToggleErrors,
   onReset,
   onTestSolve,
-  onGenerateNew,
   isComplete,
+  isViewMode = false,
   isGenerating = false,
 }: GameControlsProps) {
   const isDev = process.env.NODE_ENV === 'development'
-  const storedDifficulty = useStoredDifficulty()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [showResetConfirm, setShowResetConfirm] = useState(false)
 
-  const handleGenerateNew = (difficulty: Difficulty) => {
-    onGenerateNew?.(difficulty)
-    setIsDialogOpen(false)
+  const handleResetClick = () => {
+    setShowResetConfirm(true)
+  }
+
+  const confirmReset = () => {
+    onReset()
+    setShowResetConfirm(false)
+  }
+
+  const cancelReset = () => {
+    setShowResetConfirm(false)
   }
 
   return (
@@ -82,8 +89,8 @@ export function GameControls({
       <Button
         variant="ghost"
         size="icon"
-        onClick={onReset}
-        disabled={isGenerating}
+        onClick={handleResetClick}
+        disabled={isGenerating || isComplete || isViewMode}
         className={cn(
           "h-12 w-12 rounded-full transition-all duration-150",
           "hover:bg-secondary hover:scale-110"
@@ -92,49 +99,6 @@ export function GameControls({
       >
         <RotateCcw className="h-5 w-5" />
       </Button>
-
-      {onGenerateNew && (
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              disabled={isGenerating}
-              className={cn(
-                "h-12 w-12 rounded-full transition-all duration-150",
-                "hover:bg-secondary hover:scale-110",
-                "border-2 border-primary/20"
-              )}
-              aria-label="Generate new puzzle"
-            >
-              {isGenerating ? (
-                <Spinner className="h-5 w-5" />
-              ) : (
-                <Sparkles className="h-5 w-5" />
-              )}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Generate New Puzzle</DialogTitle>
-              <DialogDescription>
-                Select a difficulty level. Generation may take a few seconds.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="flex flex-col gap-4 py-4">
-              <DifficultySelector 
-                onDifficultyChange={handleGenerateNew}
-                disabled={isGenerating}
-              />
-              <div className="text-xs text-muted-foreground">
-                <p><strong>Easy:</strong> 60-65 starting numbers</p>
-                <p><strong>Medium:</strong> 50-55 starting numbers</p>
-                <p><strong>Hard:</strong> 40-45 starting numbers</p>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {isDev && onTestSolve && (
         <Button
@@ -153,6 +117,22 @@ export function GameControls({
           <FlaskConical className="h-5 w-5 text-orange-500" />
         </Button>
       )}
+
+      {/* Reset Confirmation Dialog */}
+      <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset Puzzle?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will reset the puzzle to its starting state. Your current progress will be lost. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelReset}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmReset}>Reset Puzzle</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -9,10 +9,22 @@ import { TimerDisplay } from "@/components/timer-display"
 import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
+import { DifficultySelector } from "@/components/difficulty-selector"
 import { Button } from "@/components/ui/button"
+import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export function TridokuGame() {
   const {
@@ -22,6 +34,9 @@ export function TridokuGame() {
     isPaused,
     elapsedTime,
     showErrors,
+    difficulty,
+    hasStarted,
+    isViewMode,
     stats,
     isLoading,
     isGenerating,
@@ -34,11 +49,38 @@ export function TridokuGame() {
     loadTestSolve,
     getShareText,
     generateNewPuzzle,
+    changeDifficulty,
+    isGameActive,
   } = useTridoku()
 
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
   const [showRules, setShowRules] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [pendingDifficulty, setPendingDifficulty] = useState<Difficulty | null>(null)
+
+  // Handle difficulty change with confirmation if needed
+  const handleDifficultyChange = useCallback((newDifficulty: Difficulty) => {
+    if (isGameActive()) {
+      setPendingDifficulty(newDifficulty)
+      setShowConfirm(true)
+    } else {
+      changeDifficulty(newDifficulty)
+    }
+  }, [isGameActive, changeDifficulty])
+
+  const confirmDifficultyChange = useCallback(() => {
+    if (pendingDifficulty) {
+      changeDifficulty(pendingDifficulty)
+      setPendingDifficulty(null)
+    }
+    setShowConfirm(false)
+  }, [pendingDifficulty, changeDifficulty])
+
+  const cancelDifficultyChange = useCallback(() => {
+    setPendingDifficulty(null)
+    setShowConfirm(false)
+  }, [])
 
   // Show win modal when complete
   useEffect(() => {
@@ -136,50 +178,149 @@ export function TridokuGame() {
 
       {/* Main content */}
       <main className="flex-1 container max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
-        {/* Timer and controls row */}
-        <div className="flex items-center justify-between">
-          <TimerDisplay seconds={elapsedTime} isPaused={isPaused} />
-          <GameControls
-            isPaused={isPaused}
-            showErrors={showErrors}
-            onTogglePause={togglePause}
-            onToggleErrors={toggleErrors}
-            onReset={resetPuzzle}
-            onTestSolve={loadTestSolve}
-            onGenerateNew={generateNewPuzzle}
-            isComplete={isComplete}
-            isGenerating={isGenerating}
-          />
-        </div>
+        {!hasStarted ? (
+          /* Welcome screen - choose difficulty */
+          <div className="flex-1 flex items-center justify-center">
+            <div className="max-w-md w-full space-y-8 text-center">
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <Triangle className="h-20 w-20 text-primary fill-primary/20" />
+                </div>
+                <h2 className="text-4xl font-bold text-foreground">Welcome to Tridoku</h2>
+                <p className="text-lg text-muted-foreground">
+                  Choose your difficulty level to begin today&apos;s puzzle
+                </p>
+              </div>
 
-        {/* Game board */}
-        <div className="flex-1 flex items-center justify-center py-4">
-          <div className="w-full max-w-md">
-            <TridokuBoard
-              cells={cells}
-              selectedCellId={selectedCellId}
-              onCellClick={selectCell}
-              isPaused={isPaused}
-            />
+              <div className="space-y-6 pt-4">
+                <div className="space-y-3">
+                  <button
+                    onClick={() => changeDifficulty('easy')}
+                    disabled={isGenerating}
+                    className="w-full py-6 px-8 rounded-lg border-2 border-green-500 bg-green-500/10 hover:bg-green-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <h3 className="text-2xl font-bold text-green-600 group-hover:text-green-700">Easy</h3>
+                        <p className="text-sm text-muted-foreground mt-1">40-50 starting numbers</p>
+                      </div>
+                      {stats.easy.completedToday && (
+                        <div className="text-green-600 text-sm font-semibold">✓ Completed</div>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => changeDifficulty('medium')}
+                    disabled={isGenerating}
+                    className="w-full py-6 px-8 rounded-lg border-2 border-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <h3 className="text-2xl font-bold text-yellow-600 group-hover:text-yellow-700">Medium</h3>
+                        <p className="text-sm text-muted-foreground mt-1">30-40 starting numbers</p>
+                      </div>
+                      {stats.medium.completedToday && (
+                        <div className="text-yellow-600 text-sm font-semibold">✓ Completed</div>
+                      )}
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => changeDifficulty('hard')}
+                    disabled={isGenerating}
+                    className="w-full py-6 px-8 rounded-lg border-2 border-red-500 bg-red-500/10 hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-left">
+                        <h3 className="text-2xl font-bold text-red-600 group-hover:text-red-700">Hard</h3>
+                        <p className="text-sm text-muted-foreground mt-1">22-30 starting numbers</p>
+                      </div>
+                      {stats.hard.completedToday && (
+                        <div className="text-red-600 text-sm font-semibold">✓ Completed</div>
+                      )}
+                    </div>
+                  </button>
+                </div>
+
+                {isGenerating && (
+                  <div className="flex items-center justify-center gap-3 py-4">
+                    <Spinner className="h-5 w-5 text-primary" />
+                    <p className="text-muted-foreground">Loading puzzle...</p>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Game view - active puzzle */
+          <>
+            {/* View mode indicator */}
+            {isViewMode && (
+              <div className="bg-blue-500/10 border-2 border-blue-500 rounded-lg p-4 flex items-center justify-center gap-2">
+                <Eye className="h-5 w-5 text-blue-600" />
+                <p className="text-blue-600 font-semibold">
+                  View Mode: You completed this puzzle today!
+                </p>
+              </div>
+            )}
 
-        {/* Number pad */}
-        <div className="py-4">
-          <NumberPad
-            onNumberClick={setValue}
-            onClear={clearCell}
-            disabled={isPaused || isComplete || selectedCellId === null}
-          />
-        </div>
+            {/* Difficulty selector */}
+            <div className="flex justify-center">
+              <DifficultySelector
+                currentDifficulty={difficulty!}
+                stats={stats}
+                onDifficultyChange={handleDifficultyChange}
+                disabled={isGenerating}
+              />
+            </div>
+            
+            {/* Timer and controls row */}
+            <div className="flex items-center justify-between">
+              <TimerDisplay seconds={elapsedTime} isPaused={isPaused} />
+              <GameControls
+                isPaused={isPaused}
+                showErrors={showErrors}
+                onTogglePause={togglePause}
+                onToggleErrors={toggleErrors}
+                onReset={resetPuzzle}
+                onTestSolve={loadTestSolve}
+                isComplete={isComplete}
+                isViewMode={isViewMode}
+                isGenerating={isGenerating}
+              />
+            </div>
 
-        {/* Streak display */}
-        {stats.currentStreak > 0 && (
-          <div className="text-center pb-4">
-            <p className="text-sm text-muted-foreground">
-              Current Streak: <span className="font-bold text-primary">{stats.currentStreak}</span>
-            </p>
-          </div>
+            {/* Game board */}
+            <div className="flex-1 flex items-center justify-center py-4">
+              <div className="w-full max-w-md">
+                <TridokuBoard
+                  cells={cells}
+                  selectedCellId={selectedCellId}
+                  onCellClick={selectCell}
+                  isPaused={isPaused}
+                />
+              </div>
+            </div>
+
+            {/* Number pad */}
+            <div className="py-4">
+              <NumberPad
+                onNumberClick={setValue}
+                onClear={clearCell}
+                disabled={isPaused || isComplete || selectedCellId === null || isViewMode}
+              />
+            </div>
+
+            {/* Streak display */}
+            {difficulty && stats[difficulty].currentStreak > 0 && (
+              <div className="text-center pb-4">
+                <p className="text-sm text-muted-foreground">
+                  Current Streak: <span className="font-bold text-primary">{stats[difficulty].currentStreak}</span>
+                </p>
+              </div>
+            )}
+          </>
         )}
       </main>
 
@@ -194,6 +335,7 @@ export function TridokuGame() {
         open={showWin}
         onOpenChange={setShowWin}
         stats={stats}
+        difficulty={difficulty || 'medium'}
         elapsedTime={elapsedTime}
         getShareText={getShareText}
       />
@@ -202,6 +344,22 @@ export function TridokuGame() {
         open={showRules}
         onOpenChange={setShowRules}
       />
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Abandon Current Game?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have a game in progress. Switching difficulty will abandon your current progress and start a new puzzle. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelDifficultyChange}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDifficultyChange}>Switch Difficulty</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

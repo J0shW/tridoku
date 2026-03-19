@@ -1,7 +1,7 @@
 "use client"
 
 import { GameStats } from "@/hooks/use-tridoku"
-import { formatTime, getPuzzleNumber } from "@/lib/tridoku"
+import { formatTime, getPuzzleNumber, Difficulty } from "@/lib/tridoku"
 import {
   Dialog,
   DialogContent,
@@ -17,13 +17,15 @@ interface WinModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stats: GameStats
+  difficulty: Difficulty
   elapsedTime: number
   getShareText: () => string
 }
 
-export function WinModal({ open, onOpenChange, stats, elapsedTime, getShareText }: WinModalProps) {
+export function WinModal({ open, onOpenChange, stats, difficulty, elapsedTime, getShareText }: WinModalProps) {
   const [copied, setCopied] = useState(false)
   const puzzleNumber = getPuzzleNumber()
+  const diffStats = stats[difficulty]
 
   const handleShare = async () => {
     const text = getShareText()
@@ -59,6 +61,9 @@ export function WinModal({ open, onOpenChange, stats, elapsedTime, getShareText 
           </DialogTitle>
           <DialogDescription className="text-center text-lg">
             You solved Daily Tridoku #{puzzleNumber}
+            <span className="block text-sm mt-1 capitalize font-semibold">
+              {difficulty === 'easy' ? '🟢 Easy' : difficulty === 'medium' ? '🟡 Medium' : '🔴 Hard'} Mode
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -72,15 +77,15 @@ export function WinModal({ open, onOpenChange, stats, elapsedTime, getShareText 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-4 border-t border-border pt-6">
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{stats.currentStreak}</p>
+              <p className="text-2xl font-bold text-foreground">{diffStats.currentStreak}</p>
               <p className="text-xs text-muted-foreground">Current Streak</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{stats.maxStreak}</p>
+              <p className="text-2xl font-bold text-foreground">{diffStats.maxStreak}</p>
               <p className="text-xs text-muted-foreground">Max Streak</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-bold text-foreground">{stats.gamesWon}</p>
+              <p className="text-2xl font-bold text-foreground">{diffStats.gamesWon}</p>
               <p className="text-xs text-muted-foreground">Games Won</p>
             </div>
           </div>

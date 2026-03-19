@@ -11,17 +11,27 @@ import {
   isPuzzleComplete,
   EXAMPLE_PUZZLE,
   TEST_NEARLY_SOLVED,
-  Difficulty
+  Difficulty,
+  createEmptyBoard
 } from "@/lib/tridoku"
 import { getDailyPuzzle } from "@/lib/puzzle-service"
 
-export interface GameStats {
+export interface DifficultyStats {
   gamesPlayed: number
   gamesWon: number
   currentStreak: number
   maxStreak: number
   bestTime: number | null
   lastPlayedDate: string | null
+  completedToday: boolean
+  todaysPuzzle?: string
+  todaysTime?: number
+}
+
+export interface GameStats {
+  easy: DifficultyStats
+  medium: DifficultyStats
+  hard: DifficultyStats
 }
 
 interface GameState {
@@ -31,26 +41,15 @@ interface GameState {
   isPaused: boolean
   elapsedTime: number
   showErrors: boolean
+  difficulty: Difficulty | null
+  hasStarted: boolean
+  isViewMode: boolean
 }
 
 const STORAGE_KEY = "tridoku-game-state"
 const STATS_KEY = "tridoku-stats"
 
-function getStoredStats(): GameStats {
-  if (typeof window === "undefined") {
-    return {
-      gamesPlayed: 0,
-      gamesWon: 0,
-      currentStreak: 0,
-      maxStreak: 0,
-      bestTime: null,
-      lastPlayedDate: null,
-    }
-  }
-  const stored = localStorage.getItem(STATS_KEY)
-  if (stored) {
-    return JSON.parse(stored)
-  }
+function getDefaultDifficultyStats(): DifficultyStats {
   return {
     gamesPlayed: 0,
     gamesWon: 0,
@@ -58,6 +57,47 @@ function getStoredStats(): GameStats {
     maxStreak: 0,
     bestTime: null,
     lastPlayedDate: null,
+    completedToday: false,
+  }
+}
+
+function getStoredStats(): GameStats {
+  if (typeof window === "undefined") {
+    return {
+      easy: getDefaultDifficultyStats(),
+      medium: getDefaultDifficultyStats(),
+      hard: getDefaultDifficultyStats(),
+    }
+  }
+  const stored = localStorage.getItem(STATS_KEY)
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored)
+      // Migrate old stats format
+      if ('gamesPlayed' in parsed && !('easy' in parsed)) {
+        return {
+          easy: getDefaultDifficultyStats(),
+          medium: parsed,
+          hard: getDefaultDifficultyStats(),
+        }
+      }
+      // Ensure completedToday is reset for new day
+      const today = getTodayString()
+      Object.keys(parsed).forEach(key => {
+        const diff = key as Difficulty
+        if (parsed[diff].lastPlayedDate !== today) {
+          parsed[diff].completedToday = false
+        }
+      })
+      return parsed
+    } catch (e) {
+      console.error('Failed to parse stats:', e)
+    }
+  }
+  return {
+    easy: getDefaultDifficultyStats(),
+    medium: getDefaultDifficultyStats(),
+    hard: getDefaultDifficultyStats(),
   }
 }
 
@@ -74,20 +114,20 @@ function getTodayString(): string {
 
 export function useTridoku() {
   const [gameState, setGameState] = useState<GameState>({
-    cells: loadPuzzle(EXAMPLE_PUZZLE),
+    cells: createEmptyBoard(),
     selectedCellId: null,
     isComplete: false,
     isPaused: false,
     elapsedTime: 0,
     showErrors: false,
+    difficulty: null,
+    hasStarted: false,
+    isViewMode: false,
   })
   const [stats, setStats] = useState<GameStats>({
-    gamesPlayed: 0,
-    gamesWon: 0,
-    currentStreak: 0,
-    maxStreak: 0,
-    bestTime: null,
-    lastPlayedDate: null,
+    easy: getDefaultDifficultyStats(),
+    medium: getDefaultDifficultyStats(),
+    hard: getDefaultDifficultyStats(),
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -101,64 +141,74 @@ export function useTridoku() {
 
   // Timer
   useEffect(() => {
-    if (gameState.isComplete || gameState.isPaused) return
+    if (!gameState.hasStarted || gameState.isComplete || gameState.isPaused) return
 
     const interval = setInterval(() => {
       setGameState(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }))
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [gameState.isComplete, gameState.isPaused])
+  }, [gameState.hasStarted, gameState.isComplete, gameState.isPaused])
 
   // Handle puzzle completion
   useEffect(() => {
-    if (!gameState.isComplete) return
+    if (!gameState.isComplete || !gameState.difficulty) return
     
-    // Update stats
+    // Update stats for the current difficulty
     const today = getTodayString()
-    const newStats = { ...stats }
+    const difficulty = gameState.difficulty
+    const diffStats = stats[difficulty]
     
-    // Check if this is a new win (not already counted)
-    if (stats.lastPlayedDate !== today) {
-      newStats.gamesPlayed = (newStats.gamesPlayed || 0) + 1
-      newStats.gamesWon = (newStats.gamesWon || 0) + 1
+    // Check if this is a new win for this difficulty (not already counted today)
+    if (diffStats.completedToday) return
+    
+    const newDiffStats = { ...diffStats }
+    newDiffStats.gamesPlayed = (newDiffStats.gamesPlayed || 0) + 1
+    newDiffStats.gamesWon = (newDiffStats.gamesWon || 0) + 1
+    newDiffStats.completedToday = true
+    
+    // Update streak
+    if (diffStats.lastPlayedDate) {
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`
       
-      // Update streak
-      if (stats.lastPlayedDate) {
-        const yesterday = new Date()
-        yesterday.setDate(yesterday.getDate() - 1)
-        const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`
-        
-        if (stats.lastPlayedDate === yesterdayStr) {
-          newStats.currentStreak = (stats.currentStreak || 0) + 1
-        } else {
-          newStats.currentStreak = 1
-        }
+      if (diffStats.lastPlayedDate === yesterdayStr) {
+        newDiffStats.currentStreak = (diffStats.currentStreak || 0) + 1
       } else {
-        newStats.currentStreak = 1
+        newDiffStats.currentStreak = 1
       }
-      
-      newStats.maxStreak = Math.max(newStats.maxStreak || 0, newStats.currentStreak)
-      
-      // Update best time
-      if (!newStats.bestTime || gameState.elapsedTime < newStats.bestTime) {
-        newStats.bestTime = gameState.elapsedTime
-      }
-      
-      newStats.lastPlayedDate = today
-      
-      setStats(newStats)
-      saveStats(newStats)
+    } else {
+      newDiffStats.currentStreak = 1
     }
-  }, [gameState.isComplete, gameState.elapsedTime, stats])
+    
+    newDiffStats.maxStreak = Math.max(newDiffStats.maxStreak || 0, newDiffStats.currentStreak)
+    
+    // Update best time
+    if (!newDiffStats.bestTime || gameState.elapsedTime < newDiffStats.bestTime) {
+      newDiffStats.bestTime = gameState.elapsedTime
+    }
+    
+    newDiffStats.lastPlayedDate = today
+    
+    // Store the completed puzzle and time
+    newDiffStats.todaysPuzzle = boardToString(gameState.cells)
+    newDiffStats.todaysTime = gameState.elapsedTime
+    
+    const newStats = { ...stats, [difficulty]: newDiffStats }
+    setStats(newStats)
+    saveStats(newStats)
+  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.cells, stats])
 
   // Select a cell by CellId
   const selectCell = useCallback((cellId: CellId | null) => {
+    if (gameState.isViewMode) return
     setGameState(prev => ({ ...prev, selectedCellId: cellId }))
-  }, [])
+  }, [gameState.isViewMode])
 
   // Set value on the selected cell
   const setValue = useCallback((value: number) => {
+    if (gameState.isViewMode) return
     setGameState(prev => {
       if (!prev.selectedCellId) return prev
       const [rowStr, colStr] = prev.selectedCellId.split("-")
@@ -177,10 +227,11 @@ export function useTridoku() {
       
       return { ...prev, cells: validatedCells, isComplete }
     })
-  }, [])
+  }, [gameState.isViewMode])
 
   // Clear the selected cell
   const clearCell = useCallback(() => {
+    if (gameState.isViewMode) return
     setGameState(prev => {
       if (!prev.selectedCellId) return prev
       const [rowStr, colStr] = prev.selectedCellId.split("-")
@@ -196,7 +247,7 @@ export function useTridoku() {
       )
       return { ...prev, cells: validateBoard(updatedCells) }
     })
-  }, [])
+  }, [gameState.isViewMode])
 
   // Toggle error highlighting
   const toggleErrors = useCallback(() => {
@@ -210,15 +261,61 @@ export function useTridoku() {
 
   // Reset puzzle
   const resetPuzzle = useCallback(() => {
-    setGameState(prev => ({
-      ...prev,
-      cells: loadPuzzle(EXAMPLE_PUZZLE),
-      selectedCellId: null,
-      isComplete: false,
-      elapsedTime: 0,
-      showErrors: false,
-    }))
-  }, [])
+    if (gameState.difficulty) {
+      generateNewPuzzle(gameState.difficulty)
+    }
+  }, [gameState.difficulty])
+  
+  // Change difficulty
+  const changeDifficulty = useCallback(async (difficulty: Difficulty) => {
+    if (difficulty === gameState.difficulty) return
+    setIsGenerating(true)
+    
+    try {
+      const diffStats = stats[difficulty]
+      
+      // Check if this difficulty was already completed today
+      if (diffStats.completedToday && diffStats.todaysPuzzle && diffStats.todaysTime !== undefined) {
+        // Load completed puzzle in view mode
+        const puzzleCells = loadPuzzle(diffStats.todaysPuzzle)
+        setGameState({
+          cells: puzzleCells,
+          selectedCellId: null,
+          isComplete: true,
+          isPaused: false,
+          elapsedTime: diffStats.todaysTime,
+          showErrors: false,
+          difficulty,
+          hasStarted: true,
+          isViewMode: true,
+        })
+      } else {
+        // Load new puzzle
+        const dailyPuzzle = await getDailyPuzzle(undefined, difficulty)
+        const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
+        setGameState({
+          cells: puzzleCells,
+          selectedCellId: null,
+          isComplete: false,
+          isPaused: false,
+          elapsedTime: 0,
+          showErrors: false,
+          difficulty,
+          hasStarted: true,
+          isViewMode: false,
+        })
+      }
+    } catch (error) {
+      console.error('Failed to fetch puzzle:', error)
+    } finally {
+      setIsGenerating(false)
+    }
+  }, [gameState.difficulty, stats])
+
+  // Check if there's an active game in progress
+  const isGameActive = useCallback(() => {
+    return gameState.hasStarted && !gameState.isComplete && !gameState.isViewMode && gameState.elapsedTime > 0
+  }, [gameState.hasStarted, gameState.isComplete, gameState.isViewMode, gameState.elapsedTime])
 
   // Load nearly-solved puzzle for testing
   const loadTestSolve = useCallback(() => {
@@ -233,21 +330,24 @@ export function useTridoku() {
 
   // Generate share text
   const getShareText = useCallback(() => {
-    if (!gameState.isComplete) return ""
+    if (!gameState.isComplete || !gameState.difficulty) return ""
     
     const puzzleNum = getPuzzleNumber()
     const time = formatTime(gameState.elapsedTime)
+    const difficultyEmoji = gameState.difficulty === 'easy' ? '🟢' : gameState.difficulty === 'medium' ? '🟡' : '🔴'
+    const diffStats = stats[gameState.difficulty]
     
-    return `Daily Tridoku #${puzzleNum}\n⏱️ ${time}\n🔥 Streak: ${stats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
-  }, [gameState.isComplete, gameState.elapsedTime, stats.currentStreak])
+    return `Daily Tridoku #${puzzleNum} ${difficultyEmoji}\n⏱️ ${time}\n🔥 Streak: ${diffStats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
+  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, stats])
 
   // Load a puzzle (fetches from pre-generated puzzles)
-  const generateNewPuzzle = useCallback(async (difficulty: Difficulty = 'medium', customDate?: Date) => {
+  const generateNewPuzzle = useCallback(async (difficulty?: Difficulty, customDate?: Date) => {
+    const targetDifficulty = difficulty || gameState.difficulty || 'medium'
     setIsGenerating(true)
     
     try {
       // Fetch the daily puzzle from pre-generated puzzles
-      const dailyPuzzle = await getDailyPuzzle(customDate, difficulty)
+      const dailyPuzzle = await getDailyPuzzle(customDate, targetDifficulty)
       console.log(`[useTridoku] Loaded ${dailyPuzzle.difficulty} puzzle for ${dailyPuzzle.date}`)
       
       const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
@@ -258,6 +358,9 @@ export function useTridoku() {
         isPaused: false,
         elapsedTime: 0,
         showErrors: false,
+        difficulty: targetDifficulty,
+        hasStarted: true,
+        isViewMode: false,
       })
     } catch (error) {
       console.error('Failed to fetch puzzle:', error)
@@ -269,11 +372,14 @@ export function useTridoku() {
         isComplete: false,
         elapsedTime: 0,
         showErrors: false,
+        difficulty: 'medium',
+        hasStarted: true,
+        isViewMode: false,
       }))
     } finally {
       setIsGenerating(false)
     }
-  }, [])
+  }, [gameState.difficulty])
 
   return {
     cells: gameState.cells,
@@ -282,6 +388,9 @@ export function useTridoku() {
     isPaused: gameState.isPaused,
     elapsedTime: gameState.elapsedTime,
     showErrors: gameState.showErrors,
+    difficulty: gameState.difficulty,
+    hasStarted: gameState.hasStarted,
+    isViewMode: gameState.isViewMode,
     stats,
     isLoading,
     isGenerating,
@@ -294,7 +403,22 @@ export function useTridoku() {
     loadTestSolve,
     getShareText,
     generateNewPuzzle,
+    changeDifficulty,
+    isGameActive,
   }
+}
+
+// Helper function to convert board to string
+function boardToString(cells: Cell[][]): string {
+  let result = ''
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      const cell = cells[row][col]
+      if (cell.hidden) continue
+      result += cell.value || '0'
+    }
+  }
+  return result
 }
 
 function formatTime(seconds: number): string {
