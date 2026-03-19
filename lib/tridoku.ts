@@ -302,17 +302,6 @@ export const TEST_NEARLY_SOLVED =
   '275374215965467' + // row 7
   '81346896734829135'  // row 8
 
-export const IS_THIS_SOLVABLE =
-  '0' +           // row 0
-  '905' +         // row 1
-  '62400' +       // row 2
-  '4075031' +     // row 3
-  '010946050' +   // row 4
-  '05008090600' + // row 5
-  '0800000581300' + // row 6
-  '170650869200800' + // row 7
-  '09608000450621540'  // row 8
-
 // Get puzzle number based on days since launch
 export function getPuzzleNumber(): number {
   const launchDate = new Date('2026-01-01')
