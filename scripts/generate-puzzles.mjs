@@ -222,13 +222,13 @@ function buildSymmetryGroups() {
   }
   groups.push(group1)
   
-  // Group 2: Regions {1, 3, 6} - same rotation pattern
+  // Group 2: Regions {1, 6, 3} - reordered so region 6 gets first map value
   const group2 = []
   for (let i = 0; i < 9; i++) {
     group2.push([
       REGION_CELLS[1][i],
-      REGION_CELLS[3][ROTATION_MAP[i][0]],
-      REGION_CELLS[6][ROTATION_MAP[i][1]]
+      REGION_CELLS[6][ROTATION_MAP[i][0]],
+      REGION_CELLS[3][ROTATION_MAP[i][1]]
     ])
   }
   groups.push(group2)
@@ -512,7 +512,7 @@ function visualizeRegion(board, regionNum, showValues = false) {
 function printSymmetryGroupVisual(board, groupIndex) {
   const regionNums = [
     [0, 4, 8],  // Group 1
-    [1, 3, 6],  // Group 2
+    [1, 6, 3],  // Group 2
     [2, 5, 7]   // Group 3
   ][groupIndex]
   
@@ -573,7 +573,7 @@ function validateSymmetry(board) {
     // Count givens per region in this group
     const regionNums = [
       [0, 4, 8],  // Group 1
-      [1, 3, 6],  // Group 2
+      [1, 6, 3],  // Group 2
       [2, 5, 7]   // Group 3
     ][groupIndex]
 
