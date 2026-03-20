@@ -207,7 +207,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
             y1={edge.y1}
             x2={edge.x2}
             y2={edge.y2}
-            stroke="#000"
+            className="stroke-tridoku-region-stroke"
             strokeWidth={0.12}
             strokeLinecap="round"
           />

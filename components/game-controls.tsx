@@ -71,7 +71,7 @@ export function GameControls({
         {isPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
       </Button>
 
-      <Button
+      {/* <Button
         variant="ghost"
         size="icon"
         onClick={onToggleErrors}
@@ -84,7 +84,7 @@ export function GameControls({
         aria-label={showErrors ? "Hide error highlights" : "Show error highlights"}
       >
         {showErrors ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-      </Button>
+      </Button> */}
 
       <Button
         variant="ghost"

@@ -267,16 +267,6 @@ export function TridokuGame() {
         ) : (
           /* Game view - active puzzle */
           <>
-            {/* View mode indicator */}
-            {isViewMode && (
-              <div className="bg-[#bfdde2]/60 border-2 border-[#98ac8b] rounded-lg p-4 flex items-center justify-center gap-2">
-                <Eye className="h-5 w-5 text-[#2d5a3a]" />
-                <p className="text-[#2d5a3a] font-semibold">
-                  View Mode: You completed this puzzle today!
-                </p>
-              </div>
-            )}
-
             {/* Difficulty selector */}
             <div className="flex justify-center">
               <DifficultySelector
@@ -304,7 +294,7 @@ export function TridokuGame() {
             </div>
 
             {/* Game board */}
-            <div className="flex-1 flex items-center justify-center py-4">
+            <div className="flex items-center justify-center py-4">
               <div className="w-full max-w-md">
                 <TridokuBoard
                   cells={cells}
@@ -316,14 +306,25 @@ export function TridokuGame() {
               </div>
             </div>
 
+            {/* View mode indicator */}
+            {isViewMode && (
+              <div className="bg-[#bfdde2]/60 dark:bg-[#bfdde2]/90 border-2 border-[#98ac8b] rounded-lg p-4 flex items-center justify-center gap-2">
+                <Eye className="h-5 w-5 text-[#2d5a3a]" />
+                <p className="text-[#2d5a3a] font-semibold">
+                  View Mode: You completed this puzzle today!
+                </p>
+              </div>
+            )}
             {/* Number pad */}
-            <div className="py-4">
-              <NumberPad
-                onNumberClick={setValue}
-                onClear={clearCell}
-                disabled={isPaused || isComplete || selectedCellId === null || isViewMode}
-              />
-            </div>
+            {!isViewMode && (
+              <div className="pb-4">
+                <NumberPad
+                  onNumberClick={setValue}
+                  onClear={clearCell}
+                  disabled={isPaused || isComplete || selectedCellId === null || isViewMode}
+                />
+              </div>
+            )}
 
             {/* Streak display */}
             {difficulty && stats[difficulty].currentStreak > 0 && (

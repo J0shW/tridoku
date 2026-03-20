@@ -66,6 +66,8 @@
   --tridoku-easy-none: #e4e3d3;
   --tridoku-medium-none: #e4e3d3;
   --tridoku-hard-none: #e4e3d3;
+
+  --tridoku-region-stroke: #000000;
 }
 
 .dark {
@@ -130,6 +132,8 @@
   --tridoku-easy-none: #e4e3d3;
   --tridoku-medium-none: #e4e3d3;
   --tridoku-hard-none: #e4e3d3;
+
+  --tridoku-region-stroke: #7e7e7e;
 }
 
 @theme inline {
@@ -192,6 +196,8 @@
   --color-tridoku-hard-inner: var(--tridoku-hard-inner);
   --color-tridoku-hard-overlap: var(--tridoku-hard-overlap);
   --color-tridoku-hard-none: var(--tridoku-hard-none);
+
+  --color-tridoku-region-stroke: var(--tridoku-region-stroke);
 }
 
 @layer base {
