@@ -851,9 +851,9 @@ console.log('========================\n')
 // Change these parameters to generate more puzzles
 const YEAR = 2026
 const START_MONTH = 3  // March
-const START_DAY = 20
+const START_DAY = 21
 const END_MONTH = 3    // March
-const END_DAY = 20     // Generate through March 20
+const END_DAY = 31
 
 // Set to true to see visual verification of rotational symmetry
 const SHOW_VISUAL = false
