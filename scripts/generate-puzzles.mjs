@@ -173,7 +173,7 @@ function createSeededRandom(seed) {
 const DIFFICULTY_CONFIGS = {
   easy: { minGivens: 40, maxGivens: 50 },
   medium: { minGivens: 30, maxGivens: 40 },
-  hard: { minGivens: 22, maxGivens: 30 }
+  hard: { minGivens: 24, maxGivens: 30 }
 }
 
 // ============================================================================
@@ -604,19 +604,46 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
   let totalAttempts = 0
   let totalRemovals = 0
   let passNumber = 0
+  let consecutiveFailedPasses = 0
+  const MAX_PASSES = 20 // Increased to allow more attempts
+  const MAX_FAILED_PASSES = 0 // Try more shuffle variations before giving up
   
   // Keep trying passes until we reach target or make no progress
-  while (currentGivens > targetGivens) {
+  while (currentGivens > targetGivens && passNumber < MAX_PASSES) {
     passNumber++
     
     // Build removal units (27 total: 3 groups × 9 cells per group)
     const removalUnits = buildRemovalUnits()
     
-    // Shuffle removal units for this pass
-    for (let i = removalUnits.length - 1; i > 0; i--) {
-      const rand = rng ? rng.next() : Math.random()
-      const j = Math.floor(rand * (i + 1))
-      ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
+    // Use different shuffle strategies to explore more possibilities
+    if (passNumber % 3 === 1) {
+      // Standard shuffle
+      for (let i = removalUnits.length - 1; i > 0; i--) {
+        const rand = rng ? rng.next() : Math.random()
+        const j = Math.floor(rand * (i + 1))
+        ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
+      }
+    } else if (passNumber % 3 === 2) {
+      // Reverse order after shuffle
+      for (let i = removalUnits.length - 1; i > 0; i--) {
+        const rand = rng ? rng.next() : Math.random()
+        const j = Math.floor(rand * (i + 1))
+        ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
+      }
+      removalUnits.reverse()
+    } else {
+      // Group by region groups, then shuffle within groups
+      const grouped = [[], [], []]
+      removalUnits.forEach(unit => grouped[unit.groupIndex].push(unit))
+      grouped.forEach(group => {
+        for (let i = group.length - 1; i > 0; i--) {
+          const rand = rng ? rng.next() : Math.random()
+          const j = Math.floor(rand * (i + 1))
+          ;[group[i], group[j]] = [group[j], group[i]]
+        }
+      })
+      removalUnits.length = 0
+      removalUnits.push(...grouped[0], ...grouped[1], ...grouped[2])
     }
 
     let removalThisPass = 0
@@ -658,17 +685,20 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
     
     console.log(`  [Generator] Pass ${passNumber}: ${removalThisPass} cells removed, ${currentGivens} givens remaining`)
     
-    // If we made no progress this pass, we're done
+    // Track consecutive failed passes
     if (removalThisPass === 0) {
-      console.log(`  [Generator] No more symmetric triplets can be removed while maintaining uniqueness`)
-      break
+      consecutiveFailedPasses++
+      if (consecutiveFailedPasses >= MAX_FAILED_PASSES) {
+        console.log(`  [Generator] No progress after ${MAX_FAILED_PASSES} consecutive passes`)
+        break
+      }
+    } else {
+      consecutiveFailedPasses = 0 // Reset counter on successful removal
     }
-    
-    // Safety check: if we've done too many passes, stop
-    if (passNumber >= 10) {
-      console.log(`  [Generator] Maximum passes reached`)
-      break
-    }
+  }
+  
+  if (passNumber >= MAX_PASSES) {
+    console.log(`  [Generator] Maximum passes (${MAX_PASSES}) reached`)
   }
   
   const totalDuration = Date.now() - startTime
@@ -715,17 +745,64 @@ function generatePuzzle(difficulty = 'medium', seed) {
   const config = DIFFICULTY_CONFIGS[difficulty]
   const generationSeed = seed !== undefined ? seed : Math.floor(Math.random() * 1000000)
   
-  const board = generateCompleteSolution(generationSeed)
-  
   const rng = createSeededRandom(generationSeed + 500)
   const targetGivens = Math.floor(
     config.minGivens + rng.next() * (config.maxGivens - config.minGivens + 1)
   )
   console.log(`  [Generator] Target givens: ${targetGivens}`)
   
-  const puzzle = removeCellsWithUniqueness(board, targetGivens, generationSeed)
+  const MAX_SOLUTION_ATTEMPTS = difficulty === 'hard' ? 20 : 1
+  const ACCEPTABLE_DISTANCE = 6 // Accept if within 3 triplets (9 cells) of target
   
-  return puzzle
+  let bestBoard = null
+  let bestGivens = 81
+  
+  for (let attempt = 1; attempt <= MAX_SOLUTION_ATTEMPTS; attempt++) {
+    // Use different seed for each attempt
+    const attemptSeed = generationSeed + (attempt - 1) * 123456
+    
+    if (attempt > 1) {
+      console.log(`  [Generator] Retry ${attempt} with modified seed to reach target...`)
+    }
+    
+    const board = generateCompleteSolution(attemptSeed)
+    const puzzle = removeCellsWithUniqueness(board, targetGivens, attemptSeed)
+    
+    // Count current givens
+    let currentGivens = 0
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 17; col++) {
+        if (!puzzle[row][col].hidden && puzzle[row][col].value !== null) {
+          currentGivens++
+        }
+      }
+    }
+    
+    // Track the best result
+    if (Math.abs(currentGivens - targetGivens) < Math.abs(bestGivens - targetGivens)) {
+      bestBoard = puzzle
+      bestGivens = currentGivens
+    }
+    
+    // If we're within acceptable distance, use this puzzle
+    if (currentGivens <= targetGivens + ACCEPTABLE_DISTANCE) {
+      if (attempt > 1) {
+        console.log(`  [Generator] ✓ Reached acceptable target on attempt ${attempt}: ${currentGivens} givens`)
+      }
+      return puzzle
+    }
+    
+    // If this is not the last attempt and we're far from target, try again
+    if (attempt < MAX_SOLUTION_ATTEMPTS) {
+      console.log(`  [Generator] Got ${currentGivens} givens, target is ${targetGivens}. Trying different solution...`)
+    }
+  }
+  
+  // Return the best result we found
+  if (MAX_SOLUTION_ATTEMPTS > 1) {
+    console.log(`  [Generator] Using best result: ${bestGivens} givens (target: ${targetGivens})`)
+  }
+  return bestBoard
 }
 
 // ============================================================================
@@ -823,9 +900,9 @@ console.log('========================\n')
 // Change these parameters to generate more puzzles
 const YEAR = 2026
 const START_MONTH = 3  // March
-const START_DAY = 19
+const START_DAY = 20
 const END_MONTH = 3    // March
-const END_DAY = 21     // Generate through March 21
+const END_DAY = 20     // Generate through March 20
 
 // Set to true to see visual verification of rotational symmetry
 const SHOW_VISUAL = false
