@@ -179,48 +179,75 @@ const DIFFICULTY_CONFIGS = {
 // ============================================================================
 // SYMMETRY GROUPS FOR 3-WAY ROTATIONAL SYMMETRY
 // ============================================================================
-// Three groups of regions where each group has 3 rotationally equivalent regions
-// Within each group, cells at the same local index (0-8) are rotationally symmetric
-// Format: [groupIndex][localIndex] = [[row0,col0], [row1,col1], [row2,col2]]
+// Map of region number to its 9 cells' coordinates in order (local index 0-8)
+const REGION_CELLS = {
+  0: [[0, 8], [1, 7], [1, 8], [1, 9], [2, 6], [2, 7], [2, 8], [2, 9], [2, 10]],
+  1: [[3, 5], [4, 4], [4, 5], [4, 6], [5, 3], [5, 4], [5, 5], [5, 6], [5, 7]],
+  2: [[3, 6], [3, 7], [3, 8], [3, 9], [3, 10], [4, 7], [4, 8], [4, 9], [5, 8]],
+  3: [[3, 11], [4, 10], [4, 11], [4, 12], [5, 9], [5, 10], [5, 11], [5, 12], [5, 13]],
+  4: [[6, 2], [7, 1], [7, 2], [7, 3], [8, 0], [8, 1], [8, 2], [8, 3], [8, 4]],
+  5: [[6, 3], [6, 4], [6, 5], [6, 6], [6, 7], [7, 4], [7, 5], [7, 6], [8, 5]],
+  6: [[6, 8], [7, 7], [7, 8], [7, 9], [8, 6], [8, 7], [8, 8], [8, 9], [8, 10]],
+  7: [[6, 9], [6, 10], [6, 11], [6, 12], [6, 13], [7, 10], [7, 11], [7, 12], [8, 11]],
+  8: [[6, 14], [7, 13], [7, 14], [7, 15], [8, 12], [8, 13], [8, 14], [8, 15], [8, 16]]
+}
 
-const SYMMETRY_GROUPS = [
-  // GROUP 1: Regions {0, 4, 8}
-  [
-    [[0, 8], [6, 2], [6, 14]],    // Local 0
-    [[1, 7], [7, 1], [7, 13]],    // Local 1
-    [[1, 8], [7, 2], [7, 14]],    // Local 2
-    [[1, 9], [7, 3], [7, 15]],    // Local 3
-    [[2, 6], [8, 0], [8, 12]],    // Local 4
-    [[2, 7], [8, 1], [8, 13]],    // Local 5
-    [[2, 8], [8, 2], [8, 14]],    // Local 6
-    [[2, 9], [8, 3], [8, 15]],    // Local 7
-    [[2, 10], [8, 4], [8, 16]]    // Local 8
-  ],
-  // GROUP 2: Regions {1, 3, 6}
-  [
-    [[3, 5], [3, 11], [6, 8]],    // Local 0
-    [[4, 4], [4, 10], [7, 7]],    // Local 1
-    [[4, 5], [4, 11], [7, 8]],    // Local 2
-    [[4, 6], [4, 12], [7, 9]],    // Local 3
-    [[5, 3], [5, 9], [8, 6]],     // Local 4
-    [[5, 4], [5, 10], [8, 7]],    // Local 5
-    [[5, 5], [5, 11], [8, 8]],    // Local 6
-    [[5, 6], [5, 12], [8, 9]],    // Local 7
-    [[5, 7], [5, 13], [8, 10]]    // Local 8
-  ],
-  // GROUP 3: Regions {2, 5, 7}
-  [
-    [[3, 6], [6, 3], [6, 9]],     // Local 0
-    [[3, 7], [6, 4], [6, 10]],    // Local 1
-    [[3, 8], [6, 5], [6, 11]],    // Local 2
-    [[3, 9], [6, 6], [6, 12]],    // Local 3
-    [[3, 10], [6, 7], [6, 13]],   // Local 4
-    [[4, 7], [7, 4], [7, 10]],    // Local 5
-    [[4, 8], [7, 5], [7, 11]],    // Local 6
-    [[4, 9], [7, 6], [7, 12]],    // Local 7
-    [[5, 8], [8, 5], [8, 11]]     // Local 8
-  ]
+// Exact rotational mapping for 120° symmetry
+// Maps local index in first region to local indices in second and third regions
+// Based on the physical puzzle book's rotational symmetry pattern
+const ROTATION_MAP = [
+  [4, 8],  // index 0 → 4 → 8
+  [6, 3],  // index 1 → 6 → 3
+  [5, 7],  // index 2 → 5 → 7
+  [1, 6],  // index 3 → 1 → 6
+  [8, 0],  // index 4 → 8 → 0
+  [7, 2],  // index 5 → 7 → 2
+  [3, 1],  // index 6 → 3 → 1
+  [2, 5],  // index 7 → 2 → 5
+  [0, 4]   // index 8 → 0 → 4
 ]
+
+// Build symmetry groups with exact 120° rotational mapping
+function buildSymmetryGroups() {
+  const groups = []
+  
+  // Group 1: Regions {0, 4, 8}
+  const group1 = []
+  for (let i = 0; i < 9; i++) {
+    group1.push([
+      REGION_CELLS[0][i],
+      REGION_CELLS[4][ROTATION_MAP[i][0]],
+      REGION_CELLS[8][ROTATION_MAP[i][1]]
+    ])
+  }
+  groups.push(group1)
+  
+  // Group 2: Regions {1, 3, 6} - same rotation pattern
+  const group2 = []
+  for (let i = 0; i < 9; i++) {
+    group2.push([
+      REGION_CELLS[1][i],
+      REGION_CELLS[3][ROTATION_MAP[i][0]],
+      REGION_CELLS[6][ROTATION_MAP[i][1]]
+    ])
+  }
+  groups.push(group2)
+  
+  // Group 3: Regions {2, 5, 7} - same rotation pattern
+  const group3 = []
+  for (let i = 0; i < 9; i++) {
+    group3.push([
+      REGION_CELLS[2][i],
+      REGION_CELLS[5][ROTATION_MAP[i][0]],
+      REGION_CELLS[7][ROTATION_MAP[i][1]]
+    ])
+  }
+  groups.push(group3)
+  
+  return groups
+}
+
+const SYMMETRY_GROUPS = buildSymmetryGroups()
 
 function isValidPlacement(board, row, col, value) {
   const cell = board[row][col]
@@ -456,6 +483,51 @@ function buildRemovalUnits() {
 }
 
 /**
+ * Visualize a region's given pattern for debugging
+ * @param {Array} board - The game board
+ * @param {number} regionNum - Region number (0-8)
+ * @param {boolean} showValues - If true, show actual values; if false, show X for givens
+ * @returns {string} Visual representation
+ */
+function visualizeRegion(board, regionNum, showValues = false) {
+  const cells = REGION_CELLS[regionNum]
+  const pattern = cells.map(([row, col]) => {
+    const cell = board[row][col]
+    if (showValues) {
+      return cell.value !== null ? cell.value.toString() : '.'
+    } else {
+      return cell.value !== null ? 'X' : '.'
+    }
+  })
+  
+  // Format as 3 rows (1 cell, 3 cells, 5 cells)
+  return `    ${pattern[0]}\n   ${pattern[1]} ${pattern[2]} ${pattern[3]}\n  ${pattern[4]} ${pattern[5]} ${pattern[6]} ${pattern[7]} ${pattern[8]}`
+}
+
+/**
+ * Print visual comparison of three rotationally symmetric regions
+ * @param {Array} board - The game board
+ * @param {number} groupIndex - Symmetry group index (0, 1, or 2)
+ */
+function printSymmetryGroupVisual(board, groupIndex) {
+  const regionNums = [
+    [0, 4, 8],  // Group 1
+    [1, 3, 6],  // Group 2
+    [2, 5, 7]   // Group 3
+  ][groupIndex]
+  
+  console.log(`\n  Symmetry Group ${groupIndex + 1} (Regions ${regionNums.join(', ')}):`)
+  console.log(`  (X = given, . = empty | Pattern should be rotationally equivalent)`)
+  console.log(`  Region ${regionNums[0]} (first):`)
+  console.log(visualizeRegion(board, regionNums[0], false))
+  console.log(`  Region ${regionNums[1]} (120° rotation):`)
+  console.log(visualizeRegion(board, regionNums[1], false))
+  console.log(`  Region ${regionNums[2]} (240° rotation):`)
+  console.log(visualizeRegion(board, regionNums[2], false))
+  console.log(`  ↑ Using exact rotational mapping: R${regionNums[0]}(i) → R${regionNums[1]}(map[i][0]) → R${regionNums[2]}(map[i][1])`)
+}
+
+/**
  * Validate that the puzzle maintains 3-way rotational symmetry
  * Checks that each symmetry group has matching given patterns
  * @param {Array} board - The game board
@@ -627,6 +699,14 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
     const givenCounts = group.regions.map(r => r.givens).join(', ')
     console.log(`    Group ${i + 1} (regions ${regionNums}): ${givenCounts} givens`)
   })
+  
+  // Print visual verification for the first group to show rotational pattern
+  if (process.env.SHOW_SYMMETRY_VISUAL === 'true') {
+    console.log(`\n  [Visual Verification] Comparing rotationally equivalent regions:`)
+    printSymmetryGroupVisual(board, 0)
+    // Only show once per run
+    process.env.SHOW_SYMMETRY_VISUAL = 'done'
+  }
 
   return board
 }
@@ -747,8 +827,15 @@ const START_DAY = 19
 const END_MONTH = 3    // March
 const END_DAY = 21     // Generate through March 21
 
+// Set to true to see visual verification of rotational symmetry
+const SHOW_VISUAL = false
+
 console.log(`Generating puzzles for ${YEAR}...`)
 console.log(`Range: ${START_MONTH}/${START_DAY} to ${END_MONTH}/${END_DAY}`)
+if (SHOW_VISUAL) {
+  console.log('Visual symmetry verification enabled\n')
+  process.env.SHOW_SYMMETRY_VISUAL = 'true'
+}
 
 const puzzles = generatePuzzlesForYear(YEAR, START_MONTH, START_DAY, END_MONTH, END_DAY)
 
