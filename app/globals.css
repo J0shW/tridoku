@@ -61,11 +61,11 @@
   /* Hard - Pink, Blue, White */
   --tridoku-hard-outer: #e26495;
   --tridoku-hard-inner: #8cc7d1;
-  --tridoku-hard-overlap: #b47098;
+  --tridoku-hard-overlap: #996c85;
 
-  --tridoku-easy-none: #FFFFFF;
-  --tridoku-medium-none: #FFFFFF;
-  --tridoku-hard-none: #FFFFFF;
+  --tridoku-easy-none: #e4e3d3;
+  --tridoku-medium-none: #e4e3d3;
+  --tridoku-hard-none: #e4e3d3;
 }
 
 .dark {
@@ -127,9 +127,9 @@
   --tridoku-hard-inner: #8cc7d1;
   --tridoku-hard-overlap: #b47098;
 
-  --tridoku-easy-none: #FFFFFF;
-  --tridoku-medium-none: #FFFFFF;
-  --tridoku-hard-none: #FFFFFF;
+  --tridoku-easy-none: #e4e3d3;
+  --tridoku-medium-none: #e4e3d3;
+  --tridoku-hard-none: #e4e3d3;
 }
 
 @theme inline {
