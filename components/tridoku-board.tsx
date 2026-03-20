@@ -191,8 +191,9 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     <text
                       x={centroid.x}
                       y={centroid.y}
+                      dy="0.05"
                       textAnchor="middle"
-                      dominantBaseline="central"
+                      dominantBaseline="middle"
                       fontSize={0.85}
                       fontWeight={gameCell.isGiven ? "bold" : "normal"}
                       fill={gameCell.hasError ? "#DC2626" : "#000"}
