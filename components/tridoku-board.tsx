@@ -5,6 +5,7 @@ import { Cell, CellId, Board, TRIDOKU_BOARD, Difficulty } from "@/lib/tridoku"
 const ROW_HEIGHT = Math.sqrt(3)
 const SVG_WIDTH = 18
 const SVG_HEIGHT = 9 * ROW_HEIGHT
+const STROKE_MARGIN = 0.15 // Extra margin to prevent stroke clipping
 
 const EASY_FILL_COLORS: Record<Cell["color"], string> = {
   outer: "var(--tridoku-easy-outer)",
@@ -148,7 +149,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
   return (
     <div className="w-full">
       <svg
-        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
+        viewBox={`${-STROKE_MARGIN} ${-STROKE_MARGIN} ${SVG_WIDTH + STROKE_MARGIN * 2} ${SVG_HEIGHT + STROKE_MARGIN * 2}`}
         className="w-full h-auto p-2"
       >
         {TRIDOKU_BOARD.map((row) =>
