@@ -28,8 +28,8 @@ const HARD_FILL_COLORS: Record<Cell["color"], string> = {
   none: "var(--tridoku-hard-none)",
 }
 
-const SELECTED_FILL = "rgba(206, 96, 250, 0.315)"
-const SELECTED_STROKE = "rgb(168, 50, 216)"
+const SELECTED_FILL = "var(--tridoku-selected-fill)"
+const SELECTED_STROKE = "var(--tridoku-selected-stroke)"
 const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
 
 function getDifficultyBasedColor(color: Cell["color"], difficulty: Difficulty | null | undefined): string {
@@ -152,6 +152,19 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
         viewBox={`${-STROKE_MARGIN} ${-STROKE_MARGIN} ${SVG_WIDTH + STROKE_MARGIN * 2} ${SVG_HEIGHT + STROKE_MARGIN * 2}`}
         className="w-full h-auto p-2"
       >
+        <style>
+          {`
+            @keyframes dash-animation {
+              to {
+                stroke-dashoffset: -0.6;
+              }
+            }
+            .selected-cell {
+              stroke-dasharray: 0.4 0.2;
+              animation: dash-animation 1s linear infinite;
+            }
+          `}
+        </style>
         {TRIDOKU_BOARD.map((row) =>
           row
             .filter((cell) => !cell.hidden)
@@ -164,18 +177,9 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                   <polygon
                     points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                     fill={getDifficultyBasedColor(cell.color, difficulty)}
-                    stroke="#000"
+                    stroke={isSelected ? "none" : "#000"}
                     strokeWidth={0.01}
                   />
-                  {isSelected && (
-                    <polygon
-                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                      fill={SELECTED_FILL}
-                      stroke={SELECTED_STROKE}
-                      strokeWidth={0.08}
-                      style={{ pointerEvents: "none" }}
-                    />
-                  )}
                   {gameCell?.hasError && !isSelected && (
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
@@ -213,6 +217,25 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
             strokeLinecap="round"
           />
         ))}
+        {/* Draw selected cell border on top of everything */}
+        {selectedCellId && (() => {
+          const selectedCell = TRIDOKU_BOARD.flat().find(cell => cell.id === selectedCellId && !cell.hidden)
+          if (selectedCell) {
+            return (
+              <polygon
+                points={getTrianglePoints(selectedCell.row, selectedCell.col, selectedCell.direction)}
+                fill={SELECTED_FILL}
+                stroke={SELECTED_STROKE}
+                strokeWidth={0.15}
+                strokeLinejoin="miter"
+                strokeLinecap="butt"
+                className="selected-cell"
+                style={{ pointerEvents: "none" }}
+              />
+            )
+          }
+          return null
+        })()}
       </svg>
     </div>
   )
