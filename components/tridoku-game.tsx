@@ -13,8 +13,9 @@ import { DifficultySelector } from "@/components/difficulty-selector"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
+import { useTheme } from "next-themes"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +53,8 @@ export function TridokuGame() {
     changeDifficulty,
     isGameActive,
   } = useTridoku()
+
+  const { theme, setTheme } = useTheme()
 
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
@@ -156,6 +159,15 @@ export function TridokuGame() {
           </div>
 
           <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label="Toggle theme"
+            >
+              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
