@@ -392,7 +392,7 @@ interface DifficultyConfig {
 const DIFFICULTY_CONFIGS: Record<Difficulty, DifficultyConfig> = {
   easy: { minGivens: 40, maxGivens: 50 },
   medium: { minGivens: 30, maxGivens: 40 },
-  hard: { minGivens: 22, maxGivens: 30 }
+  hard: { minGivens: 20, maxGivens: 30 }
 }
 
 // Check if placing a value at (row, col) violates any constraints

@@ -170,9 +170,10 @@ function createSeededRandom(seed) {
   }
 }
 
+// Must be multiple of 3 for symmetry removal to maintain 3-way pattern
 const DIFFICULTY_CONFIGS = {
-  easy: { minGivens: 40, maxGivens: 50 },
-  medium: { minGivens: 30, maxGivens: 40 },
+  easy: { minGivens: 42, maxGivens: 48 },
+  medium: { minGivens: 33, maxGivens: 39 },
   hard: { minGivens: 24, maxGivens: 30 }
 }
 
@@ -603,102 +604,52 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
   let currentGivens = 81 // Start with all 81 cells filled
   let totalAttempts = 0
   let totalRemovals = 0
-  let passNumber = 0
-  let consecutiveFailedPasses = 0
-  const MAX_PASSES = 20 // Increased to allow more attempts
-  const MAX_FAILED_PASSES = 0 // Try more shuffle variations before giving up
   
-  // Keep trying passes until we reach target or make no progress
-  while (currentGivens > targetGivens && passNumber < MAX_PASSES) {
-    passNumber++
-    
-    // Build removal units (27 total: 3 groups × 9 cells per group)
-    const removalUnits = buildRemovalUnits()
-    
-    // Use different shuffle strategies to explore more possibilities
-    if (passNumber % 3 === 1) {
-      // Standard shuffle
-      for (let i = removalUnits.length - 1; i > 0; i--) {
-        const rand = rng ? rng.next() : Math.random()
-        const j = Math.floor(rand * (i + 1))
-        ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
-      }
-    } else if (passNumber % 3 === 2) {
-      // Reverse order after shuffle
-      for (let i = removalUnits.length - 1; i > 0; i--) {
-        const rand = rng ? rng.next() : Math.random()
-        const j = Math.floor(rand * (i + 1))
-        ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
-      }
-      removalUnits.reverse()
-    } else {
-      // Group by region groups, then shuffle within groups
-      const grouped = [[], [], []]
-      removalUnits.forEach(unit => grouped[unit.groupIndex].push(unit))
-      grouped.forEach(group => {
-        for (let i = group.length - 1; i > 0; i--) {
-          const rand = rng ? rng.next() : Math.random()
-          const j = Math.floor(rand * (i + 1))
-          ;[group[i], group[j]] = [group[j], group[i]]
-        }
-      })
-      removalUnits.length = 0
-      removalUnits.push(...grouped[0], ...grouped[1], ...grouped[2])
-    }
-
-    let removalThisPass = 0
-
-    for (const { groupIndex, localIndex } of removalUnits) {
-      // Stop if we've reached target (accounting for removal in groups of 3)
-      if (currentGivens - 3 < targetGivens - 2) break
-      totalAttempts++
-
-      if (totalAttempts % 20 === 0) {
-        console.log(`  [Generator] Pass ${passNumber}, attempt ${totalAttempts}: ${currentGivens} givens`)
-      }
-
-      // Get the three symmetric cells
-      const triplet = getSymmetricTriplet(board, groupIndex, localIndex)
-      
-      // Skip if any cell in the triplet is already removed
-      if (triplet.some(cell => cell.value === null)) continue
-      
-      // Save original values
-      const originalValues = triplet.map(cell => cell.value)
-
-      // Remove all three cells
-      triplet.forEach(cell => { cell.value = null })
-
-      // Test uniqueness with all three removed
-      const solutions = countSolutions(board, 2)
-
-      if (solutions === 1) {
-        // Keep removed - puzzle still unique
-        currentGivens -= 3
-        totalRemovals += 3
-        removalThisPass += 3
-      } else {
-        // Restore all three cells
-        triplet.forEach((cell, i) => { cell.value = originalValues[i] })
-      }
-    }
-    
-    console.log(`  [Generator] Pass ${passNumber}: ${removalThisPass} cells removed, ${currentGivens} givens remaining`)
-    
-    // Track consecutive failed passes
-    if (removalThisPass === 0) {
-      consecutiveFailedPasses++
-      if (consecutiveFailedPasses >= MAX_FAILED_PASSES) {
-        console.log(`  [Generator] No progress after ${MAX_FAILED_PASSES} consecutive passes`)
-        break
-      }
-    } else {
-      consecutiveFailedPasses = 0 // Reset counter on successful removal
-    }
+  // Build removal units (27 total: 3 groups × 9 cells per group)
+  const removalUnits = buildRemovalUnits()
+  
+  // Shuffle removal units
+  for (let i = removalUnits.length - 1; i > 0; i--) {
+    const rand = rng ? rng.next() : Math.random()
+    const j = Math.floor(rand * (i + 1))
+    ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
   }
-  
-  if (passNumber >= MAX_PASSES) {
-    console.log(`  [Generator] Maximum passes (${MAX_PASSES}) reached`)
+
+  let removalThisPass = 0
+
+  for (const { groupIndex, localIndex } of removalUnits) {
+    // Stop if we've reached target (accounting for removal in groups of 3)
+    if (currentGivens - 3 < targetGivens - 2) break
+    totalAttempts++
+
+    if (totalAttempts % 20 === 0) {
+      console.log(`  [Generator] Attempt ${totalAttempts}: ${currentGivens} givens`)
+    }
+
+    // Get the three symmetric cells
+    const triplet = getSymmetricTriplet(board, groupIndex, localIndex)
+    
+    // Skip if any cell in the triplet is already removed
+    if (triplet.some(cell => cell.value === null)) continue
+    
+    // Save original values
+    const originalValues = triplet.map(cell => cell.value)
+
+    // Remove all three cells
+    triplet.forEach(cell => { cell.value = null })
+
+    // Test uniqueness with all three removed
+    const solutions = countSolutions(board, 2)
+
+    if (solutions === 1) {
+      // Keep removed - puzzle still unique
+      currentGivens -= 3
+      totalRemovals += 3
+      removalThisPass += 3
+    } else {
+      // Restore all three cells
+      triplet.forEach((cell, i) => { cell.value = originalValues[i] })
+    }
   }
   
   const totalDuration = Date.now() - startTime

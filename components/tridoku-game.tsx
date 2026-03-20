@@ -234,7 +234,7 @@ export function TridokuGame() {
                     <div className="flex items-center justify-between">
                       <div className="text-left">
                         <h3 className="text-2xl font-bold text-red-600 group-hover:text-red-700">Hard</h3>
-                        <p className="text-sm text-muted-foreground mt-1">22-30 starting numbers</p>
+                        <p className="text-sm text-muted-foreground mt-1">20-30 starting numbers</p>
                       </div>
                       {stats.hard.completedToday && (
                         <div className="text-red-600 text-sm font-semibold">✓ Completed</div>
