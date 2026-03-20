@@ -4,48 +4,48 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.985 0.005 280);
-  --foreground: oklch(0.2 0.02 280);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 280);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 280);
-  --primary: oklch(0.55 0.18 250);
+  --background: oklch(0.97 0.01 70);
+  --foreground: oklch(0.3 0.03 45);
+  --card: oklch(0.99 0.005 60);
+  --card-foreground: oklch(0.3 0.03 45);
+  --popover: oklch(0.99 0.005 60);
+  --popover-foreground: oklch(0.3 0.03 45);
+  --primary: oklch(0.55 0.12 190);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0.02 280);
-  --secondary-foreground: oklch(0.2 0.02 280);
-  --muted: oklch(0.94 0.02 280);
-  --muted-foreground: oklch(0.5 0.02 280);
-  --accent: oklch(0.75 0.15 160);
-  --accent-foreground: oklch(0.2 0.05 160);
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.6 0.2 25);
-  --border: oklch(0.88 0.02 280);
-  --input: oklch(0.92 0.02 280);
-  --ring: oklch(0.55 0.18 250);
-  --chart-1: oklch(0.55 0.18 250);
-  --chart-2: oklch(0.75 0.15 160);
-  --chart-3: oklch(0.65 0.18 45);
-  --chart-4: oklch(0.6 0.2 25);
-  --chart-5: oklch(0.5 0.15 300);
+  --secondary: oklch(0.92 0.02 60);
+  --secondary-foreground: oklch(0.3 0.03 45);
+  --muted: oklch(0.93 0.02 70);
+  --muted-foreground: oklch(0.5 0.03 50);
+  --accent: oklch(0.73 0.12 140);
+  --accent-foreground: oklch(0.25 0.04 140);
+  --destructive: oklch(0.62 0.18 30);
+  --destructive-foreground: oklch(0.98 0.01 30);
+  --border: oklch(0.86 0.02 65);
+  --input: oklch(0.9 0.015 65);
+  --ring: oklch(0.55 0.12 190);
+  --chart-1: oklch(0.6 0.11 220);
+  --chart-2: oklch(0.7 0.14 50);
+  --chart-3: oklch(0.68 0.15 340);
+  --chart-4: oklch(0.75 0.12 140);
+  --chart-5: oklch(0.65 0.13 30);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0.005 280);
-  --sidebar-foreground: oklch(0.2 0.02 280);
-  --sidebar-primary: oklch(0.55 0.18 250);
+  --sidebar: oklch(0.96 0.01 70);
+  --sidebar-foreground: oklch(0.3 0.03 45);
+  --sidebar-primary: oklch(0.55 0.12 190);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.02 280);
-  --sidebar-accent-foreground: oklch(0.2 0.02 280);
-  --sidebar-border: oklch(0.88 0.02 280);
-  --sidebar-ring: oklch(0.55 0.18 250);
+  --sidebar-accent: oklch(0.92 0.02 60);
+  --sidebar-accent-foreground: oklch(0.3 0.03 45);
+  --sidebar-border: oklch(0.86 0.02 65);
+  --sidebar-ring: oklch(0.55 0.12 190);
   
   /* Game specific colors */
-  --cell-empty: oklch(0.97 0.01 280);
-  --cell-given: oklch(0.92 0.02 250);
-  --cell-selected: oklch(0.85 0.1 250);
-  --cell-error: oklch(0.9 0.12 25);
-  --cell-correct: oklch(0.85 0.12 160);
-  --region-outer: oklch(0.95 0.03 45);
-  --region-inner: oklch(0.92 0.05 250);
+  --cell-empty: oklch(0.98 0.008 65);
+  --cell-given: oklch(0.91 0.02 60);
+  --cell-selected: oklch(0.82 0.09 200);
+  --cell-error: oklch(0.88 0.11 25);
+  --cell-correct: oklch(0.83 0.11 140);
+  --region-outer: oklch(0.93 0.03 45);
+  --region-inner: oklch(0.9 0.045 200);
   
   /* Tridoku difficulty colors */
   /* Easy - Blue, Yellow, Green */
@@ -69,47 +69,47 @@
 }
 
 .dark {
-  --background: oklch(0.18 0.02 280);
-  --foreground: oklch(0.95 0.01 280);
-  --card: oklch(0.22 0.02 280);
-  --card-foreground: oklch(0.95 0.01 280);
-  --popover: oklch(0.22 0.02 280);
-  --popover-foreground: oklch(0.95 0.01 280);
-  --primary: oklch(0.65 0.18 250);
-  --primary-foreground: oklch(0.15 0.02 280);
-  --secondary: oklch(0.28 0.02 280);
-  --secondary-foreground: oklch(0.95 0.01 280);
-  --muted: oklch(0.28 0.02 280);
-  --muted-foreground: oklch(0.65 0.02 280);
-  --accent: oklch(0.65 0.15 160);
-  --accent-foreground: oklch(0.15 0.05 160);
-  --destructive: oklch(0.55 0.2 25);
-  --destructive-foreground: oklch(0.95 0.05 25);
-  --border: oklch(0.32 0.02 280);
-  --input: oklch(0.28 0.02 280);
-  --ring: oklch(0.65 0.18 250);
-  --chart-1: oklch(0.65 0.18 250);
-  --chart-2: oklch(0.65 0.15 160);
-  --chart-3: oklch(0.7 0.18 45);
-  --chart-4: oklch(0.55 0.2 25);
-  --chart-5: oklch(0.6 0.15 300);
-  --sidebar: oklch(0.2 0.02 280);
-  --sidebar-foreground: oklch(0.95 0.01 280);
-  --sidebar-primary: oklch(0.65 0.18 250);
-  --sidebar-primary-foreground: oklch(0.95 0.01 280);
-  --sidebar-accent: oklch(0.28 0.02 280);
-  --sidebar-accent-foreground: oklch(0.95 0.01 280);
-  --sidebar-border: oklch(0.32 0.02 280);
-  --sidebar-ring: oklch(0.65 0.18 250);
+  --background: oklch(0.2 0.02 60);
+  --foreground: oklch(0.92 0.015 65);
+  --card: oklch(0.24 0.02 55);
+  --card-foreground: oklch(0.92 0.015 65);
+  --popover: oklch(0.24 0.02 55);
+  --popover-foreground: oklch(0.92 0.015 65);
+  --primary: oklch(0.68 0.13 200);
+  --primary-foreground: oklch(0.18 0.02 60);
+  --secondary: oklch(0.3 0.02 60);
+  --secondary-foreground: oklch(0.92 0.015 65);
+  --muted: oklch(0.3 0.02 60);
+  --muted-foreground: oklch(0.63 0.025 60);
+  --accent: oklch(0.68 0.12 140);
+  --accent-foreground: oklch(0.18 0.04 140);
+  --destructive: oklch(0.58 0.16 30);
+  --destructive-foreground: oklch(0.93 0.04 30);
+  --border: oklch(0.34 0.02 60);
+  --input: oklch(0.3 0.02 60);
+  --ring: oklch(0.68 0.13 200);
+  --chart-1: oklch(0.68 0.13 200);
+  --chart-2: oklch(0.72 0.12 50);
+  --chart-3: oklch(0.65 0.14 340);
+  --chart-4: oklch(0.7 0.11 140);
+  --chart-5: oklch(0.62 0.12 30);
+  --sidebar: oklch(0.22 0.02 60);
+  --sidebar-foreground: oklch(0.92 0.015 65);
+  --sidebar-primary: oklch(0.68 0.13 200);
+  --sidebar-primary-foreground: oklch(0.92 0.015 65);
+  --sidebar-accent: oklch(0.3 0.02 60);
+  --sidebar-accent-foreground: oklch(0.92 0.015 65);
+  --sidebar-border: oklch(0.34 0.02 60);
+  --sidebar-ring: oklch(0.68 0.13 200);
   
   /* Game specific colors */
-  --cell-empty: oklch(0.25 0.02 280);
-  --cell-given: oklch(0.32 0.03 250);
-  --cell-selected: oklch(0.4 0.1 250);
-  --cell-error: oklch(0.35 0.12 25);
-  --cell-correct: oklch(0.35 0.12 160);
-  --region-outer: oklch(0.28 0.04 45);
-  --region-inner: oklch(0.3 0.05 250);
+  --cell-empty: oklch(0.27 0.02 60);
+  --cell-given: oklch(0.34 0.03 55);
+  --cell-selected: oklch(0.42 0.09 200);
+  --cell-error: oklch(0.37 0.11 25);
+  --cell-correct: oklch(0.37 0.11 140);
+  --region-outer: oklch(0.3 0.04 45);
+  --region-inner: oklch(0.32 0.05 200);
   
   /* Tridoku difficulty colors - slightly muted for dark mode */
    /* Easy - Blue, Yellow, Green */

@@ -197,15 +197,15 @@ export function TridokuGame() {
                   <button
                     onClick={() => changeDifficulty('easy')}
                     disabled={isGenerating}
-                    className="w-full py-6 px-8 rounded-lg border-2 border-green-500 bg-green-500/10 hover:bg-green-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="w-full py-6 px-8 rounded-lg border-2 border-[#98ac8b] bg-[#bfdde2] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-left">
-                        <h3 className="text-2xl font-bold text-green-600 group-hover:text-green-700">Easy</h3>
-                        <p className="text-sm text-muted-foreground mt-1">40-50 starting numbers</p>
+                        <h3 className="text-2xl font-bold text-[#2d5a3a] group-hover:text-[#1f4028]">Easy</h3>
+                        <p className="text-sm text-[#4a6b56] mt-1">40-50 starting numbers</p>
                       </div>
                       {stats.easy.completedToday && (
-                        <div className="text-green-600 text-sm font-semibold">✓ Completed</div>
+                        <div className="text-[#2d5a3a] text-sm font-semibold">✓ Completed</div>
                       )}
                     </div>
                   </button>
@@ -213,15 +213,15 @@ export function TridokuGame() {
                   <button
                     onClick={() => changeDifficulty('medium')}
                     disabled={isGenerating}
-                    className="w-full py-6 px-8 rounded-lg border-2 border-yellow-500 bg-yellow-500/10 hover:bg-yellow-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="w-full py-6 px-8 rounded-lg border-2 border-[#e2885b] bg-[#ecbd6c] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-left">
-                        <h3 className="text-2xl font-bold text-yellow-600 group-hover:text-yellow-700">Medium</h3>
-                        <p className="text-sm text-muted-foreground mt-1">30-40 starting numbers</p>
+                        <h3 className="text-2xl font-bold text-[#6b4423] group-hover:text-[#4d2f18]">Medium</h3>
+                        <p className="text-sm text-[#8a5f3a] mt-1">30-40 starting numbers</p>
                       </div>
                       {stats.medium.completedToday && (
-                        <div className="text-yellow-600 text-sm font-semibold">✓ Completed</div>
+                        <div className="text-[#6b4423] text-sm font-semibold">✓ Completed</div>
                       )}
                     </div>
                   </button>
@@ -229,15 +229,15 @@ export function TridokuGame() {
                   <button
                     onClick={() => changeDifficulty('hard')}
                     disabled={isGenerating}
-                    className="w-full py-6 px-8 rounded-lg border-2 border-red-500 bg-red-500/10 hover:bg-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                    className="w-full py-6 px-8 rounded-lg border-2 border-[#b47098] bg-[#e26495] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-left">
-                        <h3 className="text-2xl font-bold text-red-600 group-hover:text-red-700">Hard</h3>
-                        <p className="text-sm text-muted-foreground mt-1">20-30 starting numbers</p>
+                        <h3 className="text-2xl font-bold text-[#6b2447] group-hover:text-[#4d1a33]">Hard</h3>
+                        <p className="text-sm text-[#8a456b] mt-1">24-30 starting numbers</p>
                       </div>
                       {stats.hard.completedToday && (
-                        <div className="text-red-600 text-sm font-semibold">✓ Completed</div>
+                        <div className="text-[#6b2447] text-sm font-semibold">✓ Completed</div>
                       )}
                     </div>
                   </button>
@@ -257,9 +257,9 @@ export function TridokuGame() {
           <>
             {/* View mode indicator */}
             {isViewMode && (
-              <div className="bg-blue-500/10 border-2 border-blue-500 rounded-lg p-4 flex items-center justify-center gap-2">
-                <Eye className="h-5 w-5 text-blue-600" />
-                <p className="text-blue-600 font-semibold">
+              <div className="bg-[#bfdde2]/60 border-2 border-[#98ac8b] rounded-lg p-4 flex items-center justify-center gap-2">
+                <Eye className="h-5 w-5 text-[#2d5a3a]" />
+                <p className="text-[#2d5a3a] font-semibold">
                   View Mode: You completed this puzzle today!
                 </p>
               </div>
