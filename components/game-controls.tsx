@@ -100,7 +100,7 @@ export function GameControls({
         <RotateCcw className="h-5 w-5" />
       </Button>
 
-      {isDev && onTestSolve && (
+      {/* {isDev && onTestSolve && (
         <Button
           variant="ghost"
           size="icon"
@@ -116,7 +116,7 @@ export function GameControls({
         >
           <FlaskConical className="h-5 w-5 text-orange-500" />
         </Button>
-      )}
+      )} */}
 
       {/* Reset Confirmation Dialog */}
       <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
