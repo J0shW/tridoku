@@ -176,6 +176,52 @@ const DIFFICULTY_CONFIGS = {
   hard: { minGivens: 22, maxGivens: 30 }
 }
 
+// ============================================================================
+// SYMMETRY GROUPS FOR 3-WAY ROTATIONAL SYMMETRY
+// ============================================================================
+// Three groups of regions where each group has 3 rotationally equivalent regions
+// Within each group, cells at the same local index (0-8) are rotationally symmetric
+// Format: [groupIndex][localIndex] = [[row0,col0], [row1,col1], [row2,col2]]
+
+const SYMMETRY_GROUPS = [
+  // GROUP 1: Regions {0, 4, 8}
+  [
+    [[0, 8], [6, 2], [6, 14]],    // Local 0
+    [[1, 7], [7, 1], [7, 13]],    // Local 1
+    [[1, 8], [7, 2], [7, 14]],    // Local 2
+    [[1, 9], [7, 3], [7, 15]],    // Local 3
+    [[2, 6], [8, 0], [8, 12]],    // Local 4
+    [[2, 7], [8, 1], [8, 13]],    // Local 5
+    [[2, 8], [8, 2], [8, 14]],    // Local 6
+    [[2, 9], [8, 3], [8, 15]],    // Local 7
+    [[2, 10], [8, 4], [8, 16]]    // Local 8
+  ],
+  // GROUP 2: Regions {1, 3, 6}
+  [
+    [[3, 5], [3, 11], [6, 8]],    // Local 0
+    [[4, 4], [4, 10], [7, 7]],    // Local 1
+    [[4, 5], [4, 11], [7, 8]],    // Local 2
+    [[4, 6], [4, 12], [7, 9]],    // Local 3
+    [[5, 3], [5, 9], [8, 6]],     // Local 4
+    [[5, 4], [5, 10], [8, 7]],    // Local 5
+    [[5, 5], [5, 11], [8, 8]],    // Local 6
+    [[5, 6], [5, 12], [8, 9]],    // Local 7
+    [[5, 7], [5, 13], [8, 10]]    // Local 8
+  ],
+  // GROUP 3: Regions {2, 5, 7}
+  [
+    [[3, 6], [6, 3], [6, 9]],     // Local 0
+    [[3, 7], [6, 4], [6, 10]],    // Local 1
+    [[3, 8], [6, 5], [6, 11]],    // Local 2
+    [[3, 9], [6, 6], [6, 12]],    // Local 3
+    [[3, 10], [6, 7], [6, 13]],   // Local 4
+    [[4, 7], [7, 4], [7, 10]],    // Local 5
+    [[4, 8], [7, 5], [7, 11]],    // Local 6
+    [[4, 9], [7, 6], [7, 12]],    // Local 7
+    [[5, 8], [8, 5], [8, 11]]     // Local 8
+  ]
+]
+
 function isValidPlacement(board, row, col, value) {
   const cell = board[row][col]
   if (cell.hidden) return false
@@ -378,8 +424,107 @@ function generateCompleteSolution(seed) {
   throw new Error('Failed to generate complete solution after ' + MAX_ATTEMPTS + ' attempts')
 }
 
+// ============================================================================
+// SYMMETRY HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Get the three rotationally symmetric cells for a given group and local index
+ * @param {Array} board - The game board
+ * @param {number} groupIndex - Symmetry group index (0, 1, or 2)
+ * @param {number} localIndex - Local cell index within group (0-8)
+ * @returns {Array} Array of three cells [cell0, cell1, cell2]
+ */
+function getSymmetricTriplet(board, groupIndex, localIndex) {
+  const coords = SYMMETRY_GROUPS[groupIndex][localIndex]
+  return coords.map(([row, col]) => board[row][col])
+}
+
+/**
+ * Build array of all 27 removal units (group + local index combinations)
+ * Each unit represents 3 rotationally symmetric cells
+ * @returns {Array} Array of {groupIndex, localIndex} objects
+ */
+function buildRemovalUnits() {
+  const units = []
+  for (let groupIndex = 0; groupIndex < 3; groupIndex++) {
+    for (let localIndex = 0; localIndex < 9; localIndex++) {
+      units.push({ groupIndex, localIndex })
+    }
+  }
+  return units
+}
+
+/**
+ * Validate that the puzzle maintains 3-way rotational symmetry
+ * Checks that each symmetry group has matching given patterns
+ * @param {Array} board - The game board
+ * @returns {Object} Validation result with isSymmetric flag and statistics
+ */
+function validateSymmetry(board) {
+  const stats = {
+    isSymmetric: true,
+    groups: [],
+    totalGivens: 0
+  }
+
+  // Check each symmetry group
+  for (let groupIndex = 0; groupIndex < 3; groupIndex++) {
+    const groupStats = {
+      groupIndex,
+      regions: [],
+      isSymmetric: true
+    }
+
+    // For each local index, check if all three cells have same state (given or not)
+    for (let localIndex = 0; localIndex < 9; localIndex++) {
+      const triplet = getSymmetricTriplet(board, groupIndex, localIndex)
+      const states = triplet.map(cell => cell.value !== null)
+      
+      // All three cells should have the same state (all given or all empty)
+      const allGiven = states.every(s => s)
+      const allEmpty = states.every(s => !s)
+      
+      if (!allGiven && !allEmpty) {
+        groupStats.isSymmetric = false
+        stats.isSymmetric = false
+      }
+      
+      if (allGiven) {
+        groupStats.regions.forEach((_, i) => {
+          if (!groupStats.regions[i]) groupStats.regions[i] = { givens: 0 }
+          groupStats.regions[i].givens++
+        })
+      }
+    }
+
+    // Count givens per region in this group
+    const regionNums = [
+      [0, 4, 8],  // Group 1
+      [1, 3, 6],  // Group 2
+      [2, 5, 7]   // Group 3
+    ][groupIndex]
+
+    regionNums.forEach((regionNum, i) => {
+      let givens = 0
+      for (let localIndex = 0; localIndex < 9; localIndex++) {
+        const triplet = getSymmetricTriplet(board, groupIndex, localIndex)
+        if (triplet[i].value !== null) {
+          givens++
+        }
+      }
+      groupStats.regions.push({ regionNum, givens })
+      stats.totalGivens += givens
+    })
+
+    stats.groups.push(groupStats)
+  }
+
+  return stats
+}
+
 function removeCellsWithUniqueness(board, targetGivens, seed) {
-  console.log(`  [Generator] Removing cells (target: ${targetGivens} givens)...`)
+  console.log(`  [Generator] Removing cells with 3-way rotational symmetry (target: ${targetGivens} givens)...`)
   const rng = seed !== undefined ? createSeededRandom(seed + 1000) : null
   const startTime = Date.now()
 
@@ -392,46 +537,50 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
   while (currentGivens > targetGivens) {
     passNumber++
     
-    // Get all non-hidden cells with values
-    const positions = []
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 17; col++) {
-        if (!board[row][col].hidden && board[row][col].value !== null) {
-          positions.push({ row, col })
-        }
-      }
-    }
-
-    // Shuffle positions for this pass
-    for (let i = positions.length - 1; i > 0; i--) {
+    // Build removal units (27 total: 3 groups × 9 cells per group)
+    const removalUnits = buildRemovalUnits()
+    
+    // Shuffle removal units for this pass
+    for (let i = removalUnits.length - 1; i > 0; i--) {
       const rand = rng ? rng.next() : Math.random()
       const j = Math.floor(rand * (i + 1))
-      ;[positions[i], positions[j]] = [positions[j], positions[i]]
+      ;[removalUnits[i], removalUnits[j]] = [removalUnits[j], removalUnits[i]]
     }
 
     let removalThisPass = 0
 
-    for (const { row, col } of positions) {
-      if (currentGivens <= targetGivens) break
+    for (const { groupIndex, localIndex } of removalUnits) {
+      // Stop if we've reached target (accounting for removal in groups of 3)
+      if (currentGivens - 3 < targetGivens - 2) break
       totalAttempts++
 
-      if (totalAttempts % 100 === 0) {
+      if (totalAttempts % 20 === 0) {
         console.log(`  [Generator] Pass ${passNumber}, attempt ${totalAttempts}: ${currentGivens} givens`)
       }
 
-      const cell = board[row][col]
-      const originalValue = cell.value
+      // Get the three symmetric cells
+      const triplet = getSymmetricTriplet(board, groupIndex, localIndex)
+      
+      // Skip if any cell in the triplet is already removed
+      if (triplet.some(cell => cell.value === null)) continue
+      
+      // Save original values
+      const originalValues = triplet.map(cell => cell.value)
 
-      cell.value = null
+      // Remove all three cells
+      triplet.forEach(cell => { cell.value = null })
 
+      // Test uniqueness with all three removed
       const solutions = countSolutions(board, 2)
 
       if (solutions === 1) {
-        currentGivens--
-        totalRemovals++
-        removalThisPass++
+        // Keep removed - puzzle still unique
+        currentGivens -= 3
+        totalRemovals += 3
+        removalThisPass += 3
       } else {
-        cell.value = originalValue
+        // Restore all three cells
+        triplet.forEach((cell, i) => { cell.value = originalValues[i] })
       }
     }
     
@@ -439,7 +588,7 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
     
     // If we made no progress this pass, we're done
     if (removalThisPass === 0) {
-      console.log(`  [Generator] No more cells can be removed while maintaining uniqueness`)
+      console.log(`  [Generator] No more symmetric triplets can be removed while maintaining uniqueness`)
       break
     }
     
@@ -453,6 +602,7 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
   const totalDuration = Date.now() - startTime
   console.log(`  [Generator] Removed ${totalRemovals} cells in ${totalDuration}ms: ${currentGivens} givens`)
 
+  // Mark remaining values as givens
   for (let row = 0; row < 9; row++) {
     for (let col = 0; col < 17; col++) {
       const cell = board[row][col]
@@ -461,6 +611,22 @@ function removeCellsWithUniqueness(board, targetGivens, seed) {
       }
     }
   }
+
+  // Validate and log symmetry
+  const symmetryStats = validateSymmetry(board)
+  if (symmetryStats.isSymmetric) {
+    console.log(`  [Generator] ✓ Symmetry validated - all groups maintain rotational symmetry`)
+  } else {
+    console.log(`  [Generator] ✗ WARNING: Symmetry violation detected!`)
+  }
+  
+  // Log givens per region
+  console.log(`  [Generator] Givens per region:`)
+  symmetryStats.groups.forEach((group, i) => {
+    const regionNums = group.regions.map(r => r.regionNum).join(', ')
+    const givenCounts = group.regions.map(r => r.givens).join(', ')
+    console.log(`    Group ${i + 1} (regions ${regionNums}): ${givenCounts} givens`)
+  })
 
   return board
 }
