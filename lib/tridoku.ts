@@ -2,6 +2,7 @@
 // Uses a simplified triangular grid structure
 
 export type CellId = string // Format: "row-col" (e.g. "0-0", "1-2")
+export type InputMode = 'pen' | 'pencil'
 
 export interface Cell {
   id: CellId
@@ -14,6 +15,7 @@ export interface Cell {
   col: number
   direction: 'up' | 'down' // Orientation of the triangle (pointing up or down)
   neighbors: CellId[] // IDs of neighboring cells that share an edge or vertex (for validation) (up to 12 neighbors, 1 along each of the 3 sides of the triangle and 3 at each corner)
+  pencilMarks: number[] // Array of penciled-in candidate numbers (max 3)
   
   // Constraint regions (for validation)
   boldedRegion: number  // 0-8 (one of 9 bolded regions with 1-9 each)
@@ -102,6 +104,7 @@ export function createEmptyBoard(): Board {
         col,
         direction,
         neighbors: [],
+        pencilMarks: [],
         boldedRegion: hidden ? -1 : getBoldedRegion(row, nhIndex),
         isOuterLeftEdge,
         isOuterRightEdge,

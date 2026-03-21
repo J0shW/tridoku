@@ -12,7 +12,8 @@ import {
   EXAMPLE_PUZZLE,
   TEST_NEARLY_SOLVED,
   Difficulty,
-  createEmptyBoard
+  createEmptyBoard,
+  InputMode
 } from "@/lib/tridoku"
 import { getDailyPuzzle } from "@/lib/puzzle-service"
 
@@ -44,6 +45,7 @@ interface GameState {
   difficulty: Difficulty | null
   hasStarted: boolean
   isViewMode: boolean
+  inputMode: InputMode
 }
 
 const STORAGE_KEY = "tridoku-game-state"
@@ -123,6 +125,7 @@ export function useTridoku() {
     difficulty: null,
     hasStarted: false,
     isViewMode: false,
+    inputMode: 'pen',
   })
   const [stats, setStats] = useState<GameStats>({
     easy: getDefaultDifficultyStats(),
@@ -217,19 +220,45 @@ export function useTridoku() {
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
 
-      const updatedCells = prev.cells.map((r, ri) =>
-        ri === row
-          ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
-          : r
-      )
-      const validatedCells = validateBoard(updatedCells)
-      const isComplete = isPuzzleComplete(validatedCells)
-      
-      return { ...prev, cells: validatedCells, isComplete }
+      if (prev.inputMode === 'pen') {
+        // Pen mode: set the actual value (hides pencil marks)
+        const updatedCells = prev.cells.map((r, ri) =>
+          ri === row
+            ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
+            : r
+        )
+        const validatedCells = validateBoard(updatedCells)
+        const isComplete = isPuzzleComplete(validatedCells)
+        
+        return { ...prev, cells: validatedCells, isComplete }
+      } else {
+        // Pencil mode: toggle pencil mark (max 3)
+        const currentMarks = cell.pencilMarks || []
+        let newMarks: number[]
+        
+        if (currentMarks.includes(value)) {
+          // Remove the mark if it exists
+          newMarks = currentMarks.filter(m => m !== value)
+        } else if (currentMarks.length < 3) {
+          // Add the mark if we have room (max 3)
+          newMarks = [...currentMarks, value].sort((a, b) => a - b)
+        } else {
+          // Already at max 3 marks, don't add more
+          return prev
+        }
+        
+        const updatedCells = prev.cells.map((r, ri) =>
+          ri === row
+            ? r.map((c, ci) => (ci === col ? { ...c, pencilMarks: newMarks } : c))
+            : r
+        )
+        
+        return { ...prev, cells: updatedCells }
+      }
     })
   }, [gameState.isViewMode])
 
-  // Clear the selected cell
+  // Clear the selected cell (only clears pen value, not pencil marks)
   const clearCell = useCallback(() => {
     if (gameState.isViewMode) return
     setGameState(prev => {
@@ -239,6 +268,8 @@ export function useTridoku() {
       const col = parseInt(colStr)
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
+      // Only clear if there's a value to clear
+      if (cell.value === null) return prev
 
       const updatedCells = prev.cells.map((r, ri) =>
         ri === row
@@ -248,6 +279,11 @@ export function useTridoku() {
       return { ...prev, cells: validateBoard(updatedCells) }
     })
   }, [gameState.isViewMode])
+
+  // Set input mode (pen or pencil)
+  const setInputMode = useCallback((mode: InputMode) => {
+    setGameState(prev => ({ ...prev, inputMode: mode }))
+  }, [])
 
   // Toggle error highlighting
   const toggleErrors = useCallback(() => {
