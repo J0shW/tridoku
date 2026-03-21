@@ -15,6 +15,9 @@ export interface Cell {
   direction: 'up' | 'down' // Orientation of the triangle (pointing up or down)
   neighbors: CellId[] // IDs of neighboring cells that share an edge or vertex (for validation) (up to 12 neighbors, 1 along each of the 3 sides of the triangle and 3 at each corner)
   
+  // Pencil marks (candidate numbers)
+  pencilMarks: number[] // Array of up to 3 candidate numbers
+  
   // Constraint regions (for validation)
   boldedRegion: number  // 0-8 (one of 9 bolded regions with 1-9 each)
   isOuterLeftEdge: boolean // cells on the left edge of the triangle
@@ -102,6 +105,7 @@ export function createEmptyBoard(): Board {
         col,
         direction,
         neighbors: [],
+        pencilMarks: [],
         boldedRegion: hidden ? -1 : getBoldedRegion(row, nhIndex),
         isOuterLeftEdge,
         isOuterRightEdge,

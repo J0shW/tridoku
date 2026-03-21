@@ -10,6 +10,7 @@ import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
 import { DifficultySelector } from "@/components/difficulty-selector"
+import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
@@ -38,6 +39,7 @@ export function TridokuGame() {
     difficulty,
     hasStarted,
     isViewMode,
+    inputMode,
     stats,
     isLoading,
     isGenerating,
@@ -52,6 +54,7 @@ export function TridokuGame() {
     generateNewPuzzle,
     changeDifficulty,
     isGameActive,
+    setInputMode,
   } = useTridoku()
 
   const { theme, setTheme } = useTheme()
@@ -97,35 +100,41 @@ export function TridokuGame() {
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (isComplete || isPaused) return
 
-    const key = e.key
+    const key = e.key.toLowerCase()
+    
+    // Toggle pen/pencil mode with 'p' key
+    if (key === "p") {
+      setInputMode(inputMode === 'pen' ? 'pencil' : 'pen')
+      return
+    }
     
     // Number keys
-    if (key >= "1" && key <= "9") {
-      setValue(parseInt(key))
+    if (e.key >= "1" && e.key <= "9") {
+      setValue(parseInt(e.key))
       return
     }
 
     // Delete/Backspace
-    if (key === "Delete" || key === "Backspace") {
+    if (key === "delete" || key === "backspace") {
       clearCell()
       return
     }
 
     // Escape to deselect
-    if (key === "Escape") {
+    if (key === "escape") {
       selectCell(null)
       return
     }
 
     // Arrow keys to move selection
-    if (selectedCellId && (key === "ArrowUp" || key === "ArrowDown" || key === "ArrowLeft" || key === "ArrowRight")) {
+    if (selectedCellId && (key === "arrowup" || key === "arrowdown" || key === "arrowleft" || key === "arrowright")) {
       e.preventDefault()
-      const dir = key === "ArrowUp" ? "up" : key === "ArrowDown" ? "down" : key === "ArrowLeft" ? "left" : "right"
+      const dir = key === "arrowup" ? "up" : key === "arrowdown" ? "down" : key === "arrowleft" ? "left" : "right"
       const target = getArrowTarget(TRIDOKU_BOARD, selectedCellId, dir)
       if (target) selectCell(target)
       return
     }
-  }, [isComplete, isPaused, setValue, clearCell, selectCell, selectedCellId])
+  }, [isComplete, isPaused, setValue, clearCell, selectCell, selectedCellId, inputMode, setInputMode])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
@@ -315,9 +324,16 @@ export function TridokuGame() {
                 </p>
               </div>
             )}
-            {/* Number pad */}
+            {/* Input mode toggle and number pad */}
             {!isViewMode && (
-              <div className="pb-4">
+              <div className="pb-4 space-y-4">
+                <div className="flex justify-center">
+                  <InputModeToggle
+                    mode={inputMode}
+                    onModeChange={setInputMode}
+                    disabled={isPaused || isComplete}
+                  />
+                </div>
                 <NumberPad
                   onNumberClick={setValue}
                   onClear={clearCell}

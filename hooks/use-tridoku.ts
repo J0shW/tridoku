@@ -34,6 +34,8 @@ export interface GameStats {
   hard: DifficultyStats
 }
 
+export type InputMode = 'pen' | 'pencil'
+
 interface GameState {
   cells: Cell[][]
   selectedCellId: CellId | null
@@ -44,6 +46,7 @@ interface GameState {
   difficulty: Difficulty | null
   hasStarted: boolean
   isViewMode: boolean
+  inputMode: InputMode
 }
 
 const STORAGE_KEY = "tridoku-game-state"
@@ -123,6 +126,7 @@ export function useTridoku() {
     difficulty: null,
     hasStarted: false,
     isViewMode: false,
+    inputMode: 'pen',
   })
   const [stats, setStats] = useState<GameStats>({
     easy: getDefaultDifficultyStats(),
@@ -206,7 +210,7 @@ export function useTridoku() {
     setGameState(prev => ({ ...prev, selectedCellId: cellId }))
   }, [gameState.isViewMode])
 
-  // Set value on the selected cell
+  // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
   const setValue = useCallback((value: number) => {
     if (gameState.isViewMode) return
     setGameState(prev => {
@@ -217,19 +221,46 @@ export function useTridoku() {
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
 
-      const updatedCells = prev.cells.map((r, ri) =>
-        ri === row
-          ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
-          : r
-      )
-      const validatedCells = validateBoard(updatedCells)
-      const isComplete = isPuzzleComplete(validatedCells)
-      
-      return { ...prev, cells: validatedCells, isComplete }
+      if (prev.inputMode === 'pencil') {
+        // Pencil mode: toggle the pencil mark
+        const currentMarks = cell.pencilMarks || []
+        let newMarks: number[]
+        
+        if (currentMarks.includes(value)) {
+          // Remove the mark if it exists
+          newMarks = currentMarks.filter(m => m !== value)
+        } else {
+          // Add the mark if we have room (max 3)
+          if (currentMarks.length >= 3) {
+            // Already at max, don't add
+            return prev
+          }
+          newMarks = [...currentMarks, value].sort((a, b) => a - b)
+        }
+        
+        const updatedCells = prev.cells.map((r, ri) =>
+          ri === row
+            ? r.map((c, ci) => (ci === col ? { ...c, pencilMarks: newMarks } : c))
+            : r
+        )
+        
+        return { ...prev, cells: updatedCells }
+      } else {
+        // Pen mode: set the value and clear pencil marks (they're hidden but preserved)
+        const updatedCells = prev.cells.map((r, ri) =>
+          ri === row
+            ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
+            : r
+        )
+        const validatedCells = validateBoard(updatedCells)
+        const isComplete = isPuzzleComplete(validatedCells)
+        
+        return { ...prev, cells: validatedCells, isComplete }
+      }
     })
   }, [gameState.isViewMode])
 
-  // Clear the selected cell
+  // Clear the selected cell (pen mode clears value, pencil mode does nothing - user must toggle marks individually)
   const clearCell = useCallback(() => {
     if (gameState.isViewMode) return
     setGameState(prev => {
@@ -240,6 +271,11 @@ export function useTridoku() {
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
 
+      // In pencil mode, backspace/clear does nothing - user must toggle marks individually
+      if (prev.inputMode === 'pencil') {
+        return prev
+      }
+
       const updatedCells = prev.cells.map((r, ri) =>
         ri === row
           ? r.map((c, ci) => (ci === col ? { ...c, value: null } : c))
@@ -248,6 +284,11 @@ export function useTridoku() {
       return { ...prev, cells: validateBoard(updatedCells) }
     })
   }, [gameState.isViewMode])
+
+  // Toggle input mode between pen and pencil
+  const setInputMode = useCallback((mode: InputMode) => {
+    setGameState(prev => ({ ...prev, inputMode: mode }))
+  }, [])
 
   // Toggle error highlighting
   const toggleErrors = useCallback(() => {
@@ -288,6 +329,7 @@ export function useTridoku() {
           difficulty,
           hasStarted: true,
           isViewMode: true,
+          inputMode: 'pen',
         })
       } else {
         // Load new puzzle
@@ -303,6 +345,7 @@ export function useTridoku() {
           difficulty,
           hasStarted: true,
           isViewMode: false,
+          inputMode: 'pen',
         })
       }
     } catch (error) {
@@ -361,6 +404,7 @@ export function useTridoku() {
         difficulty: targetDifficulty,
         hasStarted: true,
         isViewMode: false,
+        inputMode: 'pen',
       })
     } catch (error) {
       console.error('Failed to fetch puzzle:', error)
@@ -375,6 +419,7 @@ export function useTridoku() {
         difficulty: 'medium',
         hasStarted: true,
         isViewMode: false,
+        inputMode: 'pen',
       }))
     } finally {
       setIsGenerating(false)
@@ -391,6 +436,7 @@ export function useTridoku() {
     difficulty: gameState.difficulty,
     hasStarted: gameState.hasStarted,
     isViewMode: gameState.isViewMode,
+    inputMode: gameState.inputMode,
     stats,
     isLoading,
     isGenerating,
@@ -405,6 +451,7 @@ export function useTridoku() {
     generateNewPuzzle,
     changeDifficulty,
     isGameActive,
+    setInputMode,
   }
 }
 

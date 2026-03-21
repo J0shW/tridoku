@@ -126,6 +126,33 @@ function getTriangleCentroid(row: number, col: number, direction: "up" | "down")
   }
 }
 
+// Get positions for pencil marks in the 3 corners of a triangle
+// For up-facing triangles: top corner, bottom-left corner, bottom-right corner
+// For down-facing triangles: top-left corner, top-right corner, bottom corner
+function getPencilMarkPositions(row: number, col: number, direction: "up" | "down"): { x: number; y: number }[] {
+  const inset = 0.35 // How far from the corner to place the number
+  
+  if (direction === "up") {
+    const yBase = (row + 1) * ROW_HEIGHT
+    const yTop = row * ROW_HEIGHT
+    // Top vertex, bottom-left vertex, bottom-right vertex
+    return [
+      { x: col + 1, y: yTop + inset * ROW_HEIGHT }, // top
+      { x: col + inset * 1.2, y: yBase - inset * ROW_HEIGHT * 0.5 }, // bottom-left
+      { x: col + 2 - inset * 1.2, y: yBase - inset * ROW_HEIGHT * 0.5 }, // bottom-right
+    ]
+  } else {
+    const yTop = row * ROW_HEIGHT
+    const yBottom = (row + 1) * ROW_HEIGHT
+    // Top-left vertex, top-right vertex, bottom vertex
+    return [
+      { x: col + inset * 1.2, y: yTop + inset * ROW_HEIGHT * 0.5 }, // top-left
+      { x: col + 2 - inset * 1.2, y: yTop + inset * ROW_HEIGHT * 0.5 }, // top-right
+      { x: col + 1, y: yBottom - inset * ROW_HEIGHT }, // bottom
+    ]
+  }
+}
+
 interface TridokuBoardProps {
   cells: Board
   selectedCellId: CellId | null
@@ -187,7 +214,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                       style={{ pointerEvents: "none" }}
                     />
                   )}
-                  {gameCell?.value != null && (
+                  {gameCell?.value != null ? (
                     <text
                       x={centroid.x}
                       y={centroid.y}
@@ -201,6 +228,32 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     >
                       {gameCell.value}
                     </text>
+                  ) : (
+                    // Render pencil marks if no value is set
+                    gameCell?.pencilMarks && gameCell.pencilMarks.length > 0 && (
+                      <>
+                        {gameCell.pencilMarks.map((mark, idx) => {
+                          const positions = getPencilMarkPositions(cell.row, cell.col, cell.direction)
+                          const pos = positions[idx]
+                          if (!pos) return null
+                          return (
+                            <text
+                              key={mark}
+                              x={pos.x}
+                              y={pos.y}
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              fontSize={0.4}
+                              fontWeight="normal"
+                              fill="#666"
+                              style={{ pointerEvents: "none", userSelect: "none" }}
+                            >
+                              {mark}
+                            </text>
+                          )
+                        })}
+                      </>
+                    )
                   )}
                 </g>
               )
