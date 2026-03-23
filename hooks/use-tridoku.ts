@@ -380,6 +380,12 @@ export function useTridoku() {
   // Change difficulty
   const changeDifficulty = useCallback(async (difficulty: Difficulty) => {
     if (difficulty === gameState.difficulty) return
+    
+    // Save current game progress before switching
+    if (gameState.hasStarted && !gameState.isComplete && gameState.difficulty) {
+      saveGameProgress(gameState)
+    }
+    
     setIsGenerating(true)
     
     try {

@@ -17,16 +17,7 @@ import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+
 
 export function TridokuGame() {
   const {
@@ -53,7 +44,6 @@ export function TridokuGame() {
     getShareText,
     generateNewPuzzle,
     changeDifficulty,
-    isGameActive,
     setInputMode,
   } = useTridoku()
 
@@ -62,31 +52,7 @@ export function TridokuGame() {
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
   const [showRules, setShowRules] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [pendingDifficulty, setPendingDifficulty] = useState<Difficulty | null>(null)
 
-  // Handle difficulty change with confirmation if needed
-  const handleDifficultyChange = useCallback((newDifficulty: Difficulty) => {
-    if (isGameActive()) {
-      setPendingDifficulty(newDifficulty)
-      setShowConfirm(true)
-    } else {
-      changeDifficulty(newDifficulty)
-    }
-  }, [isGameActive, changeDifficulty])
-
-  const confirmDifficultyChange = useCallback(() => {
-    if (pendingDifficulty) {
-      changeDifficulty(pendingDifficulty)
-      setPendingDifficulty(null)
-    }
-    setShowConfirm(false)
-  }, [pendingDifficulty, changeDifficulty])
-
-  const cancelDifficultyChange = useCallback(() => {
-    setPendingDifficulty(null)
-    setShowConfirm(false)
-  }, [])
 
   // Show win modal when complete
   useEffect(() => {
@@ -281,7 +247,7 @@ export function TridokuGame() {
               <DifficultySelector
                 currentDifficulty={difficulty!}
                 stats={stats}
-                onDifficultyChange={handleDifficultyChange}
+                onDifficultyChange={changeDifficulty}
                 disabled={isGenerating}
               />
             </div>
@@ -341,15 +307,6 @@ export function TridokuGame() {
                 />
               </div>
             )}
-
-            {/* Streak display */}
-            {difficulty && stats[difficulty].currentStreak > 0 && (
-              <div className="text-center pb-4">
-                <p className="text-sm text-muted-foreground">
-                  Current Streak: <span className="font-bold text-primary">{stats[difficulty].currentStreak}</span>
-                </p>
-              </div>
-            )}
           </>
         )}
       </main>
@@ -375,21 +332,7 @@ export function TridokuGame() {
         onOpenChange={setShowRules}
       />
 
-      {/* Confirmation Dialog */}
-      <AlertDialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Abandon Current Game?</AlertDialogTitle>
-            <AlertDialogDescription>
-              You have a game in progress. Switching difficulty will abandon your current progress and start a new puzzle. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDifficultyChange}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDifficultyChange}>Switch Difficulty</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
     </div>
   )
 }
