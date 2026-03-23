@@ -14,7 +14,7 @@ import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 
@@ -52,6 +52,15 @@ export function TridokuGame() {
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
   const [showRules, setShowRules] = useState(false)
+  const [pencilTipDismissed, setPencilTipDismissed] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('tridoku-pencil-tip-dismissed') === 'true'
+  })
+
+  const dismissPencilTip = useCallback(() => {
+    setPencilTipDismissed(true)
+    localStorage.setItem('tridoku-pencil-tip-dismissed', 'true')
+  }, [])
 
 
   // Show win modal when complete
@@ -300,6 +309,18 @@ export function TridokuGame() {
                     disabled={isPaused || isComplete}
                   />
                 </div>
+                {inputMode === 'pencil' && !pencilTipDismissed && (
+                  <div className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-center text-sm text-muted-foreground">
+                    <button
+                      onClick={dismissPencilTip}
+                      className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
+                      aria-label="Dismiss tip"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                    Tap a number to toggle a pencil mark. Tap again to remove it. Press backspace to clear all marks.
+                  </div>
+                )}
                 <NumberPad
                   onNumberClick={setValue}
                   onClear={clearCell}
