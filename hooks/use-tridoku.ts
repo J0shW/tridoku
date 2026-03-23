@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Cell, 
   CellId,
@@ -196,6 +196,10 @@ export function useTridoku() {
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
 
+  // Keep a ref to the latest game state so callbacks always have current data
+  const gameStateRef = useRef(gameState)
+  useEffect(() => { gameStateRef.current = gameState }, [gameState])
+
   // Load stats on mount (client-side only)
   useEffect(() => {
     const loadedStats = getStoredStats()
@@ -387,8 +391,9 @@ export function useTridoku() {
     if (difficulty === gameState.difficulty) return
     
     // Save current game progress before switching
-    if (gameState.hasStarted && !gameState.isComplete && gameState.difficulty) {
-      saveGameProgress(gameState)
+    const current = gameStateRef.current
+    if (current.hasStarted && !current.isComplete && current.difficulty) {
+      saveGameProgress(current)
     }
     
     setIsGenerating(true)
