@@ -110,6 +110,66 @@ function saveStats(stats: GameStats) {
   }
 }
 
+interface SavedProgress {
+  date: string
+  elapsedTime: number
+  inputMode: InputMode
+  userCells: { row: number; col: number; value: number | null; pencilMarks: number[] }[]
+}
+
+type SavedProgressByDifficulty = Partial<Record<Difficulty, SavedProgress>>
+
+function saveGameProgress(gameState: GameState) {
+  if (typeof window === "undefined" || !gameState.difficulty) return
+  const userCells: SavedProgress['userCells'] = []
+  for (let row = 0; row < 9; row++) {
+    for (let col = 0; col < 17; col++) {
+      const cell = gameState.cells[row][col]
+      if (cell.hidden || cell.isGiven) continue
+      if (cell.value !== null || (cell.pencilMarks && cell.pencilMarks.length > 0)) {
+        userCells.push({ row, col, value: cell.value, pencilMarks: cell.pencilMarks || [] })
+      }
+    }
+  }
+  const stored = localStorage.getItem(STORAGE_KEY)
+  let allProgress: SavedProgressByDifficulty = {}
+  if (stored) {
+    try { allProgress = JSON.parse(stored) } catch { /* ignore */ }
+  }
+  allProgress[gameState.difficulty] = {
+    date: getTodayString(),
+    elapsedTime: gameState.elapsedTime,
+    inputMode: gameState.inputMode,
+    userCells,
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress))
+}
+
+function loadGameProgress(difficulty: Difficulty): SavedProgress | null {
+  if (typeof window === "undefined") return null
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (!stored) return null
+  try {
+    const allProgress: SavedProgressByDifficulty = JSON.parse(stored)
+    const progress = allProgress[difficulty]
+    if (!progress || progress.date !== getTodayString()) return null
+    return progress
+  } catch {
+    return null
+  }
+}
+
+function clearGameProgress(difficulty: Difficulty) {
+  if (typeof window === "undefined") return
+  const stored = localStorage.getItem(STORAGE_KEY)
+  if (!stored) return
+  try {
+    const allProgress: SavedProgressByDifficulty = JSON.parse(stored)
+    delete allProgress[difficulty]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress))
+  } catch { /* ignore */ }
+}
+
 function getTodayString(): string {
   const today = new Date()
   return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
@@ -154,9 +214,18 @@ export function useTridoku() {
     return () => clearInterval(interval)
   }, [gameState.hasStarted, gameState.isComplete, gameState.isPaused])
 
+  // Save game progress to localStorage on each cell change
+  useEffect(() => {
+    if (!gameState.hasStarted || gameState.isComplete || !gameState.difficulty) return
+    saveGameProgress(gameState)
+  }, [gameState.cells, gameState.hasStarted, gameState.isComplete, gameState.difficulty])
+
   // Handle puzzle completion
   useEffect(() => {
     if (!gameState.isComplete || !gameState.difficulty) return
+    
+    // Clear in-progress save for this difficulty
+    clearGameProgress(gameState.difficulty)
     
     // Update stats for the current difficulty
     const today = getTodayString()
@@ -303,6 +372,7 @@ export function useTridoku() {
   // Reset puzzle
   const resetPuzzle = useCallback(() => {
     if (gameState.difficulty) {
+      clearGameProgress(gameState.difficulty)
       generateNewPuzzle(gameState.difficulty)
     }
   }, [gameState.difficulty])
@@ -332,21 +402,46 @@ export function useTridoku() {
           inputMode: 'pen',
         })
       } else {
-        // Load new puzzle
+        // Check for saved in-progress game
+        const savedProgress = loadGameProgress(difficulty)
         const dailyPuzzle = await getDailyPuzzle(undefined, difficulty)
         const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
-        setGameState({
-          cells: puzzleCells,
-          selectedCellId: null,
-          isComplete: false,
-          isPaused: false,
-          elapsedTime: 0,
-          showErrors: false,
-          difficulty,
-          hasStarted: true,
-          isViewMode: false,
-          inputMode: 'pen',
-        })
+        
+        if (savedProgress) {
+          // Restore saved progress onto the base puzzle
+          for (const uc of savedProgress.userCells) {
+            const cell = puzzleCells[uc.row][uc.col]
+            if (!cell.hidden && !cell.isGiven) {
+              puzzleCells[uc.row][uc.col] = { ...cell, value: uc.value, pencilMarks: uc.pencilMarks }
+            }
+          }
+          const validatedCells = validateBoard(puzzleCells)
+          setGameState({
+            cells: validatedCells,
+            selectedCellId: null,
+            isComplete: false,
+            isPaused: false,
+            elapsedTime: savedProgress.elapsedTime,
+            showErrors: false,
+            difficulty,
+            hasStarted: true,
+            isViewMode: false,
+            inputMode: savedProgress.inputMode,
+          })
+        } else {
+          setGameState({
+            cells: puzzleCells,
+            selectedCellId: null,
+            isComplete: false,
+            isPaused: false,
+            elapsedTime: 0,
+            showErrors: false,
+            difficulty,
+            hasStarted: true,
+            isViewMode: false,
+            inputMode: 'pen',
+          })
+        }
       }
     } catch (error) {
       console.error('Failed to fetch puzzle:', error)
@@ -394,18 +489,43 @@ export function useTridoku() {
       console.log(`[useTridoku] Loaded ${dailyPuzzle.difficulty} puzzle for ${dailyPuzzle.date}`)
       
       const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
-      setGameState({
-        cells: puzzleCells,
-        selectedCellId: null,
-        isComplete: false,
-        isPaused: false,
-        elapsedTime: 0,
-        showErrors: false,
-        difficulty: targetDifficulty,
-        hasStarted: true,
-        isViewMode: false,
-        inputMode: 'pen',
-      })
+      
+      // Check for saved in-progress game
+      const savedProgress = loadGameProgress(targetDifficulty)
+      if (savedProgress) {
+        for (const uc of savedProgress.userCells) {
+          const cell = puzzleCells[uc.row][uc.col]
+          if (!cell.hidden && !cell.isGiven) {
+            puzzleCells[uc.row][uc.col] = { ...cell, value: uc.value, pencilMarks: uc.pencilMarks }
+          }
+        }
+        const validatedCells = validateBoard(puzzleCells)
+        setGameState({
+          cells: validatedCells,
+          selectedCellId: null,
+          isComplete: false,
+          isPaused: false,
+          elapsedTime: savedProgress.elapsedTime,
+          showErrors: false,
+          difficulty: targetDifficulty,
+          hasStarted: true,
+          isViewMode: false,
+          inputMode: savedProgress.inputMode,
+        })
+      } else {
+        setGameState({
+          cells: puzzleCells,
+          selectedCellId: null,
+          isComplete: false,
+          isPaused: false,
+          elapsedTime: 0,
+          showErrors: false,
+          difficulty: targetDifficulty,
+          hasStarted: true,
+          isViewMode: false,
+          inputMode: 'pen',
+        })
+      }
     } catch (error) {
       console.error('Failed to fetch puzzle:', error)
       // Fall back to example puzzle on error
