@@ -304,6 +304,14 @@ export function TridokuGame() {
                   onNumberClick={setValue}
                   onClear={clearCell}
                   disabled={isPaused || isComplete || selectedCellId === null || isViewMode}
+                  activePencilMarks={
+                    inputMode === 'pencil' && selectedCellId
+                      ? (() => {
+                          const [r, c] = selectedCellId.split('-').map(Number)
+                          return cells[r]?.[c]?.pencilMarks || []
+                        })()
+                      : undefined
+                  }
                 />
               </div>
             )}

@@ -340,9 +340,14 @@ export function useTridoku() {
       const cell = prev.cells[row][col]
       if (cell.hidden || cell.isGiven) return prev
 
-      // In pencil mode, backspace/clear does nothing - user must toggle marks individually
+      // In pencil mode, clear all pencil marks
       if (prev.inputMode === 'pencil') {
-        return prev
+        const updatedCells = prev.cells.map((r, ri) =>
+          ri === row
+            ? r.map((c, ci) => (ci === col ? { ...c, pencilMarks: [] } : c))
+            : r
+        )
+        return { ...prev, cells: updatedCells }
       }
 
       const updatedCells = prev.cells.map((r, ri) =>
