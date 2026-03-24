@@ -126,29 +126,43 @@ function getTriangleCentroid(row: number, col: number, direction: "up" | "down")
   }
 }
 
-// Get positions for pencil marks in the 3 corners of a triangle
-// For up-facing triangles: top corner, bottom-left corner, bottom-right corner
-// For down-facing triangles: top-left corner, top-right corner, bottom corner
+// Get positions for up to 6 pencil marks arranged in a triangular grid.
+// Up-facing: row of 1 (top), row of 2, row of 3 (bottom)
+// Down-facing: row of 3 (top), row of 2, row of 1 (bottom)
 function getPencilMarkPositions(row: number, col: number, direction: "up" | "down"): { x: number; y: number }[] {
-  const inset = 0.35 // How far from the corner to place the number
-  
+  const cx = col + 1 // horizontal center of cell
+  const yTop = row * ROW_HEIGHT
+  const h = ROW_HEIGHT
+
   if (direction === "up") {
-    const yBase = (row + 1) * ROW_HEIGHT
-    const yTop = row * ROW_HEIGHT
-    // Top vertex, bottom-left vertex, bottom-right vertex
+    // Rows from top to bottom: 1 mark, 2 marks, 3 marks
+    const y1 = yTop + h * 0.36
+    const y2 = yTop + h * 0.58
+    const y3 = yTop + h * 0.80
+    const spread2 = 0.24
+    const spread3 = 0.42
     return [
-      { x: col + 1, y: yTop + inset * ROW_HEIGHT }, // top
-      { x: col + inset * 1.2, y: yBase - inset * ROW_HEIGHT * 0.5 }, // bottom-left
-      { x: col + 2 - inset * 1.2, y: yBase - inset * ROW_HEIGHT * 0.5 }, // bottom-right
+      { x: cx, y: y1 },                            // row 1: center
+      { x: cx - spread2, y: y2 },                   // row 2: left
+      { x: cx + spread2, y: y2 },                   // row 2: right
+      { x: cx - spread3, y: y3 },                   // row 3: left
+      { x: cx, y: y3 },                             // row 3: center
+      { x: cx + spread3, y: y3 },                   // row 3: right
     ]
   } else {
-    const yTop = row * ROW_HEIGHT
-    const yBottom = (row + 1) * ROW_HEIGHT
-    // Top-left vertex, top-right vertex, bottom vertex
+    // Rows from top to bottom: 3 marks, 2 marks, 1 mark
+    const y1 = yTop + h * 0.20
+    const y2 = yTop + h * 0.42
+    const y3 = yTop + h * 0.64
+    const spread3 = 0.42
+    const spread2 = 0.24
     return [
-      { x: col + inset * 1.2, y: yTop + inset * ROW_HEIGHT * 0.5 }, // top-left
-      { x: col + 2 - inset * 1.2, y: yTop + inset * ROW_HEIGHT * 0.5 }, // top-right
-      { x: col + 1, y: yBottom - inset * ROW_HEIGHT }, // bottom
+      { x: cx - spread3, y: y1 },                   // row 1: left
+      { x: cx, y: y1 },                             // row 1: center
+      { x: cx + spread3, y: y1 },                   // row 1: right
+      { x: cx - spread2, y: y2 },                   // row 2: left
+      { x: cx + spread2, y: y2 },                   // row 2: right
+      { x: cx, y: y3 },                             // row 3: center
     ]
   }
 }
@@ -243,9 +257,9 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                               y={pos.y}
                               textAnchor="middle"
                               dominantBaseline="middle"
-                              fontSize={0.4}
+                              fontSize={0.32}
                               fontWeight="normal"
-                              fill="#666"
+                              fill="#222"
                               style={{ pointerEvents: "none", userSelect: "none" }}
                             >
                               {mark}

@@ -228,6 +228,11 @@ export function useTridoku() {
   useEffect(() => {
     if (!gameState.isComplete || !gameState.difficulty) return
     
+    // Enter view mode immediately
+    if (!gameState.isViewMode) {
+      setGameState(prev => ({ ...prev, isViewMode: true, selectedCellId: null }))
+    }
+    
     // Clear in-progress save for this difficulty
     clearGameProgress(gameState.difficulty)
     
@@ -304,7 +309,7 @@ export function useTridoku() {
           newMarks = currentMarks.filter(m => m !== value)
         } else {
           // Add the mark if we have room (max 3)
-          if (currentMarks.length >= 3) {
+          if (currentMarks.length >= 6) {
             // Already at max, don't add
             return prev
           }
