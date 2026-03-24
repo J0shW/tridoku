@@ -208,6 +208,19 @@ const ROTATION_MAP = [
   [0, 4]   // index 8 → 0 → 4
 ]
 
+// Group 3 (regions 2, 5, 7) has corners swapped vs the base rotation map
+const ROTATION_MAP_GROUP3 = [
+  [8, 4],  // index 0 → 8 → 4
+  [6, 3],  // index 1 → 6 → 3
+  [5, 7],  // index 2 → 5 → 7
+  [1, 6],  // index 3 → 1 → 6
+  [0, 8],  // index 4 → 0 → 8
+  [7, 2],  // index 5 → 7 → 2
+  [3, 1],  // index 6 → 3 → 1
+  [2, 5],  // index 7 → 2 → 5
+  [4, 0]   // index 8 → 4 → 0
+]
+
 // Build symmetry groups with exact 120° rotational mapping
 function buildSymmetryGroups() {
   const groups = []
@@ -234,13 +247,13 @@ function buildSymmetryGroups() {
   }
   groups.push(group2)
   
-  // Group 3: Regions {2, 5, 7} - same rotation pattern
+  // Group 3: Regions {2, 5, 7} - uses dedicated rotation map with corners adjusted
   const group3 = []
   for (let i = 0; i < 9; i++) {
     group3.push([
       REGION_CELLS[2][i],
-      REGION_CELLS[5][ROTATION_MAP[i][0]],
-      REGION_CELLS[7][ROTATION_MAP[i][1]]
+      REGION_CELLS[5][ROTATION_MAP_GROUP3[i][0]],
+      REGION_CELLS[7][ROTATION_MAP_GROUP3[i][1]]
     ])
   }
   groups.push(group3)
@@ -852,7 +865,7 @@ console.log('========================\n')
 const YEAR = 2026
 const START_MONTH = 3  // March
 const START_DAY = 21
-const END_MONTH = 3    // March
+const END_MONTH = 3    // Marchs
 const END_DAY = 31
 
 // Set to true to see visual verification of rotational symmetry
