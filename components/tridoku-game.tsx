@@ -11,6 +11,8 @@ import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
 import { DifficultySelector } from "@/components/difficulty-selector"
 import { InputModeToggle } from "@/components/input-mode-toggle"
+import { DateDisplay } from "@/components/date-display"
+import { CalendarPicker } from "@/components/calendar-picker"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
@@ -31,6 +33,8 @@ export function TridokuGame() {
     hasStarted,
     isViewMode,
     inputMode,
+    selectedDate,
+    isArchiveMode,
     stats,
     isLoading,
     isGenerating,
@@ -45,6 +49,8 @@ export function TridokuGame() {
     generateNewPuzzle,
     changeDifficulty,
     setInputMode,
+    goToToday,
+    loadPuzzleForDate,
   } = useTridoku()
 
   const { theme, setTheme } = useTheme()
@@ -52,6 +58,7 @@ export function TridokuGame() {
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
   const [showRules, setShowRules] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const [pencilTipDismissed, setPencilTipDismissed] = useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('tridoku-pencil-tip-dismissed') === 'true'
@@ -189,6 +196,12 @@ export function TridokuGame() {
               </div>
 
               <div className="space-y-6 pt-4">
+                <DateDisplay
+                  selectedDate={selectedDate}
+                  isArchive={isArchiveMode}
+                  onCalendarClick={() => setShowCalendar(true)}
+                  onGoToToday={goToToday}
+                />
                 <div className="space-y-3">
                   <button
                     onClick={() => changeDifficulty('easy')}
@@ -251,6 +264,14 @@ export function TridokuGame() {
         ) : (
           /* Game view - active puzzle */
           <>
+            {/* Date display */}
+            <DateDisplay
+              selectedDate={selectedDate}
+              isArchive={isArchiveMode}
+              onCalendarClick={() => setShowCalendar(true)}
+              onGoToToday={goToToday}
+            />
+            
             {/* Difficulty selector */}
             <div className="flex justify-center">
               <DifficultySelector
@@ -361,7 +382,12 @@ export function TridokuGame() {
         onOpenChange={setShowRules}
       />
 
-
+      <CalendarPicker
+        open={showCalendar}
+        onOpenChange={setShowCalendar}
+        selectedDate={selectedDate}
+        onDateSelect={loadPuzzleForDate}
+      />
     </div>
   )
 }
