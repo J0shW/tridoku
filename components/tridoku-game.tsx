@@ -11,10 +11,11 @@ import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
 import { DifficultySelector } from "@/components/difficulty-selector"
 import { InputModeToggle } from "@/components/input-mode-toggle"
+import { ArchiveCalendarModal } from "@/components/archive-calendar-modal"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, CalendarDays, ArrowRight } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import {
@@ -40,6 +41,8 @@ export function TridokuGame() {
     hasStarted,
     isViewMode,
     inputMode,
+    selectedDate,
+    isToday,
     stats,
     isLoading,
     isGenerating,
@@ -55,6 +58,9 @@ export function TridokuGame() {
     changeDifficulty,
     isGameActive,
     setInputMode,
+    loadArchivedPuzzle,
+    goToToday,
+    setSelectedDate,
   } = useTridoku()
 
   const { theme, setTheme } = useTheme()
@@ -63,6 +69,7 @@ export function TridokuGame() {
   const [showWin, setShowWin] = useState(false)
   const [showRules, setShowRules] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const [pendingDifficulty, setPendingDifficulty] = useState<Difficulty | null>(null)
 
   // Handle difficulty change with confirmation if needed
@@ -87,6 +94,34 @@ export function TridokuGame() {
     setPendingDifficulty(null)
     setShowConfirm(false)
   }, [])
+
+  // Handle archive date selection - if hasStarted, load for current difficulty; otherwise just update the date
+  const handleArchiveDateSelect = useCallback((date: Date) => {
+    if (hasStarted && difficulty) {
+      loadArchivedPuzzle(date, difficulty)
+    } else {
+      // Just update the selected date - user will pick difficulty after
+      setSelectedDate(date)
+    }
+  }, [loadArchivedPuzzle, difficulty, hasStarted, setSelectedDate])
+
+  // Format the selected date for display
+  const formatDisplayDate = (date: Date) => {
+    const today = new Date()
+    const isToday = date.getFullYear() === today.getFullYear() &&
+      date.getMonth() === today.getMonth() &&
+      date.getDate() === today.getDate()
+    
+    if (isToday) {
+      return "Today"
+    }
+    
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
 
   // Show win modal when complete
   useEffect(() => {
@@ -208,15 +243,43 @@ export function TridokuGame() {
                   <Triangle className="h-20 w-20 text-primary fill-primary/20" />
                 </div>
                 <h2 className="text-4xl font-bold text-foreground">Welcome to Tridoku</h2>
+                
+                {/* Date display with calendar button */}
+                <div className="flex items-center justify-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowCalendar(true)}
+                    aria-label="Open puzzle archive"
+                    className="h-10 w-10"
+                  >
+                    <CalendarDays className="h-5 w-5" />
+                  </Button>
+                  <span className="text-2xl font-semibold text-foreground">
+                    {formatDisplayDate(selectedDate)}
+                  </span>
+                  {!isToday && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={goToToday}
+                      className="text-primary hover:text-primary/80 gap-1"
+                    >
+                      Today
+                      <ArrowRight className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                
                 <p className="text-lg text-muted-foreground">
-                  Choose your difficulty level to begin today&apos;s puzzle
+                  Choose your difficulty level to begin {isToday ? "today's" : "this"} puzzle
                 </p>
               </div>
 
               <div className="space-y-6 pt-4">
                 <div className="space-y-3">
                   <button
-                    onClick={() => changeDifficulty('easy')}
+                    onClick={() => changeDifficulty('easy', selectedDate)}
                     disabled={isGenerating}
                     className="w-full py-6 px-8 rounded-lg border-2 border-[#98ac8b] bg-[#bfdde2] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
@@ -225,14 +288,14 @@ export function TridokuGame() {
                         <h3 className="text-2xl font-bold text-[#2d5a3a] group-hover:text-[#1f4028]">Easy</h3>
                         <p className="text-sm text-[#4a6b56] mt-1">40-50 starting numbers</p>
                       </div>
-                      {stats.easy.completedToday && (
-                        <div className="text-[#2d5a3a] text-sm font-semibold">✓ Completed</div>
+                      {isToday && stats.easy.completedToday && (
+                        <div className="text-[#2d5a3a] text-sm font-semibold">Completed</div>
                       )}
                     </div>
                   </button>
 
                   <button
-                    onClick={() => changeDifficulty('medium')}
+                    onClick={() => changeDifficulty('medium', selectedDate)}
                     disabled={isGenerating}
                     className="w-full py-6 px-8 rounded-lg border-2 border-[#e2885b] bg-[#ecbd6c] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
@@ -241,14 +304,14 @@ export function TridokuGame() {
                         <h3 className="text-2xl font-bold text-[#6b4423] group-hover:text-[#4d2f18]">Medium</h3>
                         <p className="text-sm text-[#8a5f3a] mt-1">30-40 starting numbers</p>
                       </div>
-                      {stats.medium.completedToday && (
-                        <div className="text-[#6b4423] text-sm font-semibold">✓ Completed</div>
+                      {isToday && stats.medium.completedToday && (
+                        <div className="text-[#6b4423] text-sm font-semibold">Completed</div>
                       )}
                     </div>
                   </button>
 
                   <button
-                    onClick={() => changeDifficulty('hard')}
+                    onClick={() => changeDifficulty('hard', selectedDate)}
                     disabled={isGenerating}
                     className="w-full py-6 px-8 rounded-lg border-2 border-[#b47098] bg-[#e26495] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                   >
@@ -257,8 +320,8 @@ export function TridokuGame() {
                         <h3 className="text-2xl font-bold text-[#6b2447] group-hover:text-[#4d1a33]">Hard</h3>
                         <p className="text-sm text-[#8a456b] mt-1">24-30 starting numbers</p>
                       </div>
-                      {stats.hard.completedToday && (
-                        <div className="text-[#6b2447] text-sm font-semibold">✓ Completed</div>
+                      {isToday && stats.hard.completedToday && (
+                        <div className="text-[#6b2447] text-sm font-semibold">Completed</div>
                       )}
                     </div>
                   </button>
@@ -276,6 +339,33 @@ export function TridokuGame() {
         ) : (
           /* Game view - active puzzle */
           <>
+            {/* Date display with calendar button */}
+            <div className="flex items-center justify-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowCalendar(true)}
+                aria-label="Open puzzle archive"
+                className="h-10 w-10"
+              >
+                <CalendarDays className="h-5 w-5" />
+              </Button>
+              <h2 className="text-2xl font-bold text-foreground">
+                {formatDisplayDate(selectedDate)}
+              </h2>
+              {!isToday && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToToday}
+                  className="text-primary hover:text-primary/80 gap-1"
+                >
+                  Today
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+
             {/* Difficulty selector */}
             <div className="flex justify-center">
               <DifficultySelector
@@ -373,6 +463,13 @@ export function TridokuGame() {
       <RulesModal
         open={showRules}
         onOpenChange={setShowRules}
+      />
+
+      <ArchiveCalendarModal
+        open={showCalendar}
+        onOpenChange={setShowCalendar}
+        selectedDate={selectedDate}
+        onDateSelect={handleArchiveDateSelect}
       />
 
       {/* Confirmation Dialog */}

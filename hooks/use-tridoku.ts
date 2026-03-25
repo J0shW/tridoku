@@ -47,6 +47,7 @@ interface GameState {
   hasStarted: boolean
   isViewMode: boolean
   inputMode: InputMode
+  selectedDate: Date // The date of the puzzle being played
 }
 
 const STORAGE_KEY = "tridoku-game-state"
@@ -115,6 +116,12 @@ function getTodayString(): string {
   return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
 }
 
+function isSameDay(date1: Date, date2: Date): boolean {
+  return date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+}
+
 export function useTridoku() {
   const [gameState, setGameState] = useState<GameState>({
     cells: createEmptyBoard(),
@@ -127,6 +134,7 @@ export function useTridoku() {
     hasStarted: false,
     isViewMode: false,
     inputMode: 'pen',
+    selectedDate: new Date(),
   })
   const [stats, setStats] = useState<GameStats>({
     easy: getDefaultDifficultyStats(),
@@ -308,15 +316,18 @@ export function useTridoku() {
   }, [gameState.difficulty])
   
   // Change difficulty
-  const changeDifficulty = useCallback(async (difficulty: Difficulty) => {
-    if (difficulty === gameState.difficulty) return
+  const changeDifficulty = useCallback(async (difficulty: Difficulty, date?: Date) => {
+    const targetDate = date || gameState.selectedDate
+    const isToday = isSameDay(targetDate, new Date())
+    
+    if (difficulty === gameState.difficulty && isSameDay(targetDate, gameState.selectedDate)) return
     setIsGenerating(true)
     
     try {
       const diffStats = stats[difficulty]
       
-      // Check if this difficulty was already completed today
-      if (diffStats.completedToday && diffStats.todaysPuzzle && diffStats.todaysTime !== undefined) {
+      // Check if this difficulty was already completed today (only for today's puzzle)
+      if (isToday && diffStats.completedToday && diffStats.todaysPuzzle && diffStats.todaysTime !== undefined) {
         // Load completed puzzle in view mode
         const puzzleCells = loadPuzzle(diffStats.todaysPuzzle)
         setGameState({
@@ -330,10 +341,11 @@ export function useTridoku() {
           hasStarted: true,
           isViewMode: true,
           inputMode: 'pen',
+          selectedDate: targetDate,
         })
       } else {
-        // Load new puzzle
-        const dailyPuzzle = await getDailyPuzzle(undefined, difficulty)
+        // Load puzzle for the selected date
+        const dailyPuzzle = await getDailyPuzzle(targetDate, difficulty)
         const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
         setGameState({
           cells: puzzleCells,
@@ -346,6 +358,7 @@ export function useTridoku() {
           hasStarted: true,
           isViewMode: false,
           inputMode: 'pen',
+          selectedDate: targetDate,
         })
       }
     } catch (error) {
@@ -353,7 +366,7 @@ export function useTridoku() {
     } finally {
       setIsGenerating(false)
     }
-  }, [gameState.difficulty, stats])
+  }, [gameState.difficulty, gameState.selectedDate, stats])
 
   // Check if there's an active game in progress
   const isGameActive = useCallback(() => {
@@ -386,11 +399,12 @@ export function useTridoku() {
   // Load a puzzle (fetches from pre-generated puzzles)
   const generateNewPuzzle = useCallback(async (difficulty?: Difficulty, customDate?: Date) => {
     const targetDifficulty = difficulty || gameState.difficulty || 'medium'
+    const targetDate = customDate || new Date()
     setIsGenerating(true)
     
     try {
       // Fetch the daily puzzle from pre-generated puzzles
-      const dailyPuzzle = await getDailyPuzzle(customDate, targetDifficulty)
+      const dailyPuzzle = await getDailyPuzzle(targetDate, targetDifficulty)
       console.log(`[useTridoku] Loaded ${dailyPuzzle.difficulty} puzzle for ${dailyPuzzle.date}`)
       
       const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
@@ -405,6 +419,7 @@ export function useTridoku() {
         hasStarted: true,
         isViewMode: false,
         inputMode: 'pen',
+        selectedDate: targetDate,
       })
     } catch (error) {
       console.error('Failed to fetch puzzle:', error)
@@ -420,11 +435,34 @@ export function useTridoku() {
         hasStarted: true,
         isViewMode: false,
         inputMode: 'pen',
+        selectedDate: new Date(),
       }))
     } finally {
       setIsGenerating(false)
     }
   }, [gameState.difficulty])
+  
+  // Load puzzle for a specific archived date
+  const loadArchivedPuzzle = useCallback(async (date: Date, difficulty?: Difficulty) => {
+    const targetDifficulty = difficulty || gameState.difficulty || 'medium'
+    await changeDifficulty(targetDifficulty, date)
+  }, [gameState.difficulty, changeDifficulty])
+  
+  // Go back to today's puzzle
+  const goToToday = useCallback(async () => {
+    const today = new Date()
+    if (gameState.hasStarted) {
+      const targetDifficulty = gameState.difficulty || 'medium'
+      await changeDifficulty(targetDifficulty, today)
+    } else {
+      setGameState(prev => ({ ...prev, selectedDate: today }))
+    }
+  }, [gameState.difficulty, gameState.hasStarted, changeDifficulty])
+  
+  // Set the selected date (for archive browsing before starting a game)
+  const setSelectedDate = useCallback((date: Date) => {
+    setGameState(prev => ({ ...prev, selectedDate: date }))
+  }, [])
 
   return {
     cells: gameState.cells,
@@ -437,6 +475,8 @@ export function useTridoku() {
     hasStarted: gameState.hasStarted,
     isViewMode: gameState.isViewMode,
     inputMode: gameState.inputMode,
+    selectedDate: gameState.selectedDate,
+    isToday: isSameDay(gameState.selectedDate, new Date()),
     stats,
     isLoading,
     isGenerating,
@@ -452,6 +492,9 @@ export function useTridoku() {
     changeDifficulty,
     isGameActive,
     setInputMode,
+    loadArchivedPuzzle,
+    goToToday,
+    setSelectedDate,
   }
 }
 

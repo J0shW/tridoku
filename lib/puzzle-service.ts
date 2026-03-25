@@ -25,7 +25,8 @@ interface PuzzleCache {
   [date: string]: DailyPuzzleSet
 }
 
-let puzzleCache: PuzzleCache | null = null
+// Cache by year to support archive puzzles
+const puzzleCacheByYear: { [year: number]: PuzzleCache } = {}
 
 /**
  * Fetch puzzles for a given year
@@ -49,14 +50,14 @@ export async function getDailyPuzzle(date?: Date, difficulty: Difficulty = 'medi
   const day = String(targetDate.getDate()).padStart(2, '0')
   const dateStr = `${year}-${month}-${day}`
 
-  // Fetch and cache puzzles if not already loaded
-  if (!puzzleCache) {
+  // Fetch and cache puzzles for this year if not already loaded
+  if (!puzzleCacheByYear[year]) {
     console.log(`[PuzzleService] Fetching puzzles for ${year}...`)
-    puzzleCache = await fetchPuzzlesForYear(year)
-    console.log(`[PuzzleService] Loaded ${Object.keys(puzzleCache).length} puzzle sets`)
+    puzzleCacheByYear[year] = await fetchPuzzlesForYear(year)
+    console.log(`[PuzzleService] Loaded ${Object.keys(puzzleCacheByYear[year]).length} puzzle sets for ${year}`)
   }
 
-  const puzzleSet = puzzleCache[dateStr]
+  const puzzleSet = puzzleCacheByYear[year][dateStr]
   
   if (!puzzleSet || !puzzleSet[difficulty]) {
     // Fallback to a default puzzle if date not found
@@ -80,12 +81,16 @@ export async function getDailyPuzzle(date?: Date, difficulty: Difficulty = 'medi
  * Preload puzzles for better performance
  */
 export async function preloadPuzzles(year: number): Promise<void> {
-  puzzleCache = await fetchPuzzlesForYear(year)
+  if (!puzzleCacheByYear[year]) {
+    puzzleCacheByYear[year] = await fetchPuzzlesForYear(year)
+  }
 }
 
 /**
  * Clear the puzzle cache (useful for testing or year transitions)
  */
 export function clearCache(): void {
-  puzzleCache = null
+  Object.keys(puzzleCacheByYear).forEach(key => {
+    delete puzzleCacheByYear[Number(key)]
+  })
 }
