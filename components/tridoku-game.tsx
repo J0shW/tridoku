@@ -14,7 +14,7 @@ import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X, Info } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 
@@ -56,10 +56,16 @@ export function TridokuGame() {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('tridoku-pencil-tip-dismissed') === 'true'
   })
+  const [showPencilTip, setShowPencilTip] = useState(false)
 
   const dismissPencilTip = useCallback(() => {
     setPencilTipDismissed(true)
+    setShowPencilTip(false)
     localStorage.setItem('tridoku-pencil-tip-dismissed', 'true')
+  }, [])
+
+  const togglePencilTip = useCallback(() => {
+    setShowPencilTip(prev => !prev)
   }, [])
 
 
@@ -303,14 +309,21 @@ export function TridokuGame() {
             {/* Input mode toggle and number pad */}
             {!isViewMode && (
               <div className="pb-4 space-y-4">
-                <div className="flex justify-center">
+                <div className="flex justify-center items-center gap-2">
                   <InputModeToggle
                     mode={inputMode}
                     onModeChange={setInputMode}
                     disabled={isPaused || isComplete}
                   />
+                  <button
+                    onClick={togglePencilTip}
+                    className="p-1.5 rounded-full border border-border bg-muted hover:bg-muted-foreground/20 transition-colors"
+                    aria-label="Toggle pencil mode tips"
+                  >
+                    <Info className="h-4 w-4 text-muted-foreground" />
+                  </button>
                 </div>
-                {inputMode === 'pencil' && !pencilTipDismissed && (
+                {inputMode === 'pencil' && (!pencilTipDismissed || showPencilTip) && (
                   <div className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-center text-sm text-muted-foreground">
                     <button
                       onClick={dismissPencilTip}
