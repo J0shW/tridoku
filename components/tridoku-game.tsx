@@ -77,8 +77,9 @@ export function TridokuGame() {
 
     const key = e.key.toLowerCase()
     
-    // Toggle pen/pencil mode with 'p' key
-    if (key === "p") {
+    // Toggle pen/pencil mode with 'p' key or spacebar
+    if (key === "p" || key === " ") {
+      e.preventDefault() // Prevent spacebar from scrolling the page
       setInputMode(inputMode === 'pen' ? 'pencil' : 'pen')
       return
     }
