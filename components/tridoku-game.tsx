@@ -319,7 +319,7 @@ export function TridokuGame() {
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
-                    Tap a number to toggle a pencil mark. Tap again to remove it. Press backspace to clear all marks.
+                    Tap a number to toggle a pencil mark. Tap again to remove it. Press backspace to clear all marks. Press space or &apos;p&apos; to swap modes.
                   </div>
                 )}
                 <NumberPad
