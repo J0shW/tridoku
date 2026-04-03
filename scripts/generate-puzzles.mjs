@@ -857,33 +857,98 @@ function generatePuzzlesForYear(year, startMonth = 1, startDay = 1, endMonth = 1
 // MAIN EXECUTION
 // ============================================================================
 
+// Parse CLI args
+function parseArgs() {
+  const args = process.argv.slice(2)
+  const parsed = { doHardReplace: false, year: 2026, startMonth: 3, startDay: 21, endMonth: 3, endDay: 31 }
+
+  for (const arg of args) {
+    if (arg === '--doHardReplace') {
+      parsed.doHardReplace = true
+    } else if (arg.startsWith('--year=')) {
+      parsed.year = parseInt(arg.split('=')[1])
+    } else if (arg.startsWith('--startMonth=')) {
+      parsed.startMonth = parseInt(arg.split('=')[1])
+    } else if (arg.startsWith('--startDay=')) {
+      parsed.startDay = parseInt(arg.split('=')[1])
+    } else if (arg.startsWith('--endMonth=')) {
+      parsed.endMonth = parseInt(arg.split('=')[1])
+    } else if (arg.startsWith('--endDay=')) {
+      parsed.endDay = parseInt(arg.split('=')[1])
+    }
+  }
+
+  return parsed
+}
+
+const { doHardReplace, year: YEAR, startMonth: START_MONTH, startDay: START_DAY, endMonth: END_MONTH, endDay: END_DAY } = parseArgs()
+
 console.log('Tridoku Puzzle Generator')
 console.log('========================\n')
-
-// For testing, generate just a few days worth of puzzles
-// Change these parameters to generate more puzzles
-const YEAR = 2026
-const START_MONTH = 3  // March
-const START_DAY = 21
-const END_MONTH = 3    // Marchs
-const END_DAY = 31
 
 // Set to true to see visual verification of rotational symmetry
 const SHOW_VISUAL = false
 
 console.log(`Generating puzzles for ${YEAR}...`)
 console.log(`Range: ${START_MONTH}/${START_DAY} to ${END_MONTH}/${END_DAY}`)
+console.log(`Mode: ${doHardReplace ? 'HARD REPLACE (overwrite entire file)' : 'MERGE (add new days only)'}`)
 if (SHOW_VISUAL) {
   console.log('Visual symmetry verification enabled\n')
   process.env.SHOW_SYMMETRY_VISUAL = 'true'
 }
 
-const puzzles = generatePuzzlesForYear(YEAR, START_MONTH, START_DAY, END_MONTH, END_DAY)
-
-// Save to file
 const outputFile = path.join(OUTPUT_DIR, `${YEAR}.json`)
-fs.writeFileSync(outputFile, JSON.stringify(puzzles, null, 2))
 
-console.log(`\n✓ Saved to ${outputFile}`)
+// Load existing puzzles if not doing a hard replace
+let existingPuzzles = {}
+if (!doHardReplace && fs.existsSync(outputFile)) {
+  existingPuzzles = JSON.parse(fs.readFileSync(outputFile, 'utf-8'))
+  console.log(`Loaded ${Object.keys(existingPuzzles).length} existing puzzle sets from ${outputFile}`)
+}
+
+// Determine which days need generation
+let skippedCount = 0
+const puzzles = {}
+const totalStart = Date.now()
+
+for (let month = START_MONTH; month <= END_MONTH; month++) {
+  const daysInMonth = new Date(YEAR, month, 0).getDate()
+  const firstDay = month === START_MONTH ? START_DAY : 1
+  const lastDay = month === END_MONTH && END_DAY !== null ? END_DAY : daysInMonth
+
+  for (let day = firstDay; day <= lastDay; day++) {
+    const dateStr = `${YEAR}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+
+    if (!doHardReplace && existingPuzzles[dateStr]) {
+      skippedCount++
+      continue
+    }
+
+    puzzles[dateStr] = generatePuzzleForDate(YEAR, month, day)
+  }
+}
+
+const generatedCount = Object.keys(puzzles).length
+const totalDuration = Date.now() - totalStart
+
+if (skippedCount > 0) {
+  console.log(`\nSkipped ${skippedCount} existing puzzle sets`)
+}
+if (generatedCount > 0) {
+  const avgTime = Math.round(totalDuration / generatedCount)
+  console.log(`\n${'='.repeat(60)}`)
+  console.log(`✓ Generated ${generatedCount} puzzle sets (${generatedCount * 3} total puzzles) in ${Math.round(totalDuration / 1000)}s`)
+  console.log(`  Average time per puzzle set: ${avgTime}ms`)
+  console.log(`${'='.repeat(60)}`)
+} else {
+  console.log(`\nNo new puzzles to generate — all days already exist.`)
+}
+
+// Merge new puzzles into existing ones and save
+const mergedPuzzles = { ...existingPuzzles, ...puzzles }
+fs.writeFileSync(outputFile, JSON.stringify(mergedPuzzles, null, 2))
+
+console.log(`\n✓ Saved to ${outputFile} (${Object.keys(mergedPuzzles).length} total puzzle sets)`)
 console.log('\nTo generate more puzzles, edit the date range in this script.')
 console.log('To generate a full year, set END_MONTH = 12 and END_DAY = null')
+console.log('To overwrite existing days, pass --doHardReplace')
