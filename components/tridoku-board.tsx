@@ -173,9 +173,12 @@ interface TridokuBoardProps {
   onCellClick: (cellId: CellId) => void
   isPaused: boolean
   difficulty?: Difficulty | null
+  highlightedValue?: number | null
 }
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty }: TridokuBoardProps) {
+const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
+
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -225,6 +228,13 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={ERROR_FILL}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
+                  {highlightedValue != null && gameCell?.value === highlightedValue && !isSelected && (
+                    <polygon
+                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                      fill={HIGHLIGHTED_FILL}
                       style={{ pointerEvents: "none" }}
                     />
                   )}

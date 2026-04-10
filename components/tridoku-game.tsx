@@ -31,6 +31,7 @@ export function TridokuGame() {
     hasStarted,
     isViewMode,
     inputMode,
+    highlightedValue,
     stats,
     isLoading,
     isGenerating,
@@ -287,6 +288,7 @@ export function TridokuGame() {
                   onCellClick={selectCell}
                   isPaused={isPaused}
                   difficulty={difficulty}
+                  highlightedValue={highlightedValue}
                 />
               </div>
             </div>
