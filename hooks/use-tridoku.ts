@@ -48,6 +48,7 @@ interface GameState {
   isViewMode: boolean
   inputMode: InputMode
   puzzleHash: string | null // Hash of original puzzle to validate saved progress
+  highlightedValue: number | null // Value to highlight across the board (double-tap feature)
 }
 
 const STORAGE_KEY = "tridoku-game-state"
@@ -207,6 +208,7 @@ export function useTridoku() {
     isViewMode: false,
     inputMode: 'pen',
     puzzleHash: null,
+    highlightedValue: null,
   })
   const [stats, setStats] = useState<GameStats>({
     easy: getDefaultDifficultyStats(),
@@ -305,7 +307,24 @@ export function useTridoku() {
   // Select a cell by CellId
   const selectCell = useCallback((cellId: CellId | null) => {
     if (gameState.isViewMode) return
-    setGameState(prev => ({ ...prev, selectedCellId: cellId }))
+    setGameState(prev => {
+      // If clicking on the already selected cell, check if it has a value
+      if (cellId && cellId === prev.selectedCellId) {
+        const [rowStr, colStr] = cellId.split("-")
+        const row = parseInt(rowStr)
+        const col = parseInt(colStr)
+        const cell = prev.cells[row]?.[col]
+        
+        if (cell?.value != null) {
+          // Toggle highlight: if already highlighting this value, turn it off; otherwise turn it on
+          const newHighlightedValue = prev.highlightedValue === cell.value ? null : cell.value
+          return { ...prev, highlightedValue: newHighlightedValue }
+        }
+      }
+      
+      // Clear highlight when selecting a different cell
+      return { ...prev, selectedCellId: cellId, highlightedValue: null }
+    })
   }, [gameState.isViewMode])
 
   // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
@@ -442,6 +461,7 @@ export function useTridoku() {
         isViewMode: true,
         inputMode: 'pen',
         puzzleHash: diffStats.todaysPuzzle,
+        highlightedValue: null,
       })
     } else {
       // Fetch today's puzzle first
@@ -473,6 +493,7 @@ export function useTridoku() {
           isViewMode: false,
           inputMode: savedProgress.inputMode,
           puzzleHash,
+          highlightedValue: null,
         })
       } else {
         setGameState({
@@ -487,6 +508,7 @@ export function useTridoku() {
           isViewMode: false,
           inputMode: 'pen',
           puzzleHash,
+          highlightedValue: null,
         })
       }
     }
@@ -560,6 +582,7 @@ export function useTridoku() {
         isViewMode: false,
         inputMode: savedProgress.inputMode,
         puzzleHash,
+        highlightedValue: null,
       })
     } else {
       setGameState({
@@ -574,6 +597,7 @@ export function useTridoku() {
         isViewMode: false,
         inputMode: 'pen',
         puzzleHash,
+        highlightedValue: null,
       })
     }
   } catch (error) {
@@ -591,6 +615,7 @@ export function useTridoku() {
       isViewMode: false,
       inputMode: 'pen',
       puzzleHash: EXAMPLE_PUZZLE,
+      highlightedValue: null,
     }))
     } finally {
       setIsGenerating(false)
@@ -608,6 +633,7 @@ export function useTridoku() {
     hasStarted: gameState.hasStarted,
     isViewMode: gameState.isViewMode,
     inputMode: gameState.inputMode,
+    highlightedValue: gameState.highlightedValue,
     stats,
     isLoading,
     isGenerating,

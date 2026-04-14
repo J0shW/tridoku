@@ -173,9 +173,13 @@ interface TridokuBoardProps {
   onCellClick: (cellId: CellId) => void
   isPaused: boolean
   difficulty?: Difficulty | null
+  highlightedValue?: number | null
 }
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty }: TridokuBoardProps) {
+const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
+const HIGHLIGHTED_STROKE = "var(--tridoku-highlighted-stroke)"
+
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -225,6 +229,13 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={ERROR_FILL}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
+                  {highlightedValue != null && gameCell?.value === highlightedValue && !isSelected && (
+                    <polygon
+                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                      fill={HIGHLIGHTED_FILL}
                       style={{ pointerEvents: "none" }}
                     />
                   )}
@@ -285,6 +296,25 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
             strokeLinecap="round"
           />
         ))}
+        {/* Draw highlighted cell borders on top of everything */}
+        {highlightedValue != null && TRIDOKU_BOARD.flat().map(cell => {
+          const gameCell = cells[cell.row]?.[cell.col]
+          if (gameCell?.value === highlightedValue && cell.id !== selectedCellId) {
+            return (
+              <polygon
+                key={`highlighted-${cell.id}`}
+                points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                fill="none"
+                stroke={HIGHLIGHTED_STROKE}
+                strokeWidth="0.1"
+                strokeLinejoin="miter"
+                strokeLinecap="butt"
+                style={{ pointerEvents: "none" }}
+              />
+            )
+          }
+          return null
+        })}
         {/* Draw selected cell border on top of everything */}
         {selectedCellId && (() => {
           const selectedCell = TRIDOKU_BOARD.flat().find(cell => cell.id === selectedCellId && !cell.hidden)
