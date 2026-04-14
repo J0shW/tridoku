@@ -177,6 +177,7 @@ interface TridokuBoardProps {
 }
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
+const HIGHLIGHTED_STROKE = "var(--tridoku-highlighted-stroke)"
 
 export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue }: TridokuBoardProps) {
   if (isPaused) {
@@ -235,6 +236,8 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={HIGHLIGHTED_FILL}
+                      stroke={HIGHLIGHTED_STROKE}
+                      strokeWidth="0.08"
                       style={{ pointerEvents: "none" }}
                     />
                   )}
