@@ -296,25 +296,6 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
             strokeLinecap="round"
           />
         ))}
-        {/* Draw highlighted cell borders on top of everything */}
-        {highlightedValue != null && TRIDOKU_BOARD.flat().map(cell => {
-          const gameCell = cells[cell.row]?.[cell.col]
-          if (gameCell?.value === highlightedValue && cell.id !== selectedCellId) {
-            return (
-              <polygon
-                key={`highlighted-${cell.id}`}
-                points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                fill="none"
-                stroke={HIGHLIGHTED_STROKE}
-                strokeWidth="0.1"
-                strokeLinejoin="miter"
-                strokeLinecap="butt"
-                style={{ pointerEvents: "none" }}
-              />
-            )
-          }
-          return null
-        })}
         {/* Draw selected cell border on top of everything */}
         {selectedCellId && (() => {
           const selectedCell = TRIDOKU_BOARD.flat().find(cell => cell.id === selectedCellId && !cell.hidden)
