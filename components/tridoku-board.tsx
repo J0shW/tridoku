@@ -237,7 +237,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={HIGHLIGHTED_FILL}
                       stroke={HIGHLIGHTED_STROKE}
-                      strokeWidth="0.08"
+                      strokeWidth="0.15"
                       style={{ pointerEvents: "none" }}
                     />
                   )}
