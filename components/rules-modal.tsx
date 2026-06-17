@@ -1,5 +1,6 @@
 "use client"
 
+import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,273 @@ interface RulesModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
+
+// ─── SVG helpers ───────────────────────────────────────────────────────────────
+
+const ROW_H = Math.sqrt(3)
+const BOARD_SVG_H = 9 * ROW_H
+
+/** Polygon points string for a board-coordinate triangle cell */
+function triPts(row: number, col: number, dir: "up" | "down"): string {
+  if (dir === "up") {
+    return `${col},${(row + 1) * ROW_H} ${col + 1},${row * ROW_H} ${col + 2},${(row + 1) * ROW_H}`
+  }
+  return `${col},${row * ROW_H} ${col + 2},${row * ROW_H} ${col + 1},${(row + 1) * ROW_H}`
+}
+
+/** Visual centroid of a board-coordinate triangle cell */
+function centroid(row: number, col: number, dir: "up" | "down") {
+  return {
+    x: col + 1,
+    y: dir === "up" ? row * ROW_H + (ROW_H * 2) / 3 : row * ROW_H + ROW_H / 3,
+  }
+}
+
+// ─── Example wrappers ──────────────────────────────────────────────────────────
+
+function ExampleBox({ children, caption }: { children: React.ReactNode; caption: string }) {
+  return (
+    <div className="mt-3 rounded-md bg-muted/40 border border-border/60 p-2">
+      {children}
+      <p className="text-xs text-center text-muted-foreground mt-1 leading-tight">{caption}</p>
+    </div>
+  )
+}
+
+// ─── Rule 1: bolded region ─────────────────────────────────────────────────────
+
+function RegionExample() {
+  // region 0 is the top macro-triangle (rows 0–2, centered around col 9)
+  const regionCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden && c.boldedRegion === 0)
+  const h3 = 3 * ROW_H
+
+  return (
+    <ExampleBox caption="Each bold-outlined region contains digits 1–9 exactly once">
+      <svg
+        viewBox="5.4 -0.45 7.2 6.1"
+        className="w-full max-w-40 mx-auto block"
+        aria-hidden="true"
+      >
+        {regionCells.map((cell, i) => {
+          const c = centroid(cell.row, cell.col, cell.direction)
+          return (
+            <g key={cell.id}>
+              <polygon
+                points={triPts(cell.row, cell.col, cell.direction)}
+                fill="#e4e3d3"
+                stroke="#aaa"
+                strokeWidth="0.05"
+              />
+              <text
+                x={c.x}
+                y={c.y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="0.72"
+                fontWeight="700"
+                fill="#2a2a2a"
+              >
+                {i + 1}
+              </text>
+            </g>
+          )
+        })}
+        {/* Bold outer region border */}
+        <polygon
+          points={`9,0 6,${h3} 12,${h3}`}
+          fill="none"
+          stroke="#1a1a1a"
+          strokeWidth="0.22"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </ExampleBox>
+  )
+}
+
+// ─── Rule 2: outer edges ───────────────────────────────────────────────────────
+
+function OuterEdgesExample() {
+  const allCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
+  // One cell per row on the outer left edge, top-to-bottom
+  const leftEdgeCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden && c.isOuterLeftEdge)
+
+  function fill(color: string) {
+    if (color === "outer" || color === "overlap") return "#bfdde2"
+    return "#e4e3d3"
+  }
+
+  return (
+    <ExampleBox caption="Each of the three outer sides must contain digits 1–9">
+      <svg
+        viewBox={`-0.15 -0.15 18.3 ${BOARD_SVG_H + 0.3}`}
+        className="w-full max-w-45 mx-auto block"
+        aria-hidden="true"
+      >
+        {allCells.map((cell) => (
+          <polygon
+            key={cell.id}
+            points={triPts(cell.row, cell.col, cell.direction)}
+            fill={fill(cell.color)}
+            stroke="#aaa"
+            strokeWidth="0.04"
+          />
+        ))}
+        {leftEdgeCells.map((cell, i) => {
+          const c = centroid(cell.row, cell.col, cell.direction)
+          return (
+            <text
+              key={cell.id}
+              x={c.x}
+              y={c.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="0.68"
+              fontWeight="700"
+              fill="#1a4a5a"
+            >
+              {i + 1}
+            </text>
+          )
+        })}
+      </svg>
+    </ExampleBox>
+  )
+}
+
+// ─── Rule 3: inner triangle ────────────────────────────────────────────────────
+
+function InnerTriangleExample() {
+  const allCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
+  // All 9 cells in row 4 form the inner top edge, left-to-right
+  const innerTopCells = TRIDOKU_BOARD[4].filter((c) => !c.hidden && c.isInnerTopEdge)
+
+  function fill(color: string) {
+    if (color === "inner" || color === "overlap") return "#eed496"
+    return "#e4e3d3"
+  }
+
+  return (
+    <ExampleBox caption="Each edge of the inner (inverted) triangle must also contain digits 1–9">
+      <svg
+        viewBox={`-0.15 -0.15 18.3 ${BOARD_SVG_H + 0.3}`}
+        className="w-full max-w-45 mx-auto block"
+        aria-hidden="true"
+      >
+        {allCells.map((cell) => (
+          <polygon
+            key={cell.id}
+            points={triPts(cell.row, cell.col, cell.direction)}
+            fill={fill(cell.color)}
+            stroke="#aaa"
+            strokeWidth="0.04"
+          />
+        ))}
+        {innerTopCells.map((cell, i) => {
+          const c = centroid(cell.row, cell.col, cell.direction)
+          return (
+            <text
+              key={cell.id}
+              x={c.x}
+              y={c.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="0.68"
+              fontWeight="700"
+              fill="#5a3a00"
+            >
+              {i + 1}
+            </text>
+          )
+        })}
+      </svg>
+    </ExampleBox>
+  )
+}
+
+// ─── Rule 4: no touching ───────────────────────────────────────────────────────
+
+function NoTouchingExample() {
+  const s = 9 // board units → SVG units scale
+  const H = ROW_H * s // row height ≈ 15.59
+  const gap = 8 // vertical gap between rows
+  const fs = s * 0.56 // digit font size
+  const markerFs = s * 0.68 // ✗/✓ font size
+  const descFs = s * 0.37 // small row-label font size
+
+  // Centroids for the three-triangle layout: up1 | dn | up2
+  const cx1 = s,      cy1 = (H * 2) / 3
+  const cxD = 2 * s,  cyD = H / 3
+  const cx2 = 3 * s,  cy2 = (H * 2) / 3
+
+  // Generate polygon points strings offset by dy
+  function row(dy: number) {
+    return {
+      up1: `0,${H + dy} ${s},${dy} ${2 * s},${H + dy}`,
+      dn:  `${s},${dy} ${3 * s},${dy} ${2 * s},${H + dy}`,
+      up2: `${2 * s},${H + dy} ${3 * s},${dy} ${4 * s},${H + dy}`,
+    }
+  }
+
+  const dy0 = 0               // row 1: shared edge (bad)
+  const dy1 = H + gap         // row 2: shared corner (bad)
+  const dy2 = 2 * (H + gap)   // row 3: different digits (good)
+  const totalH = 3 * H + 2 * gap
+
+  const markerX = 4 * s + 4
+  const descX = markerX + 0.5
+
+  const r0 = row(dy0)
+  const r1 = row(dy1)
+  const r2 = row(dy2)
+
+  return (
+    <ExampleBox caption="Identical digits cannot touch — not even at a single shared corner point">
+      <svg
+        viewBox={`-1 -1 ${4 * s + 26} ${totalH + 2}`}
+        className="w-full max-w-55 mx-auto block"
+        aria-hidden="true"
+      >
+        {/* ── Row 1: direct edge adjacency (BAD) ── */}
+        <polygon points={r0.up1} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cx1} y={cy1 + dy0} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
+        <polygon points={r0.dn} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cxD} y={cyD + dy0} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
+        <polygon points={r0.up2} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
+        {/* highlight shared edge */}
+        <line x1={s} y1={dy0} x2={2 * s} y2={H + dy0} stroke="#ef4444" strokeWidth="1.4" strokeLinecap="round" />
+        <text x={markerX} y={H * 0.32 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="#dc2626">✗</text>
+        <text x={descX} y={H * 0.70 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">shared</text>
+        <text x={descX} y={H * 0.88 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">edge</text>
+
+        {/* ── Row 2: corner-only adjacency (BAD) ── */}
+        <polygon points={r1.up1} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cx1} y={cy1 + dy1} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
+        <polygon points={r1.dn} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
+        <polygon points={r1.up2} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cx2} y={cy2 + dy1} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
+        {/* highlight shared corner */}
+        <circle cx={2 * s} cy={H + dy1} r="1.4" fill="#ef4444" />
+        <text x={markerX} y={H * 0.32 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="#dc2626">✗</text>
+        <text x={descX} y={H * 0.70 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">shared</text>
+        <text x={descX} y={H * 0.88 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">corner</text>
+
+        {/* ── Row 3: all different (GOOD) ── */}
+        <polygon points={r2.up1} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cx1} y={cy1 + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#1a1a1a">4</text>
+        <polygon points={r2.dn} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cxD} y={cyD + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#1a1a1a">7</text>
+        <polygon points={r2.up2} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
+        <text x={cx2} y={cy2 + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#1a1a1a">2</text>
+        <text x={markerX} y={H * 0.32 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="#16a34a">✓</text>
+        <text x={descX} y={H * 0.70 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#166534">all</text>
+        <text x={descX} y={H * 0.88 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#166534">different</text>
+      </svg>
+    </ExampleBox>
+  )
+}
+
+// ─── Modal ─────────────────────────────────────────────────────────────────────
 
 export function RulesModal({ open, onOpenChange }: RulesModalProps) {
   return (
@@ -32,17 +300,17 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
 
           <section>
             <h3 className="font-semibold text-lg mb-3 text-primary">Rules</h3>
-            <ul className="space-y-3">
-              <RuleItem number={1}>
+            <ul className="space-y-4">
+              <RuleItem number={1} example={<RegionExample />}>
                 <strong>Regions:</strong> Each bolded triangular region must contain the digits 1 through 9 exactly once.
               </RuleItem>
-              <RuleItem number={2}>
+              <RuleItem number={2} example={<OuterEdgesExample />}>
                 <strong>Outer Edges:</strong> The three sides of the large triangle must each contain digits 1 through 9.
               </RuleItem>
-              <RuleItem number={3}>
+              <RuleItem number={3} example={<InnerTriangleExample />}>
                 <strong>Inner Triangle:</strong> The inner triangle&apos;s edges must also contain digits 1 through 9.
               </RuleItem>
-              <RuleItem number={4}>
+              <RuleItem number={4} example={<NoTouchingExample />}>
                 <strong>No Touching:</strong> Identical numbers cannot touch each other, not even at a single corner point.
               </RuleItem>
             </ul>
@@ -77,13 +345,24 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
   )
 }
 
-function RuleItem({ number, children }: { number: number; children: React.ReactNode }) {
+function RuleItem({
+  number,
+  children,
+  example,
+}: {
+  number: number
+  children: React.ReactNode
+  example?: React.ReactNode
+}) {
   return (
     <li className="flex items-start gap-3">
-      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+      <span className="shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
         {number}
       </span>
-      <span className="text-muted-foreground leading-relaxed">{children}</span>
+      <div className="flex-1">
+        <p className="text-muted-foreground leading-relaxed">{children}</p>
+        {example}
+      </div>
     </li>
   )
 }
