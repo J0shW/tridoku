@@ -279,6 +279,104 @@ function NoTouchingExample() {
   )
 }
 
+// ─── Tip: Power Cells ────────────────────────────────────────────────────────
+
+function PowerCellExample() {
+  // Show rows 0-4: region 0 (rows 0-2) + power-cell row + one row of context
+  const visibleCells = TRIDOKU_BOARD.slice(0, 5).flat().filter((c) => !c.hidden)
+
+  // Power cell: row=3, col=8, down-triangle — directly adjacent to ALL five row-2
+  // cells of region 0, so placing 7 here eliminates all of them as candidates.
+  const powerCellId = "3-8"
+  // Only remaining empty cell in region 0 that can hold 7
+  const targetCellId = "1-8"
+  // Empty row-2 region-0 cells blocked by the power cell (the other three have givens)
+  const blockedEmptyIds = new Set(["2-7", "2-9"])
+
+  const given: Record<string, number> = {
+    "0-8": 2,
+    "1-7": 1,
+    "1-9": 3,
+    "2-6": 4,
+    "2-8": 6,
+    "2-10": 9,
+    "3-8": 7,
+  }
+
+  return (
+    <div className="mt-3 rounded-md bg-muted/40 border border-border/60 p-2">
+      <svg
+        viewBox={`3.7 -0.3 10.6 ${5 * ROW_H + 0.6}`}
+        className="w-full max-w-48 mx-auto block"
+        aria-hidden="true"
+      >
+        {visibleCells.map((cell) => {
+          const c = centroid(cell.row, cell.col, cell.direction)
+          const isRegion0 = cell.boldedRegion === 0
+          const isPower = cell.id === powerCellId
+          const isTarget = cell.id === targetCellId
+          const isBlockedEmpty = blockedEmptyIds.has(cell.id)
+          const val = given[cell.id]
+
+          let fill = "#e4e3d3"
+          if (isTarget) fill = "#bbf7d0"
+          else if (isBlockedEmpty) fill = "#fee2e2"
+          else if (isRegion0) fill = "#bfdde2"
+
+          return (
+            <g key={cell.id}>
+              <polygon
+                points={triPts(cell.row, cell.col, cell.direction)}
+                fill={fill}
+                stroke="#aaa"
+                strokeWidth="0.05"
+              />
+              {isBlockedEmpty && (
+                <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle" fontSize="0.6" fill="#dc2626">
+                  ✕
+                </text>
+              )}
+              {val !== undefined && (
+                <text
+                  x={c.x}
+                  y={c.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize={0.72}
+                  fontWeight="700"
+                  fill={isPower ? "#991b1b" : "#1a1a1a"}
+                >
+                  {val}
+                </text>
+              )}
+              {isTarget && (
+                <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle" fontSize="0.72" fontWeight="700" fill="#166534">
+                  7
+                </text>
+              )}
+              {isPower && (
+                <circle cx={c.x} cy={c.y} r="0.52" fill="none" stroke="#dc2626" strokeWidth="0.12" />
+              )}
+            </g>
+          )
+        })}
+
+        {/* Bold region 0 outline */}
+        <polygon
+          points={`9,0 6,${3 * ROW_H} 12,${3 * ROW_H}`}
+          fill="none"
+          stroke="#1a1a1a"
+          strokeWidth="0.18"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <p className="text-xs text-center text-muted-foreground mt-1 leading-tight">
+        The circled 7 eliminates all bottom-row candidates in the region — only the green cell remains
+      </p>
+    </div>
+  )
+}
+
 // ─── Modal ─────────────────────────────────────────────────────────────────────
 
 export function RulesModal({ open, onOpenChange }: RulesModalProps) {
@@ -322,6 +420,15 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
               <li className="flex items-start gap-2">
                 <span className="text-accent">•</span>
                 <span>Start with cells that have the most constraints</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-accent">•</span>
+                <div>
+                  <span>
+                    <strong className="text-foreground">Power Cells:</strong> A single cell just outside a region can eliminate many candidates at once via the no-touching rule — often leaving only one valid cell in the region for that digit.
+                  </span>
+                  <PowerCellExample />
+                </div>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-accent">•</span>
