@@ -185,12 +185,23 @@ export function TridokuGame() {
                   <Triangle className="h-20 w-20 text-primary fill-primary/20" />
                 </div>
                 <h2 className="text-4xl font-bold text-foreground">Welcome to Tridoku</h2>
-                <p className="text-lg text-muted-foreground">
-                  Choose your difficulty level to begin today&apos;s puzzle
-                </p>
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">First time here?</p>
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => setShowRules(true)}
+                  >
+                    <HelpCircle className="h-4 w-4" />
+                    How to Play
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-6 pt-4">
+                <p className="text-lg text-muted-foreground">
+                  Choose your difficulty level to begin today&apos;s puzzle
+                </p>
                 <div className="space-y-3">
                   <button
                     onClick={() => changeDifficulty('easy')}
