@@ -4,7 +4,7 @@ import { useState } from "react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import type { CellId } from "@/lib/tridoku"
 import Link from "next/link"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, AlertTriangle, Lightbulb } from "lucide-react"
 
 // ─── SVG helpers ──────────────────────────────────────────────────────────────
 
@@ -29,21 +29,39 @@ function cent(row: number, col: number, dir: "up" | "down") {
 
 function Section({
   step,
+  label,
+  variant = "neutral",
   title,
   subtitle,
   children,
 }: {
   step: number
+  label?: string
+  variant?: "failure" | "fix" | "neutral"
   title: string
   subtitle: string
   children: React.ReactNode
 }) {
+  const tag = label ?? `STEP ${step.toString().padStart(2, "0")}`
+  const tagColor =
+    variant === "failure"
+      ? "text-red-500 dark:text-red-400"
+      : variant === "fix"
+      ? "text-green-600 dark:text-green-400"
+      : "text-primary/60"
+  const icon =
+    variant === "failure" ? (
+      <AlertTriangle className="inline-block w-4 h-4 mr-1.5 -mt-0.5" />
+    ) : variant === "fix" ? (
+      <Lightbulb className="inline-block w-4 h-4 mr-1.5 -mt-0.5" />
+    ) : null
+
   return (
     <section className="py-16 border-t border-border first:border-t-0">
       <div className="max-w-5xl mx-auto px-6">
         <div className="mb-8">
-          <span className="inline-block text-sm font-mono font-bold text-primary/60 mb-2">
-            STEP {step.toString().padStart(2, "0")}
+          <span className={`inline-flex items-center text-sm font-mono font-bold mb-2 ${tagColor}`}>
+            {icon}{tag}
           </span>
           <h2 className="text-3xl font-bold text-foreground">{title}</h2>
           <p className="mt-2 text-lg text-muted-foreground max-w-2xl">{subtitle}</p>
@@ -74,6 +92,86 @@ function CodeBlock({ code, highlight }: { code: string; highlight?: string }) {
   )
 }
 
+// ─── Failure 1: Jumbled grid vs fixed ────────────────────────────────────────
+
+function JumbledVsFixed() {
+  // A deliberately wrong grid: triangles placed with arbitrary/wrong coordinates
+  // to illustrate what the early failed attempts looked like
+  const wrongTris = [
+    { pts: "1,0 3,0 2,1.5", fill: "#fca5a5" },
+    { pts: "3,0 5,0 4,2", fill: "#fca5a5" },
+    { pts: "0,1.5 2,1.5 1,3", fill: "#fca5a5" },
+    { pts: "4,0.5 6,0.5 5.5,2.2", fill: "#fca5a5" },
+    { pts: "2,2 4,1.5 3.5,3.5", fill: "#fca5a5" },
+    { pts: "1,3 3,2.5 2.5,4.5", fill: "#fca5a5" },
+    { pts: "4.5,2.5 6,1.5 6.5,3.5", fill: "#fca5a5" },
+    { pts: "0,3.5 2,3 1.5,5", fill: "#fca5a5" },
+    { pts: "3.5,3.5 5,2.5 5.5,4.5", fill: "#fca5a5" },
+  ]
+
+  const correctCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+      {/* Wrong */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+          <span className="text-sm font-semibold text-red-600 dark:text-red-400">Early attempt</span>
+        </div>
+        <div className="rounded-lg border-2 border-red-300 bg-red-50/30 dark:bg-red-950/10 p-4">
+          <svg viewBox="-0.5 -0.5 8 6" className="w-full max-w-70 mx-auto block" aria-label="Wrong grid">
+            {wrongTris.map((t, i) => (
+              <polygon key={i} points={t.pts} fill={t.fill} stroke="#ef4444" strokeWidth="0.06" />
+            ))}
+          </svg>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Triangles didn&apos;t connect, overlapped, or pointed the wrong direction entirely.
+          The SVG coordinate math was off from the start. I saw outputs like this for longer
+          than I&apos;d like to admit.
+        </p>
+      </div>
+
+      {/* Correct */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Lightbulb className="h-4 w-4 text-green-600 shrink-0" />
+          <span className="text-sm font-semibold text-green-700 dark:text-green-400">After fixing the coordinate system</span>
+        </div>
+        <div className="rounded-lg border-2 border-green-300 bg-green-50/30 dark:bg-green-950/10 p-4">
+          <svg viewBox={`-0.2 -0.2 18.4 ${SVG_H + 0.4}`} className="w-full max-w-70 mx-auto block" aria-label="Correct grid">
+            {correctCells.map((cell) => (
+              <polygon
+                key={cell.id}
+                points={triPts(cell.row, cell.col, cell.direction)}
+                fill="#e4e3d3"
+                stroke="#888"
+                strokeWidth="0.06"
+              />
+            ))}
+          </svg>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          The key was using board coordinates where each unit equals one triangle-width,
+          and deriving all three vertices from <code className="bg-muted px-1 rounded font-mono text-xs">[row, col]</code>{" "}
+          and direction. Once that clicked, every triangle snapped into place.
+        </p>
+      </div>
+
+      <div className="md:col-span-2 rounded-lg border border-border bg-muted/20 p-4 text-sm space-y-2">
+        <p className="font-semibold text-foreground">The root cause</p>
+        <p className="text-muted-foreground">
+          The AI kept treating the grid like a pixel canvas \u2014 placing triangles by absolute
+          pixel coordinates. The correct approach is to define a coordinate space where
+          one unit = one triangle base-width, and use the row/col as the anchor. Once that
+          mental model was in place, all 81 triangles rendered perfectly with a single formula.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 // ─── Step 1: The Board ────────────────────────────────────────────────────────
 
 function TheBoard() {
@@ -99,14 +197,20 @@ function TheBoard() {
             />
           ))}
         </svg>
+        <p className="text-xs text-center text-muted-foreground mt-2">The final working board — this took a while to get to.</p>
       </div>
 
       <div className="space-y-4">
         <p className="text-muted-foreground">
+          The goal was simple: build a digital version of a physical triangular puzzle book.
           The board is a large equilateral triangle subdivided into{" "}
           <strong className="text-foreground">{total} smaller triangles</strong> across{" "}
-          <strong className="text-foreground">9 rows</strong>. Each row is one triangle
-          taller than the last, alternating between up-pointing and down-pointing cells.
+          <strong className="text-foreground">9 rows</strong>. Each row alternates between
+          up-pointing and down-pointing cells.
+        </p>
+        <p className="text-muted-foreground">
+          What followed was a series of AI failures, frustrating dead-ends, and the occasional
+          moment where I had to actually <em>think</em> for myself. This page is about those failures.
         </p>
 
         <div className="rounded-lg border border-border overflow-hidden text-sm">
@@ -196,8 +300,11 @@ function JaggedArrays() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div className="space-y-3">
         <p className="text-muted-foreground">
-          A natural first instinct is to store each row as a separate array — after all, they{" "}
-          <em>are</em> different lengths. Click any cell below to see its neighbors.
+          When the grid finally rendered correctly, the next task was validation — checking
+          that no two adjacent cells share the same number. The AI&apos;s first instinct was to
+          store each row as a <strong className="text-foreground">separate array</strong> since
+          each row has a different cell count. This seemed logical. It was a disaster.
+          Click any cell to see what &quot;finding neighbors&quot; looked like with this approach.
         </p>
 
         {/* Interactive jagged array diagram */}
@@ -303,8 +410,9 @@ function JaggedArrays() {
           <strong className="text-foreground">
             {selectedIsUp ? "▲ up-triangle" : "▽ down-triangle"}
           </strong>
-          . Finding its cross-row neighbors requires knowing row sizes and accounting for how
-          the indexing shifts between rows depending on triangle direction:
+          . With jagged arrays, finding its cross-row neighbors required knowing each row&apos;s
+          length and branching for triangle direction. Every time validation was touched, this
+          complexity had to be carried along:
         </p>
 
         <CodeBlock
@@ -325,12 +433,13 @@ function neighborsAbove(row, i, isUp):
         />
 
         <div className="rounded-lg border border-amber-400/40 bg-amber-50/30 dark:bg-amber-950/20 p-4 text-sm text-amber-800 dark:text-amber-200 space-y-1">
-          <p className="font-semibold">The problem</p>
+          <p className="font-semibold">Why this approach failed</p>
           <ul className="list-disc list-inside space-y-1 text-sm">
-            <li>Row sizes differ, so indices shift between rows</li>
-            <li>You need separate formulas for ▲ vs ▽ cells</li>
-            <li>Corner-only (vertex) neighbors require even more special cases</li>
-            <li>Every place you do validation, you carry this complexity</li>
+            <li>Row sizes differ, so indices shift unpredictably between rows</li>
+            <li>Separate branching formulas needed for ▲ vs ▽ cells</li>
+            <li>Corner-touching neighbors required yet more special cases</li>
+            <li>The AI kept generating subtly wrong validation logic — bugs that only appeared in edge rows</li>
+            <li>I scrapped it and thought from scratch</li>
           </ul>
         </div>
       </div>
@@ -366,11 +475,12 @@ function RectangularGrid() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div className="space-y-4">
         <p className="text-muted-foreground">
-          Instead of jagged rows, we store the board as a uniform{" "}
-          <strong className="text-foreground">9 × 17 rectangle</strong> — 153 cells total.
-          Cells that fall outside the triangle are simply marked{" "}
+          My fix: stop fighting the shape. Store the board as a uniform{" "}
+          <strong className="text-foreground">9 × 17 rectangle</strong> — 153 cells — and mark
+          the cells outside the triangle as{" "}
           <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">hidden: true</code>.
-          Toggle the button to reveal them.
+          They exist in the data structure but are invisible and unplayable.
+          Toggle the button to see them.
         </p>
 
         <button
@@ -438,9 +548,9 @@ function RectangularGrid() {
         <p className="text-muted-foreground">
           Now every cell has a consistent{" "}
           <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">[row][col]</code>{" "}
-          address in a grid where <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">col</code>{" "}
-          means the same thing in every row. Potential neighbors are always at predictable offsets — you
-          just skip the ones that are hidden:
+          address where <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">col</code>{" "}
+          means the same thing in every row. The AI could finally write neighbor lookups
+          without branching — just fixed offsets, filter out the hidden ones:
         </p>
 
         <CodeBlock
@@ -466,11 +576,12 @@ function candidateNeighbors(row, col):
         />
 
         <div className="rounded-lg border border-green-400/40 bg-green-50/30 dark:bg-green-950/20 p-4 text-sm text-green-800 dark:text-green-200 space-y-1">
-          <p className="font-semibold">The benefit</p>
+          <p className="font-semibold">Why this worked</p>
           <ul className="list-disc list-inside space-y-1 text-sm">
-            <li>One formula works for every cell, regardless of direction</li>
-            <li>No special cases for ▲ vs ▽</li>
-            <li>Validation, region checks, and rendering all use the same consistent coordinates</li>
+            <li>One formula for every cell — no branching for ▲ vs ▽</li>
+            <li>Neighbor lookup became a simple bounds check + hidden filter</li>
+            <li>Validation, region checks, and rendering all share the same coordinate system</li>
+            <li>The AI stopped generating subtle bugs immediately</li>
           </ul>
         </div>
       </div>
@@ -509,10 +620,11 @@ function NeighborFinder() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div>
         <p className="text-muted-foreground mb-4">
-          Click any cell to see all of its neighbors highlighted in yellow. The actual
-          implementation goes one step further and uses a{" "}
-          <strong className="text-foreground">vertex map</strong> — this automatically
-          captures corner-touching neighbors without any extra logic.
+          With the rectangular grid in place, the AI could finally build a correct neighbor
+          finder. It uses a <strong className="text-foreground">vertex map</strong>: every cell
+          registers against its 3 corner points, and any two cells sharing a corner are
+          automatically neighbors — no special cases needed for the tricky corner-touching rule.
+          Click any cell to see it in action.
         </p>
 
         <svg
@@ -792,8 +904,8 @@ function SymmetryGroups() {
       <div className="space-y-4">
         <p className="text-muted-foreground">
           The board has <strong className="text-foreground">3-way rotational symmetry</strong> at 120°.
-          The 9 regions split into 3 groups of 3 — click any cell to light up its two rotational
-          counterparts in the other regions of the same group.
+          The 9 regions split into 3 groups of 3. Click any given cell to highlight its two
+          rotational counterparts — the cells that would be removed or kept together.
         </p>
 
         <svg
@@ -864,20 +976,22 @@ function SymmetryGroups() {
 
       <div className="space-y-4">
         <div className="rounded-lg border border-amber-400/40 bg-amber-50/30 dark:bg-amber-950/20 p-4 text-sm text-amber-800 dark:text-amber-200 space-y-2">
-          <p className="font-semibold">Why not just mirror horizontally like Sudoku?</p>
+          <p className="font-semibold">Why the AI couldn&apos;t solve this</p>
           <p>
-            In a 9×9 square grid, reflecting a given cell at <code className="bg-black/10 px-1 rounded">[r, c]</code>{" "}
-            to <code className="bg-black/10 px-1 rounded">[8-r, 8-c]</code> is trivial. A triangle has no
-            horizontal or vertical axis of symmetry — it has <em>rotational</em> symmetry at 120°.
-            Calculating that rotation geometrically in a mixed up/down triangular grid is non-trivial, especially
-            when the grid coordinate system doesn't align with the rotation center.
+            In a 9×9 Sudoku grid, mirroring a given at <code className="bg-black/10 px-1 rounded">[r, c]</code>{" "}
+            to <code className="bg-black/10 px-1 rounded">[8-r, 8-c]</code> is one line of code.
+            A triangle has no horizontal or vertical axis — only 120° rotational symmetry.
+            The AI tried to derive a formula for this rotation in the mixed up/down coordinate
+            system and produced broken mappings every attempt. After several failures I gave up
+            waiting for it to figure it out.
           </p>
         </div>
 
         <p className="text-muted-foreground">
-          The solution: skip the geometry entirely. Hard-code the mapping. Each region's 9 cells are listed
-          in a fixed order, and a lookup table says which local index in region A maps to which local index
-          in regions B and C of the same group:
+          My solution: skip the geometry entirely and hard-code it.
+          I opened the physical puzzle book, mapped every cell in every region by hand,
+          and built a lookup table that says which local index in region A corresponds to
+          which local index in regions B and C. No formula — just a table I verified by eye:
         </p>
 
         <CodeBlock
@@ -912,11 +1026,12 @@ function removeSymmetric(board, groupIndex, localIndex) {
         />
 
         <div className="rounded-lg border border-green-400/40 bg-green-50/30 dark:bg-green-950/20 p-4 text-sm text-green-800 dark:text-green-200 space-y-1">
-          <p className="font-semibold">The result</p>
+          <p className="font-semibold">The payoff</p>
           <ul className="list-disc list-inside space-y-1">
             <li>Givens are always removed in symmetric triplets of 3</li>
-            <li>Every generated puzzle has aesthetically pleasing 3-way rotational symmetry</li>
-            <li>No trigonometry needed — just a 9-entry lookup table</li>
+            <li>Every puzzle has aesthetically pleasing 3-way rotational symmetry</li>
+            <li>No trigonometry — just a 9-entry table I made by hand</li>
+            <li>Honestly one of the more satisfying things I&apos;ve done in a while</li>
           </ul>
         </div>
       </div>
@@ -1015,58 +1130,103 @@ export default function BehindTheScenesPage() {
 
       {/* Hero */}
       <div className="max-w-5xl mx-auto px-6 py-14 text-center border-b border-border">
-        <p className="text-sm font-mono font-bold text-primary/60 mb-3 tracking-widest uppercase">
+        <p className="text-sm font-mono font-bold text-red-500/80 mb-3 tracking-widest uppercase">
           Behind the Scenes
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-          Building a Triangular Grid
+          Where AI Failed
         </h1>
-        <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-          How do you efficiently represent and validate a non-rectangular puzzle board?
-          Here's the engineering challenge — and the surprisingly elegant solution.
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Building Tridoku was a collaboration between me and an AI coding assistant — and
+          the AI failed. A lot. This is the honest account of what went wrong, where I had
+          to step in and actually think, and why I&apos;m kind of glad it was difficult.
         </p>
       </div>
 
       {/* Sections */}
       <Section
         step={1}
-        title="The Shape of the Problem"
-        subtitle="Tridoku's board is a large triangle made of 81 smaller triangles across 9 rows of varying widths."
+        label="THE GOAL"
+        variant="neutral"
+        title="What We Were Building"
+        subtitle="A digital version of a physical triangular puzzle book — 81 triangle cells, 9 bolded regions, and rules that check every edge and corner."
       >
         <TheBoard />
       </Section>
 
       <Section
         step={2}
-        title="The Naive Approach: Jagged Arrays"
-        subtitle='Since each row has a different number of cells, the obvious choice is to store each row as its own array. This turns out to be surprisingly painful.'
+        label="FAILURE #1"
+        variant="failure"
+        title="The Grid That Wouldn't Draw"
+        subtitle="The first SVG attempts produced a jumbled mess. Triangles overlapped, pointed the wrong way, or just didn't connect. Getting the coordinate system right took more iterations than I care to admit."
+      >
+        <JumbledVsFixed />
+      </Section>
+
+      <Section
+        step={3}
+        label="FAILURE #2"
+        variant="failure"
+        title="Adjacency Logic Kept Breaking"
+        subtitle="Once the grid rendered correctly, validation fell apart. The AI reached for the obvious data structure — and it was the wrong one."
       >
         <JaggedArrays />
       </Section>
 
       <Section
-        step={3}
-        title="The Solution: Rectangular Grid + Hidden Cells"
-        subtitle="By using a uniform 9×17 grid and marking out-of-bounds cells as hidden, every cell gets a consistent coordinate — and adjacency becomes trivial."
+        step={4}
+        label="MY FIX"
+        variant="fix"
+        title="The Hidden-Cell Insight"
+        subtitle="I stopped letting the AI drive and thought about it myself. A uniform rectangular grid with hidden cells turned a branching nightmare into a simple bounds check."
       >
         <RectangularGrid />
       </Section>
 
       <Section
-        step={4}
-        title="Finding Neighbors with a Vertex Map"
-        subtitle="The final piece: instead of geometric formulas, we register every cell against its 3 corner points. Cells sharing any corner are neighbors — automatically, for every case."
+        step={5}
+        label="STILL NEEDED"
+        variant="neutral"
+        title="Finding All Neighbors"
+        subtitle="With the rectangular grid in place, the AI could finally build something correct: a vertex map that automatically handles every adjacency case including corner-touching."
       >
         <NeighborFinder />
       </Section>
 
       <Section
-        step={5}
-        title="Symmetric Puzzle Generation"
-        subtitle="A good Sudoku puzzle looks intentional. Tridoku uses 3-way rotational symmetry — but you can't just reflect coordinates. The solution is a hardcoded mapping table derived from the physical puzzle books."
+        step={6}
+        label="FAILURE #3"
+        variant="failure"
+        title="Rotational Symmetry Was Unsolvable"
+        subtitle="Good puzzles are symmetric — but a triangle has no mirror axis. The AI tried to derive a 120° rotation formula and got it wrong every time. I ended up building the mapping table by hand."
       >
         <SymmetryGroups />
       </Section>
+
+      {/* Closing reflection */}
+      <section className="py-16 border-t border-border bg-muted/20">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="max-w-2xl mx-auto text-center space-y-4">
+            <p className="text-sm font-mono font-bold text-green-600 dark:text-green-400 tracking-widest uppercase">
+              <Lightbulb className="inline-block w-4 h-4 mr-1.5 -mt-0.5" />
+              Reflection
+            </p>
+            <h2 className="text-2xl font-bold text-foreground">Failing was the point</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              I actually enjoyed the AI failing here. Each dead-end forced me to think critically
+              about the problem — something I might have skipped if the AI had just gotten it right.
+              The hidden-cell idea and the hardcoded symmetry map are both things I&apos;m genuinely
+              proud of, and neither would exist if the AI had solved it for me.
+            </p>
+            <p className="text-muted-foreground leading-relaxed">
+              AI coding assistants are remarkably good at boilerplate, plumbing, and well-trodden
+              patterns. Novel geometry, coordinate system design, and anything requiring spatial
+              reasoning about non-standard shapes? That&apos;s still a human job.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground transition-colors">
