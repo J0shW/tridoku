@@ -71,7 +71,7 @@ export function createEmptyBoard(): Board {
     for (let col = 0; col < 17; col++) {
       const hidden = col < firstNonHidden || col > lastNonHidden
       const nhIndex = col - firstNonHidden // offset among non-hidden cells
-      const direction: 'up' | 'down' = hidden ? 'up' : (nhIndex % 2 === 0 ? 'up' : 'down')
+      const direction: 'up' | 'down' = (col + row) % 2 === 0 ? 'up' : 'down'
 
       // Edge booleans (only meaningful for non-hidden cells)
       const isOuterLeftEdge = !hidden && nhIndex === 0

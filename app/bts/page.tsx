@@ -605,6 +605,97 @@ function candidateNeighbors(row, col):
   )
 }
 
+// ─── Hidden-Cell Triangular Board ────────────────────────────────────────────
+
+function TriangularHidden() {
+  const [showHidden, setShowHidden] = useState(false)
+  const allCells = TRIDOKU_BOARD.flat()
+
+  function cellFill(cell: (typeof allCells)[0]) {
+    if (cell.hidden) {
+      return showHidden ? "#e8e8e8" : "transparent"
+    }
+    if (cell.color === "outer" || cell.color === "overlap") return "#bfdde2"
+    if (cell.color === "inner") return "#eed496"
+    return "#e4e3d3"
+  }
+
+  function cellStroke(cell: (typeof allCells)[0]) {
+    if (cell.hidden) return showHidden ? "#ccc" : "transparent"
+    return "#888"
+  }
+
+  function cellStrokeWidth(cell: (typeof allCells)[0]) {
+    return cell.hidden ? 0.04 : 0.06
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-muted-foreground">
+        Same 9 × 17 grid, but rendered as triangles. Toggle to reveal the hidden cells
+        that &quot;fill out&quot; the rectangle — they exist in memory, they just draw as transparent.
+      </p>
+
+      <button
+        onClick={() => setShowHidden(!showHidden)}
+        className={`px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all ${
+          showHidden
+            ? "border-primary bg-primary/10 text-primary"
+            : "border-border bg-background text-foreground hover:border-primary/50"
+        }`}
+      >
+        {showHidden ? "▣ Hiding hidden cells" : "□ Reveal hidden cells"}
+      </button>
+
+      <div className="rounded-lg bg-muted/30 border border-border p-3 overflow-x-auto">
+        <svg
+          viewBox={`-0.2 -0.2 18.4 ${SVG_H + 0.4}`}
+          className="w-full max-w-xl mx-auto block"
+          aria-label="Triangular board with optional hidden cells"
+        >
+          {allCells.map((cell) => (
+            <polygon
+              key={cell.id}
+              points={triPts(cell.row, cell.col, cell.direction)}
+              fill={cellFill(cell)}
+              stroke={cellStroke(cell)}
+              strokeWidth={cellStrokeWidth(cell)}
+              strokeDasharray={cell.hidden ? "0.15 0.08" : undefined}
+            />
+          ))}
+        </svg>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded bg-[#bfdde2] border border-[#8ab0b8]" />
+          Outer edge
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded bg-[#eed496] border border-[#c4aa6a]" />
+          Inner edge
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="inline-block w-3 h-3 rounded bg-[#e4e3d3] border border-[#aaa]" />
+          Interior
+        </span>
+        {showHidden && (
+          <span className="flex items-center gap-1">
+            <span className="inline-block w-3 h-3 rounded bg-[#e8e8e8] border border-[#ccc]" />
+            Hidden (outside triangle)
+          </span>
+        )}
+      </div>
+
+      <p className="text-xs text-muted-foreground">
+        {showHidden
+          ? "153 total cells — 81 triangles you see, 72 ghost triangles filling the rectangle"
+          : "81 visible triangles — the hidden ones are there, just transparent"}
+      </p>
+    </div>
+  )
+}
+
 // ─── Step 4: Vertex-Based Neighbor Finding ───────────────────────────────────
 
 function NeighborFinder() {
@@ -1198,6 +1289,9 @@ export default function BehindTheScenesPage() {
         subtitle="I stopped letting the AI drive and thought about it myself. A uniform rectangular grid with hidden cells turned a branching nightmare into a simple bounds check."
       >
         <RectangularGrid />
+        <div className="mt-10">
+          <TriangularHidden />
+        </div>
       </Section>
 
       <Section
