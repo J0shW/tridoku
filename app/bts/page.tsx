@@ -5,6 +5,14 @@ import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import type { CellId } from "@/lib/tridoku"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle, Lightbulb } from "lucide-react"
+import Image from "next/image"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"
 
 // ─── SVG helpers ──────────────────────────────────────────────────────────────
 
@@ -94,42 +102,52 @@ function CodeBlock({ code, highlight }: { code: string; highlight?: string }) {
 
 // ─── Failure 1: Jumbled grid vs fixed ────────────────────────────────────────
 
-function JumbledVsFixed() {
-  // A deliberately wrong grid: triangles placed with arbitrary/wrong coordinates
-  // to illustrate what the early failed attempts looked like
-  const wrongTris = [
-    { pts: "1,0 3,0 2,1.5", fill: "#fca5a5" },
-    { pts: "3,0 5,0 4,2", fill: "#fca5a5" },
-    { pts: "0,1.5 2,1.5 1,3", fill: "#fca5a5" },
-    { pts: "4,0.5 6,0.5 5.5,2.2", fill: "#fca5a5" },
-    { pts: "2,2 4,1.5 3.5,3.5", fill: "#fca5a5" },
-    { pts: "1,3 3,2.5 2.5,4.5", fill: "#fca5a5" },
-    { pts: "4.5,2.5 6,1.5 6.5,3.5", fill: "#fca5a5" },
-    { pts: "0,3.5 2,3 1.5,5", fill: "#fca5a5" },
-    { pts: "3.5,3.5 5,2.5 5.5,4.5", fill: "#fca5a5" },
-  ]
+const FAIL_IMAGES = [
+  { src: "/tridoku-fails/fail-01.png", alt: "Early attempt: wrong colors and layout" },
+  { src: "/tridoku-fails/fail-02.png", alt: "Early attempt: misaligned regions" },
+  { src: "/tridoku-fails/fail-03.png", alt: "Early attempt: jagged region borders" },
+  { src: "/tridoku-fails/fail-04.png", alt: "Early attempt: washed-out colors" },
+  { src: "/tridoku-fails/fail-05.png", alt: "Early attempt: broken region outlines" },
+  { src: "/tridoku-fails/fail-06.png", alt: "Early attempt: triangles leaning / misaligned" },
+  { src: "/tridoku-fails/fail-07.png", alt: "Early attempt: broken region boundaries" }
+]
 
+function JumbledVsFixed() {
   const correctCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-      {/* Wrong */}
+      {/* Wrong — carousel of real screenshots */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
-          <span className="text-sm font-semibold text-red-600 dark:text-red-400">Early attempt</span>
+          <span className="text-sm font-semibold text-red-600 dark:text-red-400">Early attempts</span>
         </div>
-        <div className="rounded-lg border-2 border-red-300 bg-red-50/30 dark:bg-red-950/10 p-4">
-          <svg viewBox="-0.5 -0.5 8 6" className="w-full max-w-70 mx-auto block" aria-label="Wrong grid">
-            {wrongTris.map((t, i) => (
-              <polygon key={i} points={t.pts} fill={t.fill} stroke="#ef4444" strokeWidth="0.06" />
-            ))}
-          </svg>
+        <div className="rounded-lg border-2 border-red-300 bg-red-50/30 dark:bg-red-950/10 p-3">
+          <Carousel className="w-full" opts={{ loop: true }}>
+            <CarouselContent>
+              {FAIL_IMAGES.map((img, i) => (
+                <CarouselItem key={i}>
+                  <div className="relative w-full aspect-square overflow-hidden rounded">
+                    <Image
+                      src={img.src}
+                      alt={img.alt}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-1" />
+            <CarouselNext className="right-1" />
+          </Carousel>
         </div>
         <p className="text-sm text-muted-foreground">
-          Triangles didn&apos;t connect, overlapped, or pointed the wrong direction entirely.
-          The SVG coordinate math was off from the start. I saw outputs like this for longer
-          than I&apos;d like to admit.
+          These are the actual screenshots from early build attempts. Triangles didn&apos;t connect,
+          regions bled into each other, or the whole thing leaned sideways. The SVG coordinate
+          math was off from the start — I saw outputs like these for longer than I&apos;d like to admit.
         </p>
       </div>
 
@@ -139,18 +157,16 @@ function JumbledVsFixed() {
           <Lightbulb className="h-4 w-4 text-green-600 shrink-0" />
           <span className="text-sm font-semibold text-green-700 dark:text-green-400">After fixing the coordinate system</span>
         </div>
-        <div className="rounded-lg border-2 border-green-300 bg-green-50/30 dark:bg-green-950/10 p-4">
-          <svg viewBox={`-0.2 -0.2 18.4 ${SVG_H + 0.4}`} className="w-full max-w-70 mx-auto block" aria-label="Correct grid">
-            {correctCells.map((cell) => (
-              <polygon
-                key={cell.id}
-                points={triPts(cell.row, cell.col, cell.direction)}
-                fill="#e4e3d3"
-                stroke="#888"
-                strokeWidth="0.06"
-              />
-            ))}
-          </svg>
+        <div className="rounded-lg border-2 border-green-300 bg-green-50/30 dark:bg-green-950/10 p-3">
+          <div className="relative w-full aspect-square overflow-hidden rounded">
+            <Image
+              src="/tridoku-fails/success.png"
+              alt="First working Tridoku board render"
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           The key was using board coordinates where each unit equals one triangle-width,
@@ -1134,11 +1150,11 @@ export default function BehindTheScenesPage() {
           Behind the Scenes
         </p>
         <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
-          Where AI Failed
+          Where AI Struggled
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Building Tridoku was a collaboration between me and an AI coding assistant — and
-          the AI failed. A lot. This is the honest account of what went wrong, where I had
+          the AI struggled. A lot. This is the honest account of what went wrong, where I had
           to step in and actually think, and why I&apos;m kind of glad it was difficult.
         </p>
       </div>
