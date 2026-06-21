@@ -71,20 +71,21 @@ export function GameControls({
         {isPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
       </Button>
 
-      {/* <Button
+      <Button
         variant="ghost"
         size="icon"
         onClick={onToggleErrors}
-        disabled={isGenerating}
+        disabled={isGenerating || isComplete || isViewMode}
         className={cn(
           "h-12 w-12 rounded-full transition-all duration-150",
           showErrors && "bg-accent text-accent-foreground",
           "hover:bg-secondary hover:scale-110"
         )}
-        aria-label={showErrors ? "Hide error highlights" : "Show error highlights"}
+        aria-label={showErrors ? "Turn off error checking" : "Turn on error checking"}
+        title={showErrors ? "Error checking on" : "Error checking off"}
       >
         {showErrors ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-      </Button> */}
+      </Button>
 
       <Button
         variant="ghost"
