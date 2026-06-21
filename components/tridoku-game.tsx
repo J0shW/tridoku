@@ -301,6 +301,7 @@ export function TridokuGame() {
                   isPaused={isPaused}
                   difficulty={difficulty}
                   highlightedValue={highlightedValue}
+                  showErrors={showErrors}
                 />
               </div>
             </div>

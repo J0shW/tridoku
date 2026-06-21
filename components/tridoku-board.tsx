@@ -174,12 +174,13 @@ interface TridokuBoardProps {
   isPaused: boolean
   difficulty?: Difficulty | null
   highlightedValue?: number | null
+  showErrors?: boolean
 }
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
 const HIGHLIGHTED_STROKE = "var(--tridoku-highlighted-stroke)"
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue }: TridokuBoardProps) {
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue, showErrors = false }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -225,7 +226,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     stroke={isSelected ? "none" : "#000"}
                     strokeWidth={0.01}
                   />
-                  {gameCell?.hasError && !isSelected && (
+                  {showErrors && gameCell?.hasError && !isSelected && (
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={ERROR_FILL}
@@ -248,7 +249,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                       dominantBaseline="middle"
                       fontSize={0.85}
                       fontWeight={gameCell.isGiven ? "bold" : "normal"}
-                      fill={gameCell.hasError ? "#DC2626" : "#000"}
+                      fill={showErrors && gameCell.hasError ? "#DC2626" : "#000"}
                       style={{ pointerEvents: "none", userSelect: "none" }}
                     >
                       {gameCell.value}
