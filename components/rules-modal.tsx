@@ -458,10 +458,6 @@ function TipsStep() {
       <ul className="mt-4 space-y-2 text-muted-foreground">
         <li className="flex items-start gap-2">
           <span className="text-accent">•</span>
-          <span>Start with cells that have the most constraints.</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <span className="text-accent">•</span>
           <div>
             <span>
               <strong className="text-foreground">Power Cells:</strong> A single cell just outside a region can eliminate many candidates at once via the no-touching rule — often leaving only one valid cell in the region for that digit.
@@ -472,10 +468,6 @@ function TipsStep() {
         <li className="flex items-start gap-2">
           <span className="text-accent">•</span>
           <span>Use the &quot;Show Errors&quot; toggle if you get stuck.</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <span className="text-accent">•</span>
-          <span>Remember: touching cells cannot have the same value!</span>
         </li>
       </ul>
       <p className="text-sm text-muted-foreground text-center border-t border-border pt-4 mt-5">
