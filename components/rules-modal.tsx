@@ -1,6 +1,10 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown } from "lucide-react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -377,99 +381,230 @@ function PowerCellExample() {
   )
 }
 
-// ─── Modal ─────────────────────────────────────────────────────────────────────
+// ─── Step content ────────────────────────────────────────────────────────────
 
-export function RulesModal({ open, onOpenChange }: RulesModalProps) {
+function IntroStep() {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold">How to Play</DialogTitle>
-          <DialogDescription className="text-center">Learn the rules of Tridoku</DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6 py-4">
-          <section>
-            <h3 className="font-semibold text-lg mb-2 text-primary">The Basics</h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Tridoku is a triangular variation of Sudoku. Fill each cell with a digit from 1 to 9 following the rules below.
-            </p>
-          </section>
-
-          <section>
-            <h3 className="font-semibold text-lg mb-3 text-primary">Rules</h3>
-            <ul className="space-y-4">
-              <RuleItem number={1} example={<RegionExample />}>
-                <strong>Regions:</strong> Each bolded triangular region must contain the digits 1 through 9 exactly once.
-              </RuleItem>
-              <RuleItem number={2} example={<OuterEdgesExample />}>
-                <strong>Outer Edges:</strong> The three sides of the large triangle must each contain digits 1 through 9.
-              </RuleItem>
-              <RuleItem number={3} example={<InnerTriangleExample />}>
-                <strong>Inner Triangle:</strong> The inner triangle&apos;s edges must also contain digits 1 through 9.
-              </RuleItem>
-              <RuleItem number={4} example={<NoTouchingExample />}>
-                <strong>No Touching:</strong> Identical numbers cannot touch each other, not even at a single corner point.
-              </RuleItem>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="font-semibold text-lg mb-3 text-primary">Tips</h3>
-            <ul className="space-y-2 text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-accent">•</span>
-                <span>Start with cells that have the most constraints</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent">•</span>
-                <div>
-                  <span>
-                    <strong className="text-foreground">Power Cells:</strong> A single cell just outside a region can eliminate many candidates at once via the no-touching rule — often leaving only one valid cell in the region for that digit.
-                  </span>
-                  <PowerCellExample />
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent">•</span>
-                <span>Use the &quot;Show Errors&quot; toggle if you get stuck</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-accent">•</span>
-                <span>Remember: touching cells cannot have the same value!</span>
-              </li>
-            </ul>
-          </section>
-
-          <section className="border-t border-border pt-4">
-            <p className="text-sm text-muted-foreground text-center">
-              A new puzzle is available every day at midnight.
-            </p>
-          </section>
-        </div>
-      </DialogContent>
-    </Dialog>
+    <div className="flex flex-col items-center text-center">
+      <div className="mt-2 mb-1">
+        <svg viewBox="0 0 100 90" className="w-32 h-32" aria-hidden="true">
+          <polygon points="50,6 6,84 94,84" fill="var(--color-tridoku-easy-outer)" stroke="#1a1a1a" strokeWidth="2" strokeLinejoin="round" />
+          <polygon points="50,84 28,45 72,45" fill="var(--color-tridoku-easy-inner)" stroke="#1a1a1a" strokeWidth="2" strokeLinejoin="round" />
+        </svg>
+      </div>
+      <p className="text-muted-foreground leading-relaxed text-pretty">
+        If you&apos;ve ever played Sudoku, Tridoku will feel familiar — same idea of placing the digits 1 through 9 without repeats. But this time, it&apos;s built out of{" "}
+        <strong className="text-foreground">triangles!</strong> Oooh, ahh!
+      </p>
+      <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-pretty">
+        Let&apos;s walk through how it works, one step at a time.
+      </p>
+    </div>
   )
 }
 
-function RuleItem({
-  number,
-  children,
+function SelectCellStep() {
+  const methods = [
+    { icon: MousePointerClick, label: "Click", desc: "Click a cell with your mouse" },
+    { icon: Hand, label: "Tap", desc: "Tap a cell on a touchscreen" },
+    { icon: ArrowUpDown, label: "Arrow keys", desc: "Move the selection with your keyboard" },
+  ]
+  return (
+    <div>
+      <p className="text-muted-foreground leading-relaxed text-center text-pretty">
+        First things first — you need to pick a cell to fill in. There are three ways to select one:
+      </p>
+      <ul className="mt-4 space-y-3">
+        {methods.map(({ icon: Icon, label, desc }) => (
+          <li key={label} className="flex items-center gap-3 rounded-md bg-muted/40 border border-border/60 p-3">
+            <span className="shrink-0 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+              <Icon className="w-5 h-5" />
+            </span>
+            <div className="flex-1">
+              <p className="font-semibold text-foreground text-sm">{label}</p>
+              <p className="text-sm text-muted-foreground leading-snug">{desc}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <p className="text-sm text-muted-foreground leading-relaxed mt-4 text-center text-pretty">
+        Once a cell is selected, type a number or use the number pad to fill it in.
+      </p>
+    </div>
+  )
+}
+
+function RuleStep({
   example,
+  children,
 }: {
-  number: number
+  example: React.ReactNode
   children: React.ReactNode
-  example?: React.ReactNode
 }) {
   return (
-    <li className="flex items-start gap-3">
-      <span className="shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
-        {number}
-      </span>
-      <div className="flex-1">
-        <p className="text-muted-foreground leading-relaxed">{children}</p>
-        {example}
-      </div>
-    </li>
+    <div>
+      <p className="text-muted-foreground leading-relaxed text-center text-pretty">{children}</p>
+      <div className="flex justify-center">{example}</div>
+    </div>
+  )
+}
+
+function TipsStep() {
+  return (
+    <div>
+      <p className="text-muted-foreground leading-relaxed text-center text-pretty">
+        A few tricks to help you solve faster:
+      </p>
+      <ul className="mt-4 space-y-2 text-muted-foreground">
+        <li className="flex items-start gap-2">
+          <span className="text-accent">•</span>
+          <span>Start with cells that have the most constraints.</span>
+        </li>
+        <li className="flex items-start gap-2">
+          <span className="text-accent">•</span>
+          <div>
+            <span>
+              <strong className="text-foreground">Power Cells:</strong> A single cell just outside a region can eliminate many candidates at once via the no-touching rule — often leaving only one valid cell in the region for that digit.
+            </span>
+            <PowerCellExample />
+          </div>
+        </li>
+        <li className="flex items-start gap-2">
+          <span className="text-accent">•</span>
+          <span>Use the &quot;Show Errors&quot; toggle if you get stuck.</span>
+        </li>
+        <li className="flex items-start gap-2">
+          <span className="text-accent">•</span>
+          <span>Remember: touching cells cannot have the same value!</span>
+        </li>
+      </ul>
+      <p className="text-sm text-muted-foreground text-center border-t border-border pt-4 mt-5">
+        A new puzzle is available every day at midnight. Good luck!
+      </p>
+    </div>
+  )
+}
+
+// ─── Modal ─────────────────────────────────────────────────────────────────────
+
+interface Step {
+  title: string
+  subtitle: string
+  content: React.ReactNode
+}
+
+const STEPS: Step[] = [
+  {
+    title: "Welcome to Tridoku",
+    subtitle: "The triangular twist on Sudoku",
+    content: <IntroStep />,
+  },
+  {
+    title: "Selecting a Cell",
+    subtitle: "Click, tap, or use the arrow keys",
+    content: <SelectCellStep />,
+  },
+  {
+    title: "Rule 1: Regions",
+    subtitle: "The core constraint",
+    content: (
+      <RuleStep example={<RegionExample />}>
+        Each bolded triangular region must contain the digits 1 through 9 exactly once.
+      </RuleStep>
+    ),
+  },
+  {
+    title: "Rule 2: Outer Edges",
+    subtitle: "The three big sides",
+    content: (
+      <RuleStep example={<OuterEdgesExample />}>
+        The three sides of the large triangle must each contain digits 1 through 9.
+      </RuleStep>
+    ),
+  },
+  {
+    title: "Rule 3: Inner Triangle",
+    subtitle: "The inverted triangle in the middle",
+    content: (
+      <RuleStep example={<InnerTriangleExample />}>
+        The inner triangle&apos;s edges must also contain digits 1 through 9.
+      </RuleStep>
+    ),
+  },
+  {
+    title: "Rule 4: No Touching",
+    subtitle: "Keep matching digits apart",
+    content: (
+      <RuleStep example={<NoTouchingExample />}>
+        Identical numbers cannot touch each other, not even at a single corner point.
+      </RuleStep>
+    ),
+  },
+  {
+    title: "Tips & Tricks",
+    subtitle: "Strategies to solve faster",
+    content: <TipsStep />,
+  },
+]
+
+export function RulesModal({ open, onOpenChange }: RulesModalProps) {
+  const [step, setStep] = useState(0)
+
+  // Reset to the first step whenever the modal is (re)opened
+  useEffect(() => {
+    if (open) setStep(0)
+  }, [open])
+
+  const isFirst = step === 0
+  const isLast = step === STEPS.length - 1
+  const current = STEPS[step]
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+          <DialogTitle className="text-center text-2xl font-bold text-balance">{current.title}</DialogTitle>
+          <DialogDescription className="text-center">{current.subtitle}</DialogDescription>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5 min-h-[18rem]">{current.content}</div>
+
+        <div className="flex items-center justify-between gap-4 border-t border-border px-6 py-4">
+          <Button
+            variant="ghost"
+            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            disabled={isFirst}
+            className={cn(isFirst && "invisible")}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back
+          </Button>
+
+          <div className="flex items-center gap-1.5" aria-hidden="true">
+            {STEPS.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setStep(i)}
+                aria-label={`Go to step ${i + 1}`}
+                className={cn(
+                  "h-2 rounded-full transition-all",
+                  i === step ? "w-5 bg-primary" : "w-2 bg-border hover:bg-muted-foreground/50",
+                )}
+              />
+            ))}
+          </div>
+
+          {isLast ? (
+            <Button onClick={() => onOpenChange(false)}>Got it!</Button>
+          ) : (
+            <Button onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}>
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }
