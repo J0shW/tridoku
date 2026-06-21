@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown } from "lucide-react"
+import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Pen, Pencil, Eye } from "lucide-react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -449,27 +449,146 @@ function RuleStep({
   )
 }
 
-function TipsStep() {
+// ─── Tip: highlight matching cells ─────────────────────────────────────────────
+
+function HighlightExample() {
+  const visibleCells = TRIDOKU_BOARD.slice(0, 5).flat().filter((c) => !c.hidden)
+  const highlightValue = 5
+
+  const given: Record<string, number> = {
+    "0-8": 5,
+    "1-7": 2,
+    "1-9": 5,
+    "2-6": 1,
+    "2-8": 3,
+    "2-10": 5,
+    "3-8": 8,
+  }
+
+  return (
+    <ExampleBox caption="Double-tapping a 5 highlights every other 5 on the board">
+      <svg
+        viewBox={`3.7 -0.3 10.6 ${5 * ROW_H + 0.6}`}
+        className="w-full max-w-48 mx-auto block"
+        aria-hidden="true"
+      >
+        {visibleCells.map((cell) => {
+          const c = centroid(cell.row, cell.col, cell.direction)
+          const val = given[cell.id]
+          const isHighlighted = val === highlightValue
+          return (
+            <g key={cell.id}>
+              <polygon
+                points={triPts(cell.row, cell.col, cell.direction)}
+                fill={isHighlighted ? "var(--tridoku-highlighted-fill)" : "#e4e3d3"}
+                stroke="#aaa"
+                strokeWidth="0.05"
+              />
+              {val !== undefined && (
+                <text
+                  x={c.x}
+                  y={c.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fontSize="0.72"
+                  fontWeight="700"
+                  fill={isHighlighted ? "#fff" : "#1a1a1a"}
+                >
+                  {val}
+                </text>
+              )}
+            </g>
+          )
+        })}
+      </svg>
+    </ExampleBox>
+  )
+}
+
+// ─── Tip steps ─────────────────────────────────────────────────────────────────
+
+function PenPencilStep() {
   return (
     <div>
       <p className="text-muted-foreground leading-relaxed text-center text-pretty">
-        A few tricks to help you solve faster:
+        Switch between two ways of entering digits:
       </p>
-      <ul className="mt-4 space-y-2 text-muted-foreground">
-        <li className="flex items-start gap-2">
-          <span className="text-accent">•</span>
-          <div>
-            <span>
-              <strong className="text-foreground">Power Cells:</strong> A single cell just outside a region can eliminate many candidates at once via the no-touching rule — often leaving only one valid cell in the region for that digit.
-            </span>
-            <PowerCellExample />
+      <ul className="mt-4 space-y-3">
+        <li className="flex items-center gap-3 rounded-md bg-muted/40 border border-border/60 p-3">
+          <span className="shrink-0 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <Pen className="w-5 h-5" />
+          </span>
+          <div className="flex-1">
+            <p className="font-semibold text-foreground text-sm">Pen</p>
+            <p className="text-sm text-muted-foreground leading-snug">
+              Place your final answer in a cell.
+            </p>
           </div>
         </li>
-        <li className="flex items-start gap-2">
-          <span className="text-accent">•</span>
-          <span>Use the &quot;Show Errors&quot; toggle if you get stuck.</span>
+        <li className="flex items-center gap-3 rounded-md bg-muted/40 border border-border/60 p-3">
+          <span className="shrink-0 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+            <Pencil className="w-5 h-5" />
+          </span>
+          <div className="flex-1">
+            <p className="font-semibold text-foreground text-sm">Pencil</p>
+            <p className="text-sm text-muted-foreground leading-snug">
+              Jot down small candidate notes when you&apos;re not sure yet.
+            </p>
+          </div>
         </li>
       </ul>
+      <p className="text-sm text-muted-foreground leading-relaxed mt-4 text-center text-pretty">
+        Tap the Pen / Pencil toggle to change modes at any time.
+      </p>
+    </div>
+  )
+}
+
+function HighlightStep() {
+  return (
+    <div>
+      <p className="text-muted-foreground leading-relaxed text-center text-pretty">
+        Double-tap (or double-click) a filled cell to highlight every other cell holding the same
+        digit. It&apos;s a quick way to spot where a number already lives and where it still needs to go.
+      </p>
+      <div className="flex justify-center">
+        <HighlightExample />
+      </div>
+    </div>
+  )
+}
+
+function ShowErrorsStep() {
+  return (
+    <div>
+      <p className="text-muted-foreground leading-relaxed text-center text-pretty">
+        Stuck or want to double-check your work? Toggle the{" "}
+        <strong className="text-foreground">Show Errors</strong> button to flag any digits that break a
+        rule.
+      </p>
+      <div className="mt-4 flex flex-col items-center gap-2">
+        <span className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center">
+          <Eye className="w-5 h-5" />
+        </span>
+        <span className="text-xs text-muted-foreground">Show Errors toggle</span>
+      </div>
+      <p className="text-sm text-muted-foreground leading-relaxed mt-4 text-center text-pretty">
+        Conflicting cells turn red so you can quickly track down mistakes.
+      </p>
+    </div>
+  )
+}
+
+function PowerCellsStep() {
+  return (
+    <div>
+      <p className="text-muted-foreground leading-relaxed text-center text-pretty">
+        A single cell just outside a region can eliminate many candidates at once via the no-touching
+        rule — often leaving only one valid cell in the region for that digit.
+      </p>
+      <div className="flex justify-center">
+        <PowerCellExample />
+      </div>
       <p className="text-sm text-muted-foreground text-center border-t border-border pt-4 mt-5">
         A new puzzle is available every day at midnight. Good luck!
       </p>
@@ -533,9 +652,24 @@ const STEPS: Step[] = [
     ),
   },
   {
-    title: "Tips & Tricks",
-    subtitle: "Strategies to solve faster",
-    content: <TipsStep />,
+    title: "Pen & Pencil",
+    subtitle: "Final answers vs. candidate notes",
+    content: <PenPencilStep />,
+  },
+  {
+    title: "Highlight a Digit",
+    subtitle: "Double-tap to see matching cells",
+    content: <HighlightStep />,
+  },
+  {
+    title: "Show Errors",
+    subtitle: "Flag rule-breaking digits",
+    content: <ShowErrorsStep />,
+  },
+  {
+    title: "Power Cells",
+    subtitle: "Eliminate candidates fast",
+    content: <PowerCellsStep />,
   },
 ]
 
