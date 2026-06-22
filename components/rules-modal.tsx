@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Pen, Pencil, Eye } from "lucide-react"
+import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye } from "lucide-react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
 import { InputModeToggle } from "@/components/input-mode-toggle"
@@ -519,28 +519,19 @@ function PenPencilStep() {
           <InputModeToggle mode="pen" onModeChange={() => {}} />
         </div>
       </div>
-      <ul className="mt-4 space-y-3">
-        <li className="flex items-center gap-3 rounded-md bg-muted/40 border border-border/60 p-3">
-          <span className="shrink-0 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-            <Pen className="w-5 h-5" />
+      <ul className="mt-4 space-y-2 text-muted-foreground">
+        <li className="flex items-start gap-2">
+          <span className="text-accent">•</span>
+          <span>
+            <strong className="text-foreground">Pen:</strong> Place your final answer in a cell.
           </span>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground text-sm">Pen</p>
-            <p className="text-sm text-muted-foreground leading-snug">
-              Place your final answer in a cell.
-            </p>
-          </div>
         </li>
-        <li className="flex items-center gap-3 rounded-md bg-muted/40 border border-border/60 p-3">
-          <span className="shrink-0 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-            <Pencil className="w-5 h-5" />
+        <li className="flex items-start gap-2">
+          <span className="text-accent">•</span>
+          <span>
+            <strong className="text-foreground">Pencil:</strong> Jot down small candidate notes when
+            you&apos;re not sure yet.
           </span>
-          <div className="flex-1">
-            <p className="font-semibold text-foreground text-sm">Pencil</p>
-            <p className="text-sm text-muted-foreground leading-snug">
-              Jot down small candidate notes when you&apos;re not sure yet.
-            </p>
-          </div>
         </li>
       </ul>
       <p className="text-sm text-muted-foreground leading-relaxed mt-4 text-center text-pretty">
