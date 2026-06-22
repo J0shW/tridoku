@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Pen, Pencil, Eye } from "lucide-react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
+import { InputModeToggle } from "@/components/input-mode-toggle"
 import { cn } from "@/lib/utils"
 import {
   Dialog,
@@ -513,6 +514,11 @@ function PenPencilStep() {
       <p className="text-muted-foreground leading-relaxed text-center text-pretty">
         Switch between two ways of entering digits:
       </p>
+      <div className="mt-4 flex justify-center" aria-hidden="true">
+        <div className="pointer-events-none">
+          <InputModeToggle mode="pen" onModeChange={() => {}} />
+        </div>
+      </div>
       <ul className="mt-4 space-y-3">
         <li className="flex items-center gap-3 rounded-md bg-muted/40 border border-border/60 p-3">
           <span className="shrink-0 w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center">
