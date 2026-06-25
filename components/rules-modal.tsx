@@ -457,7 +457,7 @@ function FullBoardExample() {
   return (
     <svg
       viewBox={`-0.2 -0.2 18.4 ${BOARD_SVG_H + 0.4}`}
-      className="w-full max-w-64 mx-auto block"
+      className="w-full max-w-44 mx-auto block"
       aria-hidden="true"
     >
       {allCells.map((cell) => {
