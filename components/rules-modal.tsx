@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye } from "lucide-react"
-import { TRIDOKU_BOARD } from "@/lib/tridoku"
+import { TRIDOKU_BOARD, type Cell } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { cn } from "@/lib/utils"
@@ -382,16 +382,135 @@ function PowerCellExample() {
   )
 }
 
+// ─── Full board preview ─────────────────────────────────────────────────────
+
+function fullBoardFill(color: Cell["color"]): string {
+  switch (color) {
+    case "outer":
+      return "var(--tridoku-easy-outer)"
+    case "inner":
+      return "var(--tridoku-easy-inner)"
+    case "overlap":
+      return "var(--tridoku-easy-overlap)"
+    default:
+      return "var(--tridoku-easy-none)"
+  }
+}
+
+type BoldEdge = { x1: number; y1: number; x2: number; y2: number }
+
+function regionAt(row: number, col: number): number | null {
+  if (row < 0 || row >= 9 || col < 0 || col >= 17) return null
+  const cell = TRIDOKU_BOARD[row][col]
+  if (cell.hidden) return null
+  return cell.boldedRegion
+}
+
+function computeBoldEdges(): BoldEdge[] {
+  const edges: BoldEdge[] = []
+  for (const boardRow of TRIDOKU_BOARD) {
+    for (const cell of boardRow) {
+      if (cell.hidden) continue
+      const { row, col, direction, boldedRegion } = cell
+      if (direction === "up") {
+        const yBase = (row + 1) * ROW_H
+        const yTop = row * ROW_H
+        if (regionAt(row, col - 1) !== boldedRegion) edges.push({ x1: col, y1: yBase, x2: col + 1, y2: yTop })
+        if (regionAt(row, col + 1) !== boldedRegion) edges.push({ x1: col + 1, y1: yTop, x2: col + 2, y2: yBase })
+        if (regionAt(row + 1, col) !== boldedRegion) edges.push({ x1: col, y1: yBase, x2: col + 2, y2: yBase })
+      } else {
+        const yTop = row * ROW_H
+        const yBottom = (row + 1) * ROW_H
+        if (regionAt(row, col - 1) !== boldedRegion) edges.push({ x1: col, y1: yTop, x2: col + 1, y2: yBottom })
+        if (regionAt(row, col + 1) !== boldedRegion) edges.push({ x1: col + 2, y1: yTop, x2: col + 1, y2: yBottom })
+        if (regionAt(row - 1, col) !== boldedRegion) edges.push({ x1: col, y1: yTop, x2: col + 2, y2: yTop })
+      }
+    }
+  }
+  return edges
+}
+
+const BOLD_EDGES = computeBoldEdges()
+
+// A handful of sample givens so the preview reads like a real puzzle
+const SAMPLE_GIVENS: Record<string, number> = {
+  "0-8": 5,
+  "1-7": 2,
+  "2-6": 7,
+  "2-12": 3,
+  "3-3": 8,
+  "3-13": 1,
+  "4-5": 4,
+  "4-9": 6,
+  "4-13": 9,
+  "5-4": 2,
+  "5-14": 5,
+  "6-2": 6,
+  "6-16": 8,
+  "7-7": 3,
+  "8-8": 1,
+  "8-14": 7,
+}
+
+function FullBoardExample() {
+  const allCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
+  return (
+    <svg
+      viewBox={`-0.2 -0.2 18.4 ${BOARD_SVG_H + 0.4}`}
+      className="w-full max-w-44 mx-auto block"
+      aria-hidden="true"
+    >
+      {allCells.map((cell) => {
+        const c = centroid(cell.row, cell.col, cell.direction)
+        const val = SAMPLE_GIVENS[cell.id]
+        return (
+          <g key={cell.id}>
+            <polygon
+              points={triPts(cell.row, cell.col, cell.direction)}
+              fill={fullBoardFill(cell.color)}
+              stroke="#000"
+              strokeWidth="0.01"
+            />
+            {val !== undefined && (
+              <text
+                x={c.x}
+                y={c.y}
+                dy="0.03"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="0.8"
+                fontWeight="700"
+                fill="#1a1a1a"
+              >
+                {val}
+              </text>
+            )}
+          </g>
+        )
+      })}
+      {BOLD_EDGES.map((edge, i) => (
+        <line
+          key={`bold-${i}`}
+          x1={edge.x1}
+          y1={edge.y1}
+          x2={edge.x2}
+          y2={edge.y2}
+          className="stroke-tridoku-region-stroke"
+          strokeWidth="0.12"
+          strokeLinecap="round"
+        />
+      ))}
+    </svg>
+  )
+}
+
 // ─── Step content ────────────────────────────────────────────────────────────
 
 function IntroStep() {
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="mt-2 mb-1">
-        <svg viewBox="0 0 100 90" className="w-32 h-32" aria-hidden="true">
-          <polygon points="50,6 6,84 94,84" fill="var(--color-tridoku-easy-outer)" stroke="#1a1a1a" strokeWidth="2" strokeLinejoin="round" />
-          <polygon points="50,84 28,45 72,45" fill="var(--color-tridoku-easy-inner)" stroke="#1a1a1a" strokeWidth="2" strokeLinejoin="round" />
-        </svg>
+      <div className="mt-1 mb-1 w-full">
+        <FullBoardExample />
       </div>
       <p className="text-muted-foreground leading-relaxed text-pretty">
         If you&apos;ve ever played Sudoku, Tridoku will feel familiar — same idea of placing the digits 1 through 9 without repeats. But this time, it&apos;s built out of{" "}
