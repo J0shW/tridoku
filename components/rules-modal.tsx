@@ -513,8 +513,8 @@ function IntroStep() {
         <FullBoardExample />
       </div>
       <p className="text-muted-foreground leading-relaxed text-pretty">
-        If you&apos;ve ever played Sudoku, Tridoku will feel familiar — same idea of placing the digits 1 through 9 without repeats. But this time, it&apos;s built out of{" "}
-        <strong className="text-foreground">triangles!</strong> Oooh, ahh!
+        Tridoku is a puzzle game originally created by Japheth J. Light. It is similar to Sudoku, but with{" "}
+        <strong className="text-foreground">triangles!</strong>
       </p>
       <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-pretty">
         Let&apos;s walk through how it works, one step at a time.
