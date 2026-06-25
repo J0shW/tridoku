@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, createContext, useContext } from "react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import type { CellId } from "@/lib/tridoku"
 import Link from "next/link"
-import { ChevronLeft, AlertTriangle, Lightbulb } from "lucide-react"
+import { ChevronLeft, AlertTriangle, Lightbulb, Eye, EyeOff } from "lucide-react"
 import Image from "next/image"
 import {
   Carousel,
@@ -13,6 +13,19 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel"
+
+// ─── Presentation mode ─────────────────────────────────────────────────────────
+
+const PresentationContext = createContext(false)
+const usePresentation = () => useContext(PresentationContext)
+
+// Renders its children only when NOT in presentation mode.
+// Used to hide heavy copy, code, and explanatory callouts during a presentation.
+function Aside({ children }: { children: React.ReactNode }) {
+  const presenting = usePresentation()
+  if (presenting) return null
+  return <>{children}</>
+}
 
 // ─── SVG helpers ──────────────────────────────────────────────────────────────
 
@@ -72,7 +85,9 @@ function Section({
             {icon}{tag}
           </span>
           <h2 className="text-3xl font-bold text-foreground">{title}</h2>
-          <p className="mt-2 text-lg text-muted-foreground max-w-2xl">{subtitle}</p>
+          <Aside>
+            <p className="mt-2 text-lg text-muted-foreground max-w-2xl">{subtitle}</p>
+          </Aside>
         </div>
         {children}
       </div>
@@ -81,6 +96,8 @@ function Section({
 }
 
 function CodeBlock({ code, highlight }: { code: string; highlight?: string }) {
+  const presenting = usePresentation()
+  if (presenting) return null
   const lines = code.split("\n")
   return (
     <pre className="rounded-lg bg-zinc-900 dark:bg-zinc-950 text-zinc-100 text-sm p-4 overflow-x-auto leading-relaxed">
@@ -144,11 +161,13 @@ function JumbledVsFixed() {
             <CarouselNext className="right-1" />
           </Carousel>
         </div>
-        <p className="text-sm text-muted-foreground">
-          These are the actual screenshots from early build attempts. Triangles didn&apos;t connect,
-          regions bled into each other, or the whole thing leaned sideways. The SVG coordinate
-          math was off from the start — I saw outputs like these for longer than I&apos;d like to admit.
-        </p>
+        <Aside>
+          <p className="text-sm text-muted-foreground">
+            These are the actual screenshots from early build attempts. Triangles didn&apos;t connect,
+            regions bled into each other, or the whole thing leaned sideways. The SVG coordinate
+            math was off from the start — I saw outputs like these for longer than I&apos;d like to admit.
+          </p>
+        </Aside>
       </div>
 
       {/* Correct */}
@@ -168,22 +187,26 @@ function JumbledVsFixed() {
             />
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          The key was using board coordinates where each unit equals one triangle-width,
-          and deriving all three vertices from <code className="bg-muted px-1 rounded font-mono text-xs">[row, col]</code>{" "}
-          and direction. Once that clicked, every triangle snapped into place.
-        </p>
+        <Aside>
+          <p className="text-sm text-muted-foreground">
+            The key was using board coordinates where each unit equals one triangle-width,
+            and deriving all three vertices from <code className="bg-muted px-1 rounded font-mono text-xs">[row, col]</code>{" "}
+            and direction. Once that clicked, every triangle snapped into place.
+          </p>
+        </Aside>
       </div>
 
-      <div className="md:col-span-2 rounded-lg border border-border bg-muted/20 p-4 text-sm space-y-2">
-        <p className="font-semibold text-foreground">The root cause</p>
-        <p className="text-muted-foreground">
-          The AI kept treating the grid like a pixel canvas \u2014 placing triangles by absolute
-          pixel coordinates. The correct approach is to define a coordinate space where
-          one unit = one triangle base-width, and use the row/col as the anchor. Once that
-          mental model was in place, all 81 triangles rendered perfectly with a single formula.
-        </p>
-      </div>
+      <Aside>
+        <div className="md:col-span-2 rounded-lg border border-border bg-muted/20 p-4 text-sm space-y-2">
+          <p className="font-semibold text-foreground">The root cause</p>
+          <p className="text-muted-foreground">
+            The AI kept treating the grid like a pixel canvas — placing triangles by absolute
+            pixel coordinates. The correct approach is to define a coordinate space where
+            one unit = one triangle base-width, and use the row/col as the anchor. Once that
+            mental model was in place, all 81 triangles rendered perfectly with a single formula.
+          </p>
+        </div>
+      </Aside>
     </div>
   )
 }
@@ -216,6 +239,7 @@ function TheBoard() {
         <p className="text-xs text-center text-muted-foreground mt-2">The final working board — this took a while to get to.</p>
       </div>
 
+      <Aside>
       <div className="space-y-4">
         <p className="text-muted-foreground">
           The goal was simple: build a digital version of a physical triangular puzzle book.
@@ -263,6 +287,7 @@ function TheBoard() {
           </table>
         </div>
       </div>
+      </Aside>
     </div>
   )
 }
@@ -315,13 +340,15 @@ function JaggedArrays() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div className="space-y-3">
-        <p className="text-muted-foreground">
-          When the grid finally rendered correctly, the next task was validation — checking
-          that no two adjacent cells share the same number. The AI&apos;s first instinct was to
-          store each row as a <strong className="text-foreground">separate array</strong> since
-          each row has a different cell count. This seemed logical. It was a disaster.
-          Click any cell to see what &quot;finding neighbors&quot; looked like with this approach.
-        </p>
+        <Aside>
+          <p className="text-muted-foreground">
+            When the grid finally rendered correctly, the next task was validation — checking
+            that no two adjacent cells share the same number. The AI&apos;s first instinct was to
+            store each row as a <strong className="text-foreground">separate array</strong> since
+            each row has a different cell count. This seemed logical. It was a disaster.
+            Click any cell to see what &quot;finding neighbors&quot; looked like with this approach.
+          </p>
+        </Aside>
 
         {/* Interactive jagged array diagram */}
         <div className="rounded-lg bg-muted/30 border border-border p-4 overflow-x-auto">
@@ -416,6 +443,7 @@ function JaggedArrays() {
         </div>
       </div>
 
+      <Aside>
       <div className="space-y-4">
         <p className="text-muted-foreground">
           The selected cell is{" "}
@@ -459,6 +487,7 @@ function neighborsAbove(row, i, isUp):
           </ul>
         </div>
       </div>
+      </Aside>
     </div>
   )
 }
@@ -490,14 +519,16 @@ function RectangularGrid() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div className="space-y-4">
-        <p className="text-muted-foreground">
-          My fix: stop fighting the shape. Store the board as a uniform{" "}
-          <strong className="text-foreground">9 × 17 rectangle</strong> — 153 cells — and mark
-          the cells outside the triangle as{" "}
-          <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">hidden: true</code>.
-          They exist in the data structure but are invisible and unplayable.
-          Toggle the button to see them.
-        </p>
+        <Aside>
+          <p className="text-muted-foreground">
+            My fix: stop fighting the shape. Store the board as a uniform{" "}
+            <strong className="text-foreground">9 × 17 rectangle</strong> — 153 cells — and mark
+            the cells outside the triangle as{" "}
+            <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">hidden: true</code>.
+            They exist in the data structure but are invisible and unplayable.
+            Toggle the button to see them.
+          </p>
+        </Aside>
 
         <button
           onClick={() => setShowHidden(!showHidden)}
@@ -560,6 +591,7 @@ function RectangularGrid() {
         </p>
       </div>
 
+      <Aside>
       <div className="space-y-4">
         <p className="text-muted-foreground">
           Now every cell has a consistent{" "}
@@ -601,6 +633,7 @@ function candidateNeighbors(row, col):
           </ul>
         </div>
       </div>
+      </Aside>
     </div>
   )
 }
@@ -631,10 +664,12 @@ function TriangularHidden() {
 
   return (
     <div className="space-y-4">
-      <p className="text-muted-foreground">
-        Same 9 × 17 grid, but rendered as triangles. Toggle to reveal the hidden cells
-        that &quot;fill out&quot; the rectangle — they exist in memory, they just draw as transparent.
-      </p>
+      <Aside>
+        <p className="text-muted-foreground">
+          Same 9 × 17 grid, but rendered as triangles. Toggle to reveal the hidden cells
+          that &quot;fill out&quot; the rectangle — they exist in memory, they just draw as transparent.
+        </p>
+      </Aside>
 
       <button
         onClick={() => setShowHidden(!showHidden)}
@@ -726,13 +761,15 @@ function NeighborFinder() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div>
-        <p className="text-muted-foreground mb-4">
-          With the rectangular grid in place, the AI could finally build a correct neighbor
-          finder. It uses a <strong className="text-foreground">vertex map</strong>: every cell
-          registers against its 3 corner points, and any two cells sharing a corner are
-          automatically neighbors — no special cases needed for the tricky corner-touching rule.
-          Click any cell to see it in action.
-        </p>
+        <Aside>
+          <p className="text-muted-foreground mb-4">
+            With the rectangular grid in place, the AI could finally build a correct neighbor
+            finder. It uses a <strong className="text-foreground">vertex map</strong>: every cell
+            registers against its 3 corner points, and any two cells sharing a corner are
+            automatically neighbors — no special cases needed for the tricky corner-touching rule.
+            Click any cell to see it in action.
+          </p>
+        </Aside>
 
         <svg
           viewBox={`-0.2 -0.2 18.4 ${SVG_H + 0.4}`}
@@ -784,11 +821,13 @@ function NeighborFinder() {
       </div>
 
       <div className="space-y-4">
-        <p className="text-muted-foreground">
-          The vertex map works by registering every cell against each of its 3 corner
-          points. Two cells are neighbors if they share <em>any</em> corner — which covers
-          both shared-edge and shared-point adjacency in a single pass:
-        </p>
+        <Aside>
+          <p className="text-muted-foreground">
+            The vertex map works by registering every cell against each of its 3 corner
+            points. Two cells are neighbors if they share <em>any</em> corner — which covers
+            both shared-edge and shared-point adjacency in a single pass:
+          </p>
+        </Aside>
 
         <CodeBlock
           code={`// Build the vertex map (runs once at startup)
@@ -1009,11 +1048,13 @@ function SymmetryGroups() {
     <>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
       <div className="space-y-4">
-        <p className="text-muted-foreground">
-          The board has <strong className="text-foreground">3-way rotational symmetry</strong> at 120°.
-          The 9 regions split into 3 groups of 3. Click any given cell to highlight its two
-          rotational counterparts — the cells that would be removed or kept together.
-        </p>
+        <Aside>
+          <p className="text-muted-foreground">
+            The board has <strong className="text-foreground">3-way rotational symmetry</strong> at 120°.
+            The 9 regions split into 3 groups of 3. Click any given cell to highlight its two
+            rotational counterparts — the cells that would be removed or kept together.
+          </p>
+        </Aside>
 
         <svg
           viewBox={`-0.2 -0.2 18.4 ${SVG_H + 0.4}`}
@@ -1081,6 +1122,7 @@ function SymmetryGroups() {
         )}
       </div>
 
+      <Aside>
       <div className="space-y-4">
         <div className="rounded-lg border border-amber-400/40 bg-amber-50/30 dark:bg-amber-950/20 p-4 text-sm text-amber-800 dark:text-amber-200 space-y-2">
           <p className="font-semibold">Why the AI couldn&apos;t solve this</p>
@@ -1142,19 +1184,22 @@ function removeSymmetric(board, groupIndex, localIndex) {
           </ul>
         </div>
       </div>
+      </Aside>
     </div>
 
     {/* ── Full-width demo board ── */}
     <div className="space-y-4">
-      <div>
-        <h4 className="font-semibold text-foreground mb-1">See it in action</h4>
-        <p className="text-sm text-muted-foreground">
-          Below is a real example of the symmetry pattern applied to the full board.
-          4 cells per region are marked as givens — the same 4 local positions appear
-          in every region within each group, just rotated 120°. The numbers are identical
-          across all three regions of a group because all three cells are always removed (or kept) together.
-        </p>
-      </div>
+      <Aside>
+        <div>
+          <h4 className="font-semibold text-foreground mb-1">See it in action</h4>
+          <p className="text-sm text-muted-foreground">
+            Below is a real example of the symmetry pattern applied to the full board.
+            4 cells per region are marked as givens — the same 4 local positions appear
+            in every region within each group, just rotated 120°. The numbers are identical
+            across all three regions of a group because all three cells are always removed (or kept) together.
+          </p>
+        </div>
+      </Aside>
       <svg
         viewBox={`-0.2 -0.2 18.4 ${SVG_H + 0.4}`}
         className="w-full max-w-sm mx-auto block drop-shadow-sm"
@@ -1218,11 +1263,14 @@ function removeSymmetric(board, groupIndex, localIndex) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BehindTheScenesPage() {
+  const [presenting, setPresenting] = useState(false)
+
   return (
+    <PresentationContext.Provider value={presenting}>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/50 sticky top-0 z-10 backdrop-blur">
-        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
           <Link
             href="/"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -1230,8 +1278,19 @@ export default function BehindTheScenesPage() {
             <ChevronLeft className="h-4 w-4" />
             Back to game
           </Link>
-          <span className="text-sm font-semibold text-foreground">Behind the Scenes</span>
-          <span className="text-xs text-muted-foreground font-mono">Tridoku</span>
+          <span className="hidden sm:inline text-sm font-semibold text-foreground">Behind the Scenes</span>
+          <button
+            onClick={() => setPresenting((p) => !p)}
+            aria-pressed={presenting}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors ${
+              presenting
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-primary/50"
+            }`}
+          >
+            {presenting ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+            {presenting ? "Presentation mode" : "Presentation mode"}
+          </button>
         </div>
       </header>
 
@@ -1243,11 +1302,13 @@ export default function BehindTheScenesPage() {
         <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-4">
           Where AI Struggled
         </h1>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          Building Tridoku was a collaboration between me and an AI coding assistant — and
-          the AI struggled. A lot. This is the honest account of what went wrong, where I had
-          to step in and actually think, and why I&apos;m kind of glad it was difficult.
-        </p>
+        <Aside>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Building Tridoku was a collaboration between me and an AI coding assistant — and
+            the AI struggled. A lot. This is the honest account of what went wrong, where I had
+            to step in and actually think, and why I&apos;m kind of glad it was difficult.
+          </p>
+        </Aside>
       </div>
 
       {/* Sections */}
@@ -1344,5 +1405,6 @@ export default function BehindTheScenesPage() {
         </Link>
       </footer>
     </div>
+    </PresentationContext.Provider>
   )
 }
