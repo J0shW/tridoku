@@ -174,7 +174,7 @@ function JumbledVsFixed() {
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Lightbulb className="h-4 w-4 text-green-600 shrink-0" />
-          <span className="text-sm font-semibold text-green-700 dark:text-green-400">After fixing the coordinate system</span>
+          <span className="text-sm font-semibold text-green-700 dark:text-green-400">Final Puzzle Board</span>
         </div>
         <div className="rounded-lg border-2 border-green-300 bg-green-50/30 dark:bg-green-950/10 p-3">
           <div className="relative w-full aspect-square overflow-hidden rounded">
