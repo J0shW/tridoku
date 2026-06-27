@@ -1,0 +1,58 @@
+name: Generate Daily Puzzle
+
+# Runs every day and generates the puzzle set for "tomorrow" (UTC),
+# committing the updated public/puzzles/<year>.json back to the repo.
+on:
+  schedule:
+    # 06:00 UTC daily. Adjust the cron if you want a different time.
+    - cron: "0 6 * * *"
+  # Allows manually triggering the workflow from the Actions tab.
+  workflow_dispatch:
+
+# Needed so the workflow can push the regenerated puzzle file.
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compute tomorrow's date
+        id: date
+        run: |
+          YEAR=$(date -u -d "tomorrow" +%Y)
+          MONTH=$(date -u -d "tomorrow" +%-m)
+          DAY=$(date -u -d "tomorrow" +%-d)
+          echo "year=$YEAR" >> "$GITHUB_OUTPUT"
+          echo "month=$MONTH" >> "$GITHUB_OUTPUT"
+          echo "day=$DAY" >> "$GITHUB_OUTPUT"
+          echo "Generating puzzle for $YEAR-$MONTH-$DAY"
+
+      - name: Generate tomorrow's puzzle
+        run: |
+          node scripts/generate-puzzles.mjs \
+            --year=${{ steps.date.outputs.year }} \
+            --startMonth=${{ steps.date.outputs.month }} \
+            --startDay=${{ steps.date.outputs.day }} \
+            --endMonth=${{ steps.date.outputs.month }} \
+            --endDay=${{ steps.date.outputs.day }}
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/puzzles/
+          if git diff --staged --quiet; then
+            echo "No puzzle changes to commit (already exists)."
+          else
+            git commit -m "chore: add puzzle for ${{ steps.date.outputs.year }}-${{ steps.date.outputs.month }}-${{ steps.date.outputs.day }}"
+            git push
+          fi
