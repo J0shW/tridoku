@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.png',
+        url: 'https://www.tridokupuzzle.com/og-image.png',
         width: 1024,
         height: 1024,
         alt: 'Tridoku - A Daily Triangular Sudoku Puzzle',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Daily Tridoku',
     description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
-    images: ['/og-image.png'],
+    images: ['https://www.tridokupuzzle.com/og-image.png'],
   },
   icons: {
     icon: [
