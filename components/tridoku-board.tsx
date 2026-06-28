@@ -187,7 +187,7 @@ function getPencilMarkCornerPositions(row: number, col: number, direction: "up" 
     ]
   }
   const centroid = getTriangleCentroid(row, col, direction)
-  const t = 0.34 // how far to pull each corner toward the centroid
+  const t = 0.46 // how far to pull each corner toward the centroid
   return verts.map((v) => ({
     x: v.x + (centroid.x - v.x) * t,
     y: v.y + (centroid.y - v.y) * t,
@@ -290,7 +290,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                           const positions = useCorners
                             ? getPencilMarkCornerPositions(cell.row, cell.col, cell.direction)
                             : getPencilMarkPositions(cell.row, cell.col, cell.direction)
-                          const fontSize = useCorners ? 0.5 : 0.32
+                          const fontSize = useCorners ? 0.62 : 0.32
                           return gameCell.pencilMarks.map((mark, idx) => {
                             const pos = positions[idx]
                             if (!pos) return null
