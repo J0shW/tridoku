@@ -1,7 +1,8 @@
 name: Generate Daily Puzzle
 
-# Runs every day and generates the puzzle set for "tomorrow" (UTC),
-# committing the updated public/puzzles/<year>.json back to the repo.
+# Runs every day and ensures the next 3 days of puzzles (UTC) exist,
+# generating any that are missing and committing the updated
+# public/puzzles/<year>.json back to the repo.
 on:
   schedule:
     # 06:00 UTC daily. Adjust the cron if you want a different time.
@@ -25,25 +26,30 @@ jobs:
         with:
           node-version: 20
 
-      - name: Compute tomorrow's date
-        id: date
+      - name: Generate missing puzzles for the next 3 days
         run: |
-          YEAR=$(date -u -d "tomorrow" +%Y)
-          MONTH=$(date -u -d "tomorrow" +%-m)
-          DAY=$(date -u -d "tomorrow" +%-d)
-          echo "year=$YEAR" >> "$GITHUB_OUTPUT"
-          echo "month=$MONTH" >> "$GITHUB_OUTPUT"
-          echo "day=$DAY" >> "$GITHUB_OUTPUT"
-          echo "Generating puzzle for $YEAR-$MONTH-$DAY"
+          # Check tomorrow, the day after, and 3 days from now (UTC).
+          # For each day, generate the puzzle only if it doesn't already exist.
+          for OFFSET in 1 2 3; do
+            YEAR=$(date -u -d "+$OFFSET day" +%Y)
+            MONTH=$(date -u -d "+$OFFSET day" +%-m)
+            DAY=$(date -u -d "+$OFFSET day" +%-d)
+            DATE_STR=$(date -u -d "+$OFFSET day" +%Y-%m-%d)
+            FILE="public/puzzles/$YEAR.json"
 
-      - name: Generate tomorrow's puzzle
-        run: |
-          node scripts/generate-puzzles.mjs \
-            --year=${{ steps.date.outputs.year }} \
-            --startMonth=${{ steps.date.outputs.month }} \
-            --startDay=${{ steps.date.outputs.day }} \
-            --endMonth=${{ steps.date.outputs.month }} \
-            --endDay=${{ steps.date.outputs.day }}
+            if [ -f "$FILE" ] && node -e "const d=require('./$FILE'); process.exit(d['$DATE_STR'] ? 0 : 1)"; then
+              echo "Puzzle for $DATE_STR already exists — skipping."
+              continue
+            fi
+
+            echo "Generating puzzle for $DATE_STR..."
+            node scripts/generate-puzzles.mjs \
+              --year=$YEAR \
+              --startMonth=$MONTH \
+              --startDay=$DAY \
+              --endMonth=$MONTH \
+              --endDay=$DAY
+          done
 
       - name: Commit and push if changed
         run: |
@@ -51,8 +57,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/puzzles/
           if git diff --staged --quiet; then
-            echo "No puzzle changes to commit (already exists)."
+            echo "No puzzle changes to commit (next 3 days already exist)."
           else
-            git commit -m "chore: add puzzle for ${{ steps.date.outputs.year }}-${{ steps.date.outputs.month }}-${{ steps.date.outputs.day }}"
+            git commit -m "chore: generate missing puzzles for the next 3 days"
             git push
           fi
