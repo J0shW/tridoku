@@ -187,7 +187,7 @@ function getPencilMarkCornerPositions(row: number, col: number, direction: "up" 
     ]
   }
   const centroid = getTriangleCentroid(row, col, direction)
-  const t = 0.46 // how far to pull each corner toward the centroid
+  const t = 0.58 // how far to pull each corner toward the centroid
   return verts.map((v) => ({
     x: v.x + (centroid.x - v.x) * t,
     y: v.y + (centroid.y - v.y) * t,
