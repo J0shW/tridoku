@@ -8,9 +8,31 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tridokupuzzle.com'),
   title: 'Daily Tridoku',
   description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
   generator: 'v0.app',
+  openGraph: {
+    title: 'Daily Tridoku',
+    description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
+    url: 'https://tridokupuzzle.com',
+    siteName: 'Tridoku',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Tridoku - A Daily Triangular Sudoku Puzzle',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Daily Tridoku',
+    description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
+    images: ['/og-image.png'],
+  },
   icons: {
     icon: [
       {
