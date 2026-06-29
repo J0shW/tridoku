@@ -378,9 +378,9 @@ export function TridokuGame() {
         onOpenChange={setShowRules}
       />
 
-      <footer className="flex flex-col items-center gap-3 py-4 text-xs text-muted-foreground/60">
+      <footer className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-4 text-xs text-muted-foreground/60">
         <KofiButton />
-        <div>
+        <div className="text-center sm:text-right">
           <span>© {new Date().getFullYear()} Josh Whitney</span>
           <span className="mx-2">·</span>
           <Link href="/bts" className="hover:text-muted-foreground transition-colors">
