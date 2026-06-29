@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme-provider'
+import { KofiWidget } from '@/components/kofi-widget'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -69,6 +70,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
+        <KofiWidget />
         <Analytics />
         <Script
           defer

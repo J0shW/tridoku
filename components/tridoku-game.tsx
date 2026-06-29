@@ -383,7 +383,7 @@ export function TridokuGame() {
         onOpenChange={setShowRules}
       />
 
-      <footer className="text-center py-4 text-xs text-muted-foreground/60">
+      <footer className="text-center pt-4 pb-24 sm:pb-4 text-xs text-muted-foreground/60">
         <span>© {new Date().getFullYear()} Josh Whitney</span>
         <span className="mx-2">·</span>
         <Link href="/bts" className="hover:text-muted-foreground transition-colors">
