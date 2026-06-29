@@ -6,7 +6,6 @@ import type { CellId } from "@/lib/tridoku"
 import Link from "next/link"
 import { ChevronLeft, AlertTriangle, Lightbulb, Eye, EyeOff } from "lucide-react"
 import Image from "next/image"
-import { KofiButton } from "@/components/kofi-button"
 import {
   Carousel,
   CarouselContent,
@@ -1400,8 +1399,7 @@ export default function BehindTheScenesPage() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 flex flex-col items-center gap-4 text-sm text-muted-foreground">
-        <KofiButton />
+      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground transition-colors">
           ← Back to the game
         </Link>
