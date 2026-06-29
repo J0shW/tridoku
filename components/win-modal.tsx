@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Share2, Copy, Check } from "lucide-react"
 import { useState } from "react"
+import { trackEvent } from "@/lib/analytics"
 
 interface WinModalProps {
   open: boolean
@@ -29,7 +30,12 @@ export function WinModal({ open, onOpenChange, stats, difficulty, elapsedTime, g
 
   const handleShare = async () => {
     const text = getShareText()
-    
+
+    trackEvent("result_shared", {
+      difficulty,
+      method: typeof navigator !== "undefined" && navigator.share ? "native_share" : "clipboard",
+    })
+
     if (navigator.share) {
       try {
         await navigator.share({
