@@ -16,6 +16,7 @@ import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
+import { KofiButton } from "@/components/kofi-button"
 import { useTheme } from "next-themes"
 import Link from "next/link"
 
@@ -377,12 +378,15 @@ export function TridokuGame() {
         onOpenChange={setShowRules}
       />
 
-      <footer className="text-center py-4 text-xs text-muted-foreground/60">
-        <span>© {new Date().getFullYear()} Josh Whitney</span>
-        <span className="mx-2">·</span>
-        <Link href="/bts" className="hover:text-muted-foreground transition-colors">
-          Behind the Scenes
-        </Link>
+      <footer className="flex flex-col items-center gap-3 py-4 text-xs text-muted-foreground/60">
+        <KofiButton />
+        <div>
+          <span>© {new Date().getFullYear()} Josh Whitney</span>
+          <span className="mx-2">·</span>
+          <Link href="/bts" className="hover:text-muted-foreground transition-colors">
+            Behind the Scenes
+          </Link>
+        </div>
       </footer>
 
     </div>
