@@ -17,8 +17,8 @@ function drawWidget() {
   window.kofiWidgetOverlay.draw(KOFI_USERNAME, {
     type: "floating-chat",
     "floating-chat.donateButton.text": "Support me",
-    "floating-chat.donateButton.background-color": "#00b9fe",
-    "floating-chat.donateButton.text-color": "#fff",
+    "floating-chat.donateButton.background-color": "#bfdde2",
+    "floating-chat.donateButton.text-color": "#323842",
   })
 }
 
