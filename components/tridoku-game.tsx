@@ -18,6 +18,7 @@ import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import Link from "next/link"
+import { trackEvent } from "@/lib/analytics"
 
 
 export function TridokuGame() {
@@ -62,6 +63,11 @@ export function TridokuGame() {
   const dismissPencilTip = useCallback(() => {
     setPencilTipDismissed(true)
     localStorage.setItem('tridoku-pencil-tip-dismissed', 'true')
+  }, [])
+
+  const openRules = useCallback(() => {
+    trackEvent("rules_opened")
+    setShowRules(true)
   }, [])
 
 
@@ -158,7 +164,7 @@ export function TridokuGame() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setShowRules(true)}
+              onClick={openRules}
               aria-label="How to play"
             >
               <HelpCircle className="h-5 w-5" />
@@ -191,7 +197,7 @@ export function TridokuGame() {
                   <Button
                     variant="outline"
                     className="gap-2"
-                    onClick={() => setShowRules(true)}
+                    onClick={openRules}
                   >
                     <HelpCircle className="h-4 w-4" />
                     How to Play
