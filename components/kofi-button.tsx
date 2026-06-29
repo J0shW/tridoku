@@ -16,7 +16,7 @@ export function KofiButton({ className }: { className?: string }) {
         alt="Support me on Ko-fi"
         width={245}
         height={49}
-        className="h-11 w-auto rounded-2xl"
+        className="h-11 w-auto"
         priority
       />
     </button>
