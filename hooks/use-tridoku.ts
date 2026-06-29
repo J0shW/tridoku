@@ -15,6 +15,7 @@ import {
   createEmptyBoard
 } from "@/lib/tridoku"
 import { getDailyPuzzle } from "@/lib/puzzle-service"
+import { trackEvent } from "@/lib/analytics"
 
 export interface DifficultyStats {
   gamesPlayed: number
@@ -265,7 +266,10 @@ export function useTridoku() {
     
     // Check if this is a new win for this difficulty (not already counted today)
     if (diffStats.completedToday) return
-    
+
+    // Track puzzle completion (e.g. easy_completed, medium_completed, hard_completed)
+    trackEvent(`${difficulty}_completed`, { time: gameState.elapsedTime })
+
     const newDiffStats = { ...diffStats }
     newDiffStats.gamesPlayed = (newDiffStats.gamesPlayed || 0) + 1
     newDiffStats.gamesWon = (newDiffStats.gamesWon || 0) + 1
@@ -414,7 +418,14 @@ export function useTridoku() {
 
   // Toggle error highlighting
   const toggleErrors = useCallback(() => {
-    setGameState(prev => ({ ...prev, showErrors: !prev.showErrors }))
+    setGameState(prev => {
+      const enabled = !prev.showErrors
+      trackEvent("error_check_toggled", {
+        enabled,
+        difficulty: prev.difficulty ?? "unknown",
+      })
+      return { ...prev, showErrors: enabled }
+    })
   }, [])
 
   // Toggle pause
@@ -425,6 +436,14 @@ export function useTridoku() {
   // Reset puzzle
   const resetPuzzle = useCallback(() => {
     if (gameState.difficulty) {
+      // Resetting an in-progress, incomplete puzzle counts as abandoning it
+      const current = gameStateRef.current
+      if (current.hasStarted && !current.isComplete && !current.isViewMode) {
+        trackEvent(`${gameState.difficulty}_abandoned`, {
+          reason: "reset",
+          time: current.elapsedTime,
+        })
+      }
       clearGameProgress(gameState.difficulty)
       generateNewPuzzle(gameState.difficulty)
     }
@@ -438,8 +457,18 @@ export function useTridoku() {
     const current = gameStateRef.current
     if (current.hasStarted && !current.isComplete && current.difficulty) {
       saveGameProgress(current)
+      // Leaving an in-progress puzzle to switch difficulty counts as abandoning it
+      if (!current.isViewMode) {
+        trackEvent(`${current.difficulty}_abandoned`, {
+          reason: "switch_difficulty",
+          time: current.elapsedTime,
+        })
+      }
     }
-    
+
+    // Track loading this difficulty (e.g. easy_loaded, medium_loaded, hard_loaded)
+    trackEvent(`${difficulty}_loaded`)
+
     setIsGenerating(true)
     
     try {
@@ -556,6 +585,9 @@ export function useTridoku() {
     // Fetch the daily puzzle from pre-generated puzzles
     const dailyPuzzle = await getDailyPuzzle(customDate, targetDifficulty)
     console.log(`[useTridoku] Loaded ${dailyPuzzle.difficulty} puzzle for ${dailyPuzzle.date}`)
+
+    // Track loading this difficulty (e.g. easy_loaded, medium_loaded, hard_loaded)
+    trackEvent(`${targetDifficulty}_loaded`)
     
     const puzzleHash = getPuzzleHash(dailyPuzzle.puzzle)
     const puzzleCells = loadPuzzle(dailyPuzzle.puzzle)
