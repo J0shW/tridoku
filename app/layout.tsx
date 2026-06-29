@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
@@ -69,6 +70,11 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <Analytics />
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="9646cebf-b670-48a6-ad78-c9a7ddc38c63"
+        />
       </body>
     </html>
   )
