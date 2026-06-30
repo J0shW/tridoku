@@ -1,4 +1,5 @@
 import Script from "next/script"
+import { MessageSquare } from "lucide-react"
 
 /** Loads Tally's embed script and renders a floating feedback button. */
 export function TallyWidget() {
@@ -7,12 +8,13 @@ export function TallyWidget() {
       <Script src="https://tally.so/widgets/embed.js" strategy="afterInteractive" />
       <button
         type="button"
+        aria-label="Open feedback form"
         data-tally-open="44qzGB"
         data-tally-emoji-text="👋"
         data-tally-emoji-animation="wave"
-        className="fixed bottom-24 right-5 z-40 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className="fixed bottom-2 right-2 z-40 rounded-full bg-foreground/5 p-2 text-foreground/40 backdrop-blur-sm transition-colors hover:bg-foreground/10 hover:text-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        Feedback
+        <MessageSquare className="h-5 w-5" />
       </button>
     </>
   )
