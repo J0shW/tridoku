@@ -221,7 +221,9 @@
 @media (max-width: 640px) {
   .floatingchat-container-wrap,
   .floatingchat-container-wrap-mobi {
-    transform: scale(0.55) !important;
+    left: auto !important;
+    right: 0 !important;
+    transform: scale(0.7) !important;
     transform-origin: bottom right !important;
   }
 }
