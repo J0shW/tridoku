@@ -216,3 +216,12 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Shrink the Ko-fi floating button on mobile so it stays unobtrusive */
+@media (max-width: 640px) {
+  .floatingchat-container-wrap,
+  .floatingchat-container-wrap-mobi {
+    transform: scale(0.75);
+    transform-origin: bottom right;
+  }
+}
