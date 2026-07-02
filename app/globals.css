@@ -221,7 +221,7 @@
 @media (max-width: 640px) {
   html body .floatingchat-container-wrap,
   html body .floatingchat-container-wrap-mobi {
-    left: 0 !important;
+    left: 1rem !important;
     right: auto !important;
     transform: scale(0.7) !important;
     transform-origin: bottom left !important;
