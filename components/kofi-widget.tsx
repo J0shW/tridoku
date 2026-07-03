@@ -25,10 +25,10 @@ export function KofiWidget() {
       if (window.kofiwidget2 && containerRef.current) {
         window.kofiwidget2.init("Support me", "#bfdde2", "H1K5228SC2")
         containerRef.current.innerHTML = window.kofiwidget2.getHTML()
-        // Ko-fi defaults the label to white; force a dark color for contrast on the light background
+        // Ko-fi defaults the label to white; force black for contrast on the light background
         containerRef.current
           .querySelector<HTMLElement>(".kofitext")
-          ?.style.setProperty("color", "#2d5a3a", "important")
+          ?.style.setProperty("color", "#000000", "important")
       }
     }
 
