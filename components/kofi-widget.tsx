@@ -23,7 +23,7 @@ export function KofiWidget() {
   useEffect(() => {
     function renderButton() {
       if (window.kofiwidget2 && containerRef.current) {
-        window.kofiwidget2.init("Support me", "Bfdde2", "H1K5228SC2")
+        window.kofiwidget2.init("Support me", "#bfdde2", "H1K5228SC2")
         containerRef.current.innerHTML = window.kofiwidget2.getHTML()
       }
     }
