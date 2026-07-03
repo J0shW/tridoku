@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
 const SCRIPT_SRC = "https://storage.ko-fi.com/cdn/widget/Widget_2.js"
 
@@ -13,9 +14,10 @@ declare global {
   }
 }
 
-/** Renders the official Ko-fi "Support me" button via their widget script. */
+/** Renders the official Ko-fi "Support me" button, opening the donation panel in a dialog. */
 export function KofiWidget() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     function renderButton() {
@@ -31,7 +33,6 @@ export function KofiWidget() {
     }
 
     let script = document.querySelector<HTMLScriptElement>(`script[src="${SCRIPT_SRC}"]`)
-    const created = !script
 
     if (!script) {
       script = document.createElement("script")
@@ -44,5 +45,30 @@ export function KofiWidget() {
     return () => script?.removeEventListener("load", renderButton)
   }, [])
 
-  return <div ref={containerRef} className="flex justify-center" />
+  // Intercept clicks on the injected Ko-fi link so it opens the dialog instead of a new tab.
+  function handleClick(event: React.MouseEvent<HTMLDivElement>) {
+    if ((event.target as HTMLElement).closest("a")) {
+      event.preventDefault()
+      setOpen(true)
+    }
+  }
+
+  return (
+    <>
+      <div ref={containerRef} className="flex justify-center" onClick={handleClick} />
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md overflow-hidden p-0">
+          <DialogTitle className="sr-only">Support me on Ko-fi</DialogTitle>
+          <iframe
+            id="kofiframe"
+            src="https://ko-fi.com/joshwhitney/?hidefeed=true&widget=true&embed=true&preview=true"
+            title="joshwhitney"
+            className="h-[712px] w-full border-0"
+            style={{ background: "#f9f9f9" }}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
+  )
 }
