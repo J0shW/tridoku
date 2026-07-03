@@ -1,66 +1,25 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
+import Image from "next/image"
 import { X } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog"
 
-const SCRIPT_SRC = "https://storage.ko-fi.com/cdn/widget/Widget_2.js"
-
-declare global {
-  interface Window {
-    kofiwidget2?: {
-      init: (text: string, color: string, id: string) => void
-      getHTML: () => string
-    }
-  }
-}
-
-/** Renders the official Ko-fi "Support me" button, opening the donation panel in a dialog. */
+/** A custom "Support me" button (matching the feedback button) that opens the Ko-fi donation panel in a dialog. */
 export function KofiWidget() {
-  const containerRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
-
-  useEffect(() => {
-    function renderButton() {
-      if (window.kofiwidget2 && containerRef.current) {
-        window.kofiwidget2.init("Support me", "#bfdde2", "H1K5228SC2")
-        containerRef.current.innerHTML = window.kofiwidget2.getHTML()
-        // Ko-fi defaults the label to white; force black for contrast on the light background
-        containerRef.current
-          .querySelector<HTMLElement>(".kofitext")
-          ?.style.setProperty("color", "#000000", "important")
-      }
-    }
-
-    if (window.kofiwidget2) {
-      renderButton()
-      return
-    }
-
-    let script = document.querySelector<HTMLScriptElement>(`script[src="${SCRIPT_SRC}"]`)
-
-    if (!script) {
-      script = document.createElement("script")
-      script.src = SCRIPT_SRC
-      script.async = true
-      document.body.appendChild(script)
-    }
-
-    script.addEventListener("load", renderButton)
-    return () => script?.removeEventListener("load", renderButton)
-  }, [])
-
-  // Intercept clicks on the injected Ko-fi link so it opens the dialog instead of a new tab.
-  function handleClick(event: React.MouseEvent<HTMLDivElement>) {
-    if ((event.target as HTMLElement).closest("a")) {
-      event.preventDefault()
-      setOpen(true)
-    }
-  }
 
   return (
     <>
-      <div ref={containerRef} className="kofi-btn-wrap flex justify-center" onClick={handleClick} />
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Support me on Ko-fi"
+        className="inline-flex items-center gap-2 rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <Image src="/kofi-symbol.png" alt="" width={20} height={20} className="h-5 w-5" />
+        Support me
+      </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
