@@ -10,6 +10,8 @@ import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
 import { DifficultySelector } from "@/components/difficulty-selector"
+import { KofiWidget } from "@/components/kofi-widget"
+import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
 import { Difficulty } from "@/lib/tridoku"
@@ -384,6 +386,10 @@ export function TridokuGame() {
       />
 
       <footer className="text-center pt-4 pb-24 sm:pb-4 text-xs text-muted-foreground/60">
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-3">
+          <KofiWidget />
+          <TallyWidget />
+        </div>
         <span>© {new Date().getFullYear()} Josh Whitney</span>
         <span className="mx-2">·</span>
         <Link href="/bts" className="hover:text-muted-foreground transition-colors">

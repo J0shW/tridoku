@@ -1,7 +1,7 @@
 import Script from "next/script"
 import { MessageSquare } from "lucide-react"
 
-/** Loads Tally's embed script and renders a floating feedback button. */
+/** Loads Tally's embed script and renders an inline feedback button. */
 export function TallyWidget() {
   return (
     <>
@@ -12,9 +12,10 @@ export function TallyWidget() {
         data-tally-open="44qzGB"
         data-tally-emoji-text="👋"
         data-tally-emoji-animation="wave"
-        className="fixed bottom-4 right-4 z-40 rounded-full bg-foreground/5 p-2 text-foreground/40 backdrop-blur-sm transition-colors hover:bg-foreground/10 hover:text-foreground/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex items-center gap-2 rounded-md bg-foreground/5 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <MessageSquare className="h-5 w-5" />
+        <MessageSquare className="h-4 w-4" />
+        Feedback
       </button>
     </>
   )
