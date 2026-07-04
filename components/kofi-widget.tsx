@@ -15,9 +15,9 @@ export function KofiWidget() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Support me on Ko-fi"
-        className="inline-flex items-center gap-2 rounded-full bg-foreground/5 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex items-center gap-2 rounded-md bg-foreground/5 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <Image src="/kofi-symbol.png" alt="" width={20} height={20} className="h-5 w-5" />
+        <Image src="/kofi-symbol.png" alt="" width={25} height={20} className="h-5 w-auto object-contain" />
         Support me
       </button>
 
