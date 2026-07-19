@@ -334,10 +334,12 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
         {selectedCellId && (() => {
           const selectedCell = TRIDOKU_BOARD.flat().find(cell => cell.id === selectedCellId && !cell.hidden)
           if (selectedCell) {
+            const selectedGameCell = cells[selectedCell.row]?.[selectedCell.col]
+            const isHighlighted = highlightedValue != null && selectedGameCell?.value === highlightedValue
             return (
               <polygon
                 points={getTrianglePoints(selectedCell.row, selectedCell.col, selectedCell.direction)}
-                fill={SELECTED_FILL}
+                fill={isHighlighted ? HIGHLIGHTED_FILL : SELECTED_FILL}
                 stroke={SELECTED_STROKE}
                 strokeWidth={0.15}
                 strokeLinejoin="miter"
