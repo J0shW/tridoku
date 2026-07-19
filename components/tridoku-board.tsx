@@ -260,7 +260,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                       style={{ pointerEvents: "none" }}
                     />
                   )}
-                  {highlightedValue != null && gameCell?.value === highlightedValue && !isSelected && (
+                  {highlightedValue != null && gameCell?.value === highlightedValue && (
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={HIGHLIGHTED_FILL}
