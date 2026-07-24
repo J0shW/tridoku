@@ -249,7 +249,12 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
               const isSelected = cell.id === selectedCellId
               const centroid = getTriangleCentroid(cell.row, cell.col, cell.direction)
               return (
-                <g key={cell.id} className="cursor-pointer" onClick={() => onCellClick(cell.id)}>
+                <g
+                  key={cell.id}
+                  data-cell-id={cell.id}
+                  className="cursor-pointer"
+                  onClick={() => onCellClick(cell.id)}
+                >
                   <polygon
                     points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                     fill={getDifficultyBasedColor(cell.color, difficulty)}
