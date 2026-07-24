@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye } from "lucide-react"
+import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye, Sparkles } from "lucide-react"
 import { TRIDOKU_BOARD, type Cell } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
 import { InputModeToggle } from "@/components/input-mode-toggle"
@@ -17,6 +17,7 @@ import {
 interface RulesModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onStartTutorial?: () => void
 }
 
 // ─── SVG helpers ───────────────────────────────────────────────────────────────
@@ -789,7 +790,7 @@ const STEPS: Step[] = [
   },
 ]
 
-export function RulesModal({ open, onOpenChange }: RulesModalProps) {
+export function RulesModal({ open, onOpenChange, onStartTutorial }: RulesModalProps) {
   const [step, setStep] = useState(0)
 
   // Reset to the first step whenever the modal is (re)opened
@@ -809,7 +810,20 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
           <DialogDescription className="text-center">{current.subtitle}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 min-h-[18rem]">{current.content}</div>
+        <div className="flex-1 overflow-y-auto px-6 py-5 min-h-[18rem]">
+          {current.content}
+          {isFirst && onStartTutorial && (
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <Button onClick={onStartTutorial} className="gap-2">
+                <Sparkles className="w-4 h-4" />
+                Start Interactive Tutorial
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                Or click Next to read the quick guide.
+              </p>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center justify-between gap-4 border-t border-border px-6 py-4">
           <Button

@@ -202,12 +202,15 @@ interface TridokuBoardProps {
   difficulty?: Difficulty | null
   highlightedValue?: number | null
   showErrors?: boolean
+  // Optional set of cell IDs to spotlight (used by the interactive tutorial)
+  highlightedCellIds?: Set<CellId>
 }
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
 const HIGHLIGHTED_STROKE = "var(--tridoku-highlighted-stroke)"
+const SPOTLIGHT_FILL = "var(--tridoku-highlighted-fill)"
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue, showErrors = false }: TridokuBoardProps) {
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue, showErrors = false, highlightedCellIds }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -264,6 +267,14 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                       fill={HIGHLIGHTED_FILL}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
+                  {highlightedCellIds?.has(cell.id) && !isSelected && (
+                    <polygon
+                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                      fill={SPOTLIGHT_FILL}
+                      fillOpacity={0.5}
                       style={{ pointerEvents: "none" }}
                     />
                   )}

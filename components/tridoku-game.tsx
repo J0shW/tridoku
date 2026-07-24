@@ -9,6 +9,7 @@ import { TimerDisplay } from "@/components/timer-display"
 import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal } from "@/components/rules-modal"
+import { TutorialOverlay } from "@/components/tutorial-overlay"
 import { DifficultySelector } from "@/components/difficulty-selector"
 import { KofiWidget } from "@/components/kofi-widget"
 import { TallyWidget } from "@/components/tally-widget"
@@ -57,6 +58,7 @@ export function TridokuGame() {
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
   const [showRules, setShowRules] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
   const [pencilTipDismissed, setPencilTipDismissed] = useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('tridoku-pencil-tip-dismissed') === 'true'
@@ -70,6 +72,12 @@ export function TridokuGame() {
   const openRules = useCallback(() => {
     trackEvent("rules_opened")
     setShowRules(true)
+  }, [])
+
+  const startTutorial = useCallback(() => {
+    trackEvent("tutorial_started")
+    setShowRules(false)
+    setShowTutorial(true)
   }, [])
 
 
@@ -383,6 +391,12 @@ export function TridokuGame() {
       <RulesModal
         open={showRules}
         onOpenChange={setShowRules}
+        onStartTutorial={startTutorial}
+      />
+
+      <TutorialOverlay
+        open={showTutorial}
+        onClose={() => setShowTutorial(false)}
       />
 
       <footer className="text-center pt-4 pb-24 sm:pb-4 text-xs text-muted-foreground/60">
