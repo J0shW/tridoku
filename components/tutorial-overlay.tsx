@@ -126,7 +126,6 @@ const STEPS: TutorialStep[] = [
     filledIds: REGION0_IDS,
     emptyIds: [REGION_TARGET],
     selectableIds: [REGION_TARGET],
-    highlightIds: REGION0_IDS,
     showPad: true,
   },
   {
@@ -143,7 +142,6 @@ const STEPS: TutorialStep[] = [
     filledIds: OUTER_LEFT_IDS,
     emptyIds: [OUTER_TARGET],
     selectableIds: [OUTER_TARGET],
-    highlightIds: OUTER_LEFT_IDS,
     showPad: true,
   },
   {
@@ -160,7 +158,6 @@ const STEPS: TutorialStep[] = [
     filledIds: INNER_TOP_IDS,
     emptyIds: [INNER_TARGET],
     selectableIds: [INNER_TARGET],
-    highlightIds: INNER_TOP_IDS,
     showPad: true,
   },
   {
