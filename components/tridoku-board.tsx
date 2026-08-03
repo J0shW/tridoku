@@ -208,7 +208,6 @@ interface TridokuBoardProps {
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
 const HIGHLIGHTED_STROKE = "var(--tridoku-highlighted-stroke)"
-const SPOTLIGHT_FILL = "var(--tridoku-highlighted-fill)"
 
 export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue, showErrors = false, highlightedCellIds }: TridokuBoardProps) {
   if (isPaused) {
@@ -238,6 +237,13 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
             .selected-cell {
               stroke-dasharray: 0.4 0.2;
               animation: dash-animation 1s linear infinite;
+            }
+            @keyframes spotlight-pulse {
+              0%, 100% { opacity: 0.45; }
+              50% { opacity: 0.95; }
+            }
+            .spotlight-cell {
+              animation: spotlight-pulse 1.1s ease-in-out infinite;
             }
           `}
         </style>
@@ -277,9 +283,12 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                   )}
                   {highlightedCellIds?.has(cell.id) && !isSelected && (
                     <polygon
+                      className="spotlight-cell"
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                      fill={SPOTLIGHT_FILL}
-                      fillOpacity={0.5}
+                      fill="rgba(236, 72, 153, 0.4)"
+                      stroke="#ec4899"
+                      strokeWidth={0.12}
+                      strokeLinejoin="round"
                       style={{ pointerEvents: "none" }}
                     />
                   )}

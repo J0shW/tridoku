@@ -78,9 +78,14 @@ interface TutorialStep {
   subtitle: string
   bubble: React.ReactNode
   successText?: string
+  // When defined, the board starts empty and only these cells are shown as givens.
+  // When omitted, the full solved board is used (later info steps rely on this).
+  filledIds?: CellId[]
   emptyIds?: CellId[]
   wrong?: { id: CellId; value: number }
   selectId?: CellId
+  // When defined, only these cells can be selected (click or arrow keys).
+  selectableIds?: CellId[]
   highlightIds?: CellId[]
   highlightValue?: number
   showPad?: boolean
@@ -93,63 +98,68 @@ const HIGHLIGHT_DEMO_VALUE = 5
 const STEPS: TutorialStep[] = [
   {
     kind: "select",
-    title: "Selecting a Cell",
-    subtitle: "Click, tap, or use arrow keys",
+    title: "Select a cell",
+    subtitle: "",
     bubble: (
       <>
-        Everything starts with picking a cell. Go ahead and{" "}
-        <strong className="text-foreground">select the glowing triangle</strong> — click it, tap it,
+        Select the <strong className="text-foreground">glowing triangle</strong> — click it, tap it,
         or move to it with the arrow keys.
       </>
     ),
-    successText: "Nice — that cell is now selected.",
-    selectId: INNER_TARGET,
-    highlightIds: [INNER_TARGET],
+    successText: "Selected!",
+    filledIds: REGION0_IDS,
+    emptyIds: [REGION_TARGET],
+    selectId: REGION_TARGET,
+    highlightIds: [REGION_TARGET],
   },
   {
     kind: "fill",
-    title: "Rule 1: Regions",
-    subtitle: "Each bold region holds 1–9",
+    title: "Complete the region",
+    subtitle: "",
     bubble: (
       <>
-        Every <strong className="text-foreground">bold-outlined region</strong> contains the digits
-        1 through 9 exactly once. This region is missing just one number — figure out which digit is
-        absent and fill the empty cell.
+        A <strong className="text-foreground">region</strong> holds 1–9. This one is missing one
+        digit — fill it in.
       </>
     ),
-    successText: "That's it! The region now has all of 1–9.",
+    successText: "The region is complete.",
+    filledIds: REGION0_IDS,
     emptyIds: [REGION_TARGET],
+    selectableIds: [REGION_TARGET],
     highlightIds: REGION0_IDS,
     showPad: true,
   },
   {
     kind: "fill",
-    title: "Rule 2: Outer Edges",
-    subtitle: "The three big sides hold 1–9",
+    title: "Complete the outer edge",
+    subtitle: "",
     bubble: (
       <>
-        Each of the triangle&apos;s <strong className="text-foreground">three outer sides</strong>{" "}
-        must also contain 1 through 9. The highlighted left edge is missing one digit — complete it.
+        Each <strong className="text-foreground">outer edge</strong> holds 1–9 too. Fill the missing
+        digit.
       </>
     ),
-    successText: "Perfect — the outer edge is complete.",
+    successText: "The outer edge is complete.",
+    filledIds: OUTER_LEFT_IDS,
     emptyIds: [OUTER_TARGET],
+    selectableIds: [OUTER_TARGET],
     highlightIds: OUTER_LEFT_IDS,
     showPad: true,
   },
   {
     kind: "fill",
-    title: "Rule 3: Inner Triangle",
-    subtitle: "The inverted triangle's edges hold 1–9",
+    title: "Complete the inner edge",
+    subtitle: "",
     bubble: (
       <>
-        There&apos;s an <strong className="text-foreground">inner (upside-down) triangle</strong> in
-        the middle, and each of its edges also needs 1 through 9. Fill the last empty cell along its
-        highlighted top edge.
+        The <strong className="text-foreground">inner triangle&apos;s</strong> edges hold 1–9 as
+        well. Fill the missing digit.
       </>
     ),
-    successText: "Great — the inner edge is complete.",
+    successText: "The inner edge is complete.",
+    filledIds: INNER_TOP_IDS,
     emptyIds: [INNER_TARGET],
+    selectableIds: [INNER_TARGET],
     highlightIds: INNER_TOP_IDS,
     showPad: true,
   },
@@ -247,11 +257,27 @@ function cloneBoard(b: Board): Board {
 
 function buildStepBoard(step: TutorialStep): Board {
   const b = cloneBoard(SOLUTION)
-  // Treat every filled cell as a locked "given"
-  for (const row of b) {
-    for (const cell of row) {
-      if (cell.hidden) continue
-      cell.isGiven = true
+  if (step.filledIds) {
+    // Minimal board: only the listed cells are shown (as givens); everything else is blank.
+    const keep = new Set(step.filledIds)
+    for (const row of b) {
+      for (const cell of row) {
+        if (cell.hidden) continue
+        if (keep.has(cell.id)) {
+          cell.isGiven = true
+        } else {
+          cell.value = null
+          cell.isGiven = false
+        }
+      }
+    }
+  } else {
+    // Full board: treat every filled cell as a locked "given"
+    for (const row of b) {
+      for (const cell of row) {
+        if (cell.hidden) continue
+        cell.isGiven = true
+      }
     }
   }
   // Carve out the empty target(s)
@@ -305,6 +331,11 @@ export function TutorialOverlay({ open, onClose }: TutorialOverlayProps) {
       setSelectedCellId(s.emptyIds[0])
     } else if (s.kind === "fix" && s.wrong) {
       setSelectedCellId(s.wrong.id)
+    } else if (s.kind === "select" && s.filledIds) {
+      // Seed the selection on a filled cell so arrow keys have a starting point;
+      // the player still has to move/click onto the glowing target to advance.
+      const seed = s.filledIds.find((id) => id !== s.selectId)
+      setSelectedCellId(seed ?? null)
     } else {
       setSelectedCellId(null)
     }
@@ -340,9 +371,13 @@ export function TutorialOverlay({ open, onClose }: TutorialOverlayProps) {
     return !hasAnyError(board)
   }, [step, selectedCellId, board])
 
-  const handleSelect = useCallback((id: CellId) => {
-    setSelectedCellId(id)
-  }, [])
+  const handleSelect = useCallback(
+    (id: CellId) => {
+      if (step.selectableIds && !step.selectableIds.includes(id)) return
+      setSelectedCellId(id)
+    },
+    [step],
+  )
 
   const handleNumber = useCallback(
     (num: number) => {
@@ -392,7 +427,9 @@ export function TutorialOverlay({ open, onClose }: TutorialOverlayProps) {
         const dir =
           key === "arrowup" ? "up" : key === "arrowdown" ? "down" : key === "arrowleft" ? "left" : "right"
         const target = getArrowTarget(TRIDOKU_BOARD, selectedCellId, dir)
-        if (target) setSelectedCellId(target)
+        if (target && (!step.selectableIds || step.selectableIds.includes(target))) {
+          setSelectedCellId(target)
+        }
       }
     }
     window.addEventListener("keydown", onKey)
@@ -434,7 +471,9 @@ export function TutorialOverlay({ open, onClose }: TutorialOverlayProps) {
           {/* Instruction bubble */}
           <div className="relative rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
             <h3 className="text-base font-bold text-foreground text-balance">{step.title}</h3>
-            <p className="text-xs text-muted-foreground mb-1.5">{step.subtitle}</p>
+            {step.subtitle && (
+              <p className="text-xs text-muted-foreground mb-1.5">{step.subtitle}</p>
+            )}
             <p className="text-sm text-muted-foreground leading-relaxed text-pretty">{step.bubble}</p>
           </div>
 
