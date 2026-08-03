@@ -92,18 +92,6 @@ const HIGHLIGHT_DEMO_VALUE = 5
 
 const STEPS: TutorialStep[] = [
   {
-    kind: "info",
-    title: "Welcome to Tridoku",
-    subtitle: "Let's learn by playing",
-    bubble: (
-      <>
-        Tridoku is Sudoku with <strong className="text-foreground">triangles</strong>. Instead of
-        reading about the rules, you&apos;ll fill in real cells on a real board. Tap{" "}
-        <strong className="text-foreground">Next</strong> to begin.
-      </>
-    ),
-  },
-  {
     kind: "select",
     title: "Selecting a Cell",
     subtitle: "Click, tap, or use arrow keys",
@@ -249,7 +237,7 @@ const STEPS: TutorialStep[] = [
   },
 ]
 
-// ─── Board construction per step ────────────────────────────────────────────────
+// ─── Board construction per step ───────────────────────────────────────────���────
 
 function cloneBoard(b: Board): Board {
   return b.map((row) =>

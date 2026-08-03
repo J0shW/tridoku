@@ -207,7 +207,7 @@ export function TridokuGame() {
                   <Button
                     variant="outline"
                     className="gap-2"
-                    onClick={openRules}
+                    onClick={startTutorial}
                   >
                     <HelpCircle className="h-4 w-4" />
                     How to Play
