@@ -21,6 +21,11 @@ import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
+import dynamic from "next/dynamic"
+import { IS_PRODUCTION } from "@/lib/app-env"
+
+// Loaded only outside production, so it never ships to players.
+const DevTools = dynamic(() => import("@/components/dev-tools").then((m) => m.DevTools), { ssr: false })
 
 
 export function TridokuGame() {
@@ -384,6 +389,15 @@ export function TridokuGame() {
         open={showRules}
         onOpenChange={setShowRules}
       />
+
+      {!IS_PRODUCTION && (
+        <DevTools
+          cells={cells}
+          difficulty={difficulty}
+          isViewMode={isViewMode}
+          onReloadPuzzle={generateNewPuzzle}
+        />
+      )}
 
       <footer className="text-center pt-4 pb-24 sm:pb-4 text-xs text-muted-foreground/60">
         <div className="mb-4 flex flex-wrap items-center justify-center gap-3">

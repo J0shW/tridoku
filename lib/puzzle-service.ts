@@ -1,5 +1,7 @@
 // Puzzle fetch service - loads pre-generated puzzles from JSON files
 
+import { IS_PRODUCTION, PRODUCTION_ORIGIN } from "@/lib/app-env"
+
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
 export interface DailyPuzzle {
@@ -31,8 +33,8 @@ let cacheLoadedYear: number | null = null
 /**
  * Fetch puzzles for a given year
  */
-async function fetchPuzzlesForYear(year: number): Promise<PuzzleCache> {
-  const response = await fetch(`/puzzles/${year}.json`)
+async function fetchPuzzlesForYear(year: number, origin = ""): Promise<PuzzleCache> {
+  const response = await fetch(`${origin}/puzzles/${year}.json`)
   if (!response.ok) {
     throw new Error(`Failed to fetch puzzles for ${year}`)
   }
@@ -64,6 +66,18 @@ export async function getDailyPuzzle(date?: Date, difficulty: Difficulty = 'medi
     puzzleCache = await fetchPuzzlesForYear(year)
     cacheLoadedYear = year
     console.log(`[PuzzleService] Loaded ${Object.keys(puzzleCache).length} puzzle sets`)
+  }
+
+  // Preview and dev builds only have the puzzles that existed when their branch was
+  // created. For newer dates, borrow production's file so previews never fall back.
+  if (!puzzleCache[dateStr] && !IS_PRODUCTION) {
+    try {
+      const production = await fetchPuzzlesForYear(year, PRODUCTION_ORIGIN)
+      puzzleCache = { ...production, ...puzzleCache }
+      console.log(`[PuzzleService] Filled missing dates from production puzzles`)
+    } catch (error) {
+      console.warn('[PuzzleService] Could not fetch production puzzles:', error)
+    }
   }
 
   const puzzleSet = puzzleCache[dateStr]
