@@ -13,6 +13,7 @@ import {
 } from "@/lib/tridoku"
 import { getDailyPuzzle, PuzzleLoadError, type DailyPuzzle } from "@/lib/puzzle-service"
 import { trackEvent } from "@/lib/analytics"
+import { bumpCounter, getCounters } from "@/lib/play-counters"
 import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
 import { defaultStats, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
 
@@ -131,6 +132,27 @@ function getPuzzleHash(puzzleString: string): string {
   return puzzleString
 }
 
+/** Share of the empty cells the player has filled, 0–100. */
+function percentFilled(cells: Cell[][]): number {
+  let open = 0
+  let filled = 0
+  for (const row of cells) for (const c of row) {
+    if (c.hidden || c.isGiven) continue
+    open++
+    if (c.value != null) filled++
+  }
+  return open ? Math.round((filled / open) * 100) : 0
+}
+
+/** Whether the player has opened the rules on this browser (set in components/tridoku-game.tsx). */
+function hasSeenRules(): boolean {
+  try {
+    return localStorage.getItem("tridoku-rules-seen") === "true"
+  } catch {
+    return false
+  }
+}
+
 export function useTridoku() {
   const [gameState, setGameState] = useState<GameState>({
     cells: createEmptyBoard(),
@@ -157,6 +179,25 @@ export function useTridoku() {
   // Keep a ref to the latest game state so callbacks always have current data
   const gameStateRef = useRef(gameState)
   useEffect(() => { gameStateRef.current = gameState }, [gameState])
+  const statsRef = useRef(stats)
+  useEffect(() => { statsRef.current = stats }, [stats])
+
+  // TRI-017: when the page is hidden with an unfinished puzzle, record where the player
+  // stopped. Sent at most once per page load.
+  const sessionEndSent = useRef(false)
+  useEffect(() => {
+    const onHide = () => {
+      if (document.visibilityState !== "hidden" || sessionEndSent.current) return
+      const g = gameStateRef.current
+      if (!g.difficulty || !g.hasStarted || g.isComplete || g.isViewMode) return
+      const pct = percentFilled(g.cells)
+      if (pct === 0) return
+      sessionEndSent.current = true
+      trackEvent("session_end", { difficulty: g.difficulty, pct_filled: pct, time: g.elapsedTime })
+    }
+    document.addEventListener("visibilitychange", onHide)
+    return () => document.removeEventListener("visibilitychange", onHide)
+  }, [])
 
   // Load stats on mount (client-side only)
   useEffect(() => {
@@ -206,7 +247,14 @@ export function useTridoku() {
     if (!newDiffStats) return
 
     // Track puzzle completion (e.g. easy_completed, medium_completed, hard_completed)
-    trackEvent(`${difficulty}_completed`, { time: gameState.elapsedTime })
+    const counters = getCounters(difficulty, gameState.puzzleDate ?? todayKey())
+    trackEvent(`${difficulty}_completed`, {
+      difficulty,
+      time: gameState.elapsedTime,
+      errors: counters.errors,
+      pencil_marks: counters.notes,
+      resets: counters.resets,
+    })
 
     const newStats = { ...stats, [difficulty]: newDiffStats }
     setStats(newStats)
@@ -236,25 +284,46 @@ export function useTridoku() {
     })
   }, [gameState.isViewMode])
 
-  // Count the puzzle as played on its first entry (TRI-007)
+  // Count the puzzle as played on its first entry (TRI-007) and record the start (TRI-016)
   const markStarted = useCallback(() => {
     const { difficulty, puzzleDate, isViewMode, selectedCellId, cells } = gameStateRef.current
     if (!difficulty || !puzzleDate || isViewMode || !selectedCellId) return
     const [row, col] = selectedCellId.split("-").map(Number)
     if (cells[row]?.[col]?.isGiven) return
-    setStats(prev => {
-      const next = recordStart(prev[difficulty], puzzleDate)
-      if (!next) return prev
-      const all = { ...prev, [difficulty]: next }
-      saveStats(all)
-      return all
+    const next = recordStart(statsRef.current[difficulty], puzzleDate)
+    if (!next) return
+    const all = { ...statsRef.current, [difficulty]: next }
+    statsRef.current = all
+    setStats(all)
+    saveStats(all)
+    trackEvent("puzzle_started", {
+      difficulty,
+      ms_since_load: Math.round(performance.now()),
+      rules_seen: hasSeenRules(),
     })
+  }, [])
+
+  // Count wrong entries and notes for the completion event (TRI-019)
+  const countEntry = useCallback((value: number) => {
+    const { difficulty, puzzleDate, selectedCellId, cells, inputMode, isViewMode } = gameStateRef.current
+    if (!difficulty || !puzzleDate || !selectedCellId || isViewMode) return
+    const [row, col] = selectedCellId.split("-").map(Number)
+    const cell = cells[row]?.[col]
+    if (!cell || cell.hidden || cell.isGiven) return
+    if (inputMode === "pencil") {
+      if (!cell.pencilMarks.includes(value)) bumpCounter(difficulty, puzzleDate, "notes")
+      return
+    }
+    if (cell.value === value) return
+    const after = validateBoard(cells.map((r, ri) => (ri === row ? r.map((c, ci) => (ci === col ? { ...c, value } : c)) : r)))
+    if (after[row][col].hasError) bumpCounter(difficulty, puzzleDate, "errors")
   }, [])
 
   // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
   const setValue = useCallback((value: number) => {
     if (gameState.isViewMode) return
     markStarted()
+    countEntry(value)
     setGameState(prev => {
       if (!prev.selectedCellId) return prev
       const [rowStr, colStr] = prev.selectedCellId.split("-")
@@ -300,7 +369,7 @@ export function useTridoku() {
         return { ...prev, cells: validatedCells, isComplete }
       }
     })
-  }, [gameState.isViewMode, markStarted])
+  }, [gameState.isViewMode, markStarted, countEntry])
 
   // Clear the selected cell (pen mode clears value, pencil mode does nothing - user must toggle marks individually)
   const clearCell = useCallback(() => {
@@ -441,8 +510,10 @@ export function useTridoku() {
       // Leaving an in-progress puzzle to switch difficulty counts as abandoning it
       if (!current.isViewMode && current.difficulty !== difficulty) {
         trackEvent(`${current.difficulty}_abandoned`, {
+          difficulty: current.difficulty,
           reason: "switch_difficulty",
           time: current.elapsedTime,
+          pct_filled: percentFilled(current.cells),
         })
       }
     }
@@ -455,7 +526,6 @@ export function useTridoku() {
   // Reload a difficulty's puzzle, ignoring a solved board (used by Reset and dev tools)
   const generateNewPuzzle = useCallback(async (difficulty?: Difficulty) => {
     const targetDifficulty = difficulty || gameStateRef.current.difficulty || 'medium'
-    trackEvent(`${targetDifficulty}_loaded`)
     await loadDifficulty(targetDifficulty, { showSolved: false })
   }, [loadDifficulty])
 
@@ -488,9 +558,12 @@ export function useTridoku() {
       const current = gameStateRef.current
       if (current.hasStarted && !current.isComplete && !current.isViewMode) {
         trackEvent(`${gameState.difficulty}_abandoned`, {
+          difficulty: gameState.difficulty,
           reason: "reset",
           time: current.elapsedTime,
+          pct_filled: percentFilled(current.cells),
         })
+        if (current.puzzleDate) bumpCounter(gameState.difficulty, current.puzzleDate, "resets")
       }
       clearGameProgress(gameState.difficulty)
       generateNewPuzzle(gameState.difficulty)

@@ -4,6 +4,7 @@ import { useState } from "react"
 import Image from "next/image"
 import { X } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import { trackEvent } from "@/lib/analytics"
 
 /** A custom "Support me" button (matching the feedback button) that opens the Ko-fi donation panel in a dialog. */
 export function KofiWidget() {
@@ -13,7 +14,10 @@ export function KofiWidget() {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true)
+          trackEvent("kofi_opened")
+        }}
         aria-label="Support me on Ko-fi"
         className="inline-flex items-center gap-2 rounded-md bg-foreground/5 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >

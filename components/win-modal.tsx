@@ -31,31 +31,39 @@ export function WinModal({ open, onOpenChange, stats, difficulty, elapsedTime, p
   const handleShare = async () => {
     const text = getShareText()
 
-    trackEvent("result_shared", {
-      difficulty,
-      method: typeof navigator.share === "function" ? "native_share" : "clipboard",
-    })
-
+    // Track the outcome, not the tap, so cancelled shares don't count (TRI-018)
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({
           title: "Daily Tridoku",
           text: text,
         })
-      } catch {
-        // User cancelled or error
+        trackEvent("result_shared", { difficulty, method: "native_share", outcome: "shared" })
+      } catch (error) {
+        const cancelled = error instanceof DOMException && error.name === "AbortError"
+        trackEvent("result_shared", { difficulty, method: "native_share", outcome: cancelled ? "cancelled" : "failed" })
       }
     } else {
-      await navigator.clipboard.writeText(text)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      try {
+        await navigator.clipboard.writeText(text)
+        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "copied" })
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch {
+        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "failed" })
+      }
     }
   }
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(getShareText())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    try {
+      await navigator.clipboard.writeText(getShareText())
+      trackEvent("result_copied", { difficulty })
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard blocked; nothing to undo
+    }
   }
 
   return (
