@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**80 items** · 60 todo · 18 in review · 1 done · 1 won't do · plus 10 [research items](research.md)
+**80 items** · 54 todo · 24 in review · 1 done · 1 won't do · plus 10 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -24,12 +24,12 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-012](m0-foundations.md#tri-012) | Alert when the puzzle pipeline falls behind | High | H | S | — | In review |
 | [TRI-013](m0-foundations.md#tri-013) | Validate every puzzle in CI | High | M | S | TRI-001 | In review |
 | [TRI-014](m0-foundations.md#tri-014) | Exercise the year rollover | Medium | M | S | TRI-001 | In review |
-| [TRI-015](m0-foundations.md#tri-015) | Anonymous player ID and days-since-first-play on events | High | H | S | — | Todo |
-| [TRI-016](m0-foundations.md#tri-016) | Track puzzle starts | High | H | S | TRI-015 | Todo |
-| [TRI-017](m0-foundations.md#tri-017) | Track where players stop | High | H | S | TRI-015 | Todo |
-| [TRI-018](m0-foundations.md#tri-018) | Accurate share tracking | Medium | M | S | — | Todo |
-| [TRI-019](m0-foundations.md#tri-019) | Track rules depth, Ko-fi, Feedback and play style | Medium | M | S | TRI-015 | Todo |
-| [TRI-020](m0-foundations.md#tri-020) | Metrics definitions and dashboard | Medium | H | S | TRI-016, TRI-017, TRI-018 | Todo |
+| [TRI-015](m0-foundations.md#tri-015) | Anonymous player ID and days-since-first-play on events | High | H | S | — | In review |
+| [TRI-016](m0-foundations.md#tri-016) | Track puzzle starts | High | H | S | TRI-015 | In review |
+| [TRI-017](m0-foundations.md#tri-017) | Track where players stop | High | H | S | TRI-015 | In review |
+| [TRI-018](m0-foundations.md#tri-018) | Accurate share tracking | Medium | M | S | — | In review |
+| [TRI-019](m0-foundations.md#tri-019) | Track rules depth, Ko-fi, Feedback and play style | Medium | M | S | TRI-015 | In review |
+| [TRI-020](m0-foundations.md#tri-020) | Metrics definitions and dashboard | Medium | H | S | TRI-016, TRI-017, TRI-018 | In review |
 | [TRI-021](m0-foundations.md#tri-021) | Fix the stray "0" in Statistics | Low | L | S | — | In review |
 | [TRI-022](m0-foundations.md#tri-022) | Hide /test outside development | Low | L | S | — | In review |
 | [TRI-023](m0-foundations.md#tri-023) | Remove unused UI components and dependencies | Medium | L | S | TRI-001 | In review |

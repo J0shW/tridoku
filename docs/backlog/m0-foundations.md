@@ -222,9 +222,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Without a stable ID, retention can't be measured.
 
 **Done when**
-- [ ] A random anonymous ID and `first_play_date` are created in localStorage on first visit.
-- [ ] Every event includes `days_since_first` (and the ID if Umami's plan supports distinct IDs).
-- [ ] No personal data is collected; the privacy note in the footer says so.
+- [x] A random anonymous ID and `first_play_date` are created in localStorage on first visit.
+- [x] Every event includes `days_since_first` (and the ID if Umami's plan supports distinct IDs).
+- [x] No personal data is collected; the privacy note in the footer says so.
 
 <a id="tri-016"></a>
 ## TRI-016 · Track puzzle starts
@@ -236,8 +236,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `{diff}_loaded` fires on load and on Reset, so it isn't a start signal.
 
 **Done when**
-- [ ] `puzzle_started {difficulty, ms_since_load, rules_seen}` fires on the first entry of each puzzle.
-- [ ] Reset fires its own event instead of `_loaded`.
+- [x] `puzzle_started {difficulty, ms_since_load, rules_seen}` fires on the first entry of each puzzle.
+- [x] Reset fires its own event instead of `_loaded`.
 
 <a id="tri-017"></a>
 ## TRI-017 · Track where players stop
@@ -249,8 +249,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Closing the tab mid-puzzle is the most common way to quit and isn't recorded.
 
 **Done when**
-- [ ] `session_end {difficulty, pct_filled, time}` is sent with `navigator.sendBeacon` when the page is hidden with an unfinished puzzle.
-- [ ] It fires at most once per visit.
+- [x] `session_end {difficulty, pct_filled, time}` is sent when the page is hidden with an unfinished puzzle (through Umami's tracker rather than `sendBeacon`, which would bypass Umami's production-only domain check).
+- [x] It fires at most once per visit.
 
 <a id="tri-018"></a>
 ## TRI-018 · Accurate share tracking
@@ -262,8 +262,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `result_shared` fires before the share sheet resolves, so cancels count. The copy button isn't tracked (`win-modal.tsx:55`).
 
 **Done when**
-- [ ] Share is tracked after the outcome (`shared` or `cancelled`).
-- [ ] Copy is tracked as `result_copied`.
+- [x] Share is tracked after the outcome (`shared` or `cancelled`).
+- [x] Copy is tracked as `result_copied`.
 
 <a id="tri-019"></a>
 ## TRI-019 · Track rules depth, Ko-fi, Feedback and play style
@@ -275,9 +275,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Rules depth, Ko-fi and Feedback opens, errors and note usage are invisible.
 
 **Done when**
-- [ ] `rules_step {n}` and `rules_completed` events.
-- [ ] `kofi_opened` and `feedback_opened` events.
-- [ ] Completion events include `errors`, `pencil_marks`, `resets` (and `undos` once TRI-052 ships).
+- [x] `rules_step {n}` and `rules_completed` events.
+- [x] `kofi_opened` and `feedback_opened` events.
+- [x] Completion events include `errors`, `pencil_marks`, `resets` (and `undos` once TRI-052 ships).
 
 <a id="tri-020"></a>
 ## TRI-020 · Metrics definitions and dashboard
@@ -289,9 +289,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The eight metrics in the review need one agreed definition and a place to read them.
 
 **Done when**
-- [ ] `docs/metrics.md` defines each metric, its formula and its events.
-- [ ] An Umami dashboard (or saved reports) shows them.
-- [ ] Decide whether to keep Vercel Analytics alongside Umami; remove it if unused.
+- [x] `docs/metrics.md` defines each metric, its formula and its events.
+- [x] An Umami dashboard (or saved reports) shows them.
+- [x] Decide whether to keep Vercel Analytics alongside Umami; remove it if unused.
 
 <a id="tri-021"></a>
 ## TRI-021 · Fix the stray "0" in Statistics

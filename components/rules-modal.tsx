@@ -6,6 +6,7 @@ import { TRIDOKU_BOARD, type Cell } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { cn } from "@/lib/utils"
+import { trackEvent } from "@/lib/analytics"
 import {
   Dialog,
   DialogContent,
@@ -799,6 +800,15 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
     if (open) setStep(0)
   }
 
+  // Track how far players get through the rules (TRI-019)
+  const goTo = (next: number) => {
+    const n = Math.max(0, Math.min(STEPS.length - 1, next))
+    if (n === step) return
+    setStep(n)
+    trackEvent("rules_step", { n: n + 1, of: STEPS.length })
+    if (n === STEPS.length - 1) trackEvent("rules_completed")
+  }
+
   const isFirst = step === 0
   const isLast = step === STEPS.length - 1
   const current = STEPS[step]
@@ -816,7 +826,7 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
         <div className="flex items-center justify-between gap-4 border-t border-border px-6 py-4">
           <Button
             variant="ghost"
-            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            onClick={() => goTo(step - 1)}
             disabled={isFirst}
             className={cn(isFirst && "invisible")}
           >
@@ -829,7 +839,7 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
               <button
                 key={i}
                 type="button"
-                onClick={() => setStep(i)}
+                onClick={() => goTo(i)}
                 aria-label={`Go to step ${i + 1}`}
                 className={cn(
                   "h-2 rounded-full transition-all",
@@ -842,7 +852,7 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
           {isLast ? (
             <Button onClick={() => onOpenChange(false)}>Got it!</Button>
           ) : (
-            <Button onClick={() => setStep((s) => Math.min(STEPS.length - 1, s + 1))}>
+            <Button onClick={() => goTo(step + 1)}>
               Next
               <ChevronRight className="w-4 h-4" />
             </Button>

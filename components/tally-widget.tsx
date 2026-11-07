@@ -1,4 +1,7 @@
+"use client"
+
 import Script from "next/script"
+import { trackEvent } from "@/lib/analytics"
 import { MessageSquare } from "lucide-react"
 
 /** Loads Tally's embed script and renders an inline feedback button. */
@@ -9,6 +12,7 @@ export function TallyWidget() {
       <button
         type="button"
         aria-label="Open feedback form"
+        onClick={() => trackEvent("feedback_opened")}
         data-tally-open="44qzGB"
         data-tally-emoji-text="👋"
         data-tally-emoji-animation="wave"

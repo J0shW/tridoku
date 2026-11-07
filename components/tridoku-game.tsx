@@ -92,6 +92,11 @@ export function TridokuGame() {
 
   const openRules = useCallback(() => {
     trackEvent("rules_opened")
+    try {
+      localStorage.setItem("tridoku-rules-seen", "true") // read by puzzle_started (TRI-016)
+    } catch {
+      /* storage unavailable */
+    }
     setShowRules(true)
   }, [])
 
@@ -433,6 +438,7 @@ export function TridokuGame() {
           <KofiWidget />
           <TallyWidget />
         </div>
+        <p className="mb-2">No sign-up. We count anonymous play statistics to improve the game.</p>
         <span>© {new Date().getFullYear()} Josh Whitney</span>
         <span className="mx-2">·</span>
         <Link href="/bts" className="hover:text-muted-foreground transition-colors">
