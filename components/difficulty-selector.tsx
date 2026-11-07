@@ -1,7 +1,7 @@
 "use client"
 
-import { Difficulty } from "@/lib/tridoku"
-import { DifficultyStats } from "@/hooks/use-tridoku"
+import { Difficulty, formatTime } from "@/lib/tridoku"
+import type { DifficultyStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check } from "lucide-react"
@@ -13,13 +13,26 @@ interface DifficultySelectorProps {
     medium: DifficultyStats
     hard: DifficultyStats
   }
+  /** Puzzles started today and not finished, shown on the other tabs (TRI-033) */
+  inProgress?: Partial<Record<Difficulty, PuzzleInProgress>>
   onDifficultyChange: (difficulty: Difficulty) => void
   disabled?: boolean
+}
+
+/** Half-filled circle: "partly done", next to the ✓ for "done". */
+function InProgressIcon() {
+  return (
+    <svg viewBox="0 0 12 12" className="h-3 w-3" aria-hidden="true">
+      <circle cx="6" cy="6" r="4.5" fill="none" stroke="white" strokeWidth="1.5" />
+      <path d="M6 1.5 A4.5 4.5 0 0 0 6 10.5 Z" fill="white" />
+    </svg>
+  )
 }
 
 export function DifficultySelector({ 
   currentDifficulty, 
   stats,
+  inProgress = {},
   onDifficultyChange,
   disabled = false
 }: DifficultySelectorProps) {
@@ -34,12 +47,21 @@ export function DifficultySelector({
       {difficulties.map(({ value, label, bgColor, darkBgColor, textColor, darkTextColor, borderColor }) => {
         const isActive = currentDifficulty === value
         const isCompleted = stats[value].completedToday
-        
+        // The tab being played is obviously in progress, so only mark the others.
+        const progress = !isActive && !isCompleted ? inProgress[value] : undefined
+        const status = isCompleted
+          ? "completed today"
+          : progress
+            ? `in progress, ${formatTime(progress.elapsedTime)}`
+            : null
+
         return (
           <Button
             key={value}
             onClick={() => !isActive && onDifficultyChange(value)}
             disabled={disabled}
+            aria-label={status ? `${label}, ${status}` : label}
+            title={status ? `${label}: ${status}` : undefined}
             variant={isActive ? "default" : "outline"}
             className={`
               relative min-w-22.5 border-2
@@ -54,6 +76,14 @@ export function DifficultySelector({
                 className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-green-600 hover:bg-green-600"
               >
                 <Check className="h-3 w-3 text-white" />
+              </Badge>
+            )}
+            {progress && (
+              <Badge
+                variant="secondary"
+                className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-amber-600 hover:bg-amber-600"
+              >
+                <InProgressIcon />
               </Badge>
             )}
           </Button>
