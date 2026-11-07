@@ -14,7 +14,7 @@ import { KofiWidget } from "@/components/kofi-widget"
 import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
-import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
+import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
@@ -40,6 +40,7 @@ export function TridokuGame() {
     isViewMode,
     inputMode,
     highlightedValue,
+    puzzleNumber,
     stats,
     isLoading,
     isGenerating,
@@ -141,7 +142,6 @@ export function TridokuGame() {
     )
   }
 
-  const puzzleNumber = getPuzzleNumber()
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -379,6 +379,7 @@ export function TridokuGame() {
         stats={stats}
         difficulty={difficulty || 'medium'}
         elapsedTime={elapsedTime}
+        puzzleNumber={puzzleNumber}
         getShareText={getShareText}
       />
 

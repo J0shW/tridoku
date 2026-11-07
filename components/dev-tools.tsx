@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { Wrench, X } from "lucide-react"
 import { TRIDOKU_BOARD, type Board, type Difficulty } from "@/lib/tridoku"
 import { APP_ENV, BUILD_BRANCH, BUILD_COMMIT, DEV_TIME_OFFSET_KEY } from "@/lib/app-env"
+import { toDateKey } from "@/lib/dates"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const STORAGE_PREFIX = "tridoku-"
@@ -59,12 +60,6 @@ function solve(grid: number[]): boolean {
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-
-function dateKey(d: Date): string {
-  const m = String(d.getMonth() + 1).padStart(2, "0")
-  const day = String(d.getDate()).padStart(2, "0")
-  return `${d.getFullYear()}-${m}-${day}`
-}
 
 function readOffset(): number {
   try {
@@ -134,7 +129,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
       const key = "tridoku-game-state"
       const all = JSON.parse(localStorage.getItem(key) || "{}")
       all[difficulty] = {
-        date: dateKey(new Date()),
+        date: toDateKey(new Date()),
         elapsedTime: 0,
         inputMode: "pen",
         userCells,
@@ -161,7 +156,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
       const stats = JSON.parse(localStorage.getItem(key) || "null") ?? { easy: blank, medium: blank, hard: blank }
       stats[target] = {
         gamesPlayed: 5, gamesWon: 5, currentStreak: 5, maxStreak: 5,
-        bestTime: 300, lastPlayedDate: dateKey(yesterday), completedToday: false,
+        bestTime: 300, lastPlayedDate: toDateKey(yesterday), completedToday: false,
       }
       const progress = JSON.parse(localStorage.getItem("tridoku-game-state") || "{}")
       delete progress[target]
@@ -260,7 +255,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
       >
         <Wrench className="h-3.5 w-3.5" />
         {envLabel}
-        {offset !== 0 && <span className="font-mono font-normal">· {dateKey(now)}</span>}
+        {offset !== 0 && <span className="font-mono font-normal">· {toDateKey(now)}</span>}
       </button>
     </div>
   )
