@@ -289,6 +289,7 @@ export function TridokuGame() {
             <div className="flex justify-center">
               <DifficultySelector
                 currentDifficulty={difficulty!}
+                inProgress={progressToday}
                 stats={stats}
                 onDifficultyChange={changeDifficulty}
                 disabled={isGenerating}

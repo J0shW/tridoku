@@ -271,6 +271,7 @@ export function useTridoku() {
     
     // Clear in-progress save for this difficulty
     clearGameProgress(gameState.difficulty)
+    setProgressToday(getTodaysProgress())
     
     // Record the win against the puzzle's own date (TRI-006). recordWin returns null
     // if this puzzle was already counted, e.g. when reopening it in view mode.
@@ -544,6 +545,7 @@ export function useTridoku() {
     const current = gameStateRef.current
     if (current.hasStarted && !current.isComplete && current.difficulty) {
       saveGameProgress(current)
+      setProgressToday(getTodaysProgress()) // keep the tab badges current
       // Leaving an in-progress puzzle to switch difficulty counts as abandoning it
       if (!current.isViewMode && current.difficulty !== difficulty) {
         trackEvent(`${current.difficulty}_abandoned`, {
