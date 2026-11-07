@@ -63,10 +63,10 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The rules never open on their own, and the modal has 10 steps of which only 4 are rules.
 
 **Done when**
-- [ ] On first visit the rules open as three cards: regions; edges and inner triangle; no touching.
-- [ ] Control tips move to a separate "Tips" tab in the same modal.
-- [ ] "How to Play" still opens the full rules any time.
-- [ ] `rules_step` events show how far players get.
+- [x] On first visit the rules open as three cards: regions; edges and inner triangle; no touching.
+- [x] Control tips move to a separate "Tips" tab in the same modal.
+- [x] "How to Play" still opens the full rules any time.
+- [x] `rules_step` events show how far players get.
 
 **Check it in a preview.** Dev tools → Clear all saved data → reload.
 
@@ -80,7 +80,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The most useful deduction is taught last in a long modal.
 
 **Done when**
-- [ ] After 60 seconds without a correct entry, a dismissible tip explains power cells once per player.
+- [x] After 60 seconds without a correct entry, a dismissible tip explains power cells once per player.
 
 <a id="tri-031"></a>
 ## TRI-031 · Same rule colors on every difficulty
@@ -106,8 +106,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The no-touch rule is new compared with Sudoku and has no in-game cue.
 
 **Done when**
-- [ ] Selecting a cell lightly shades its 12 touching neighbors.
-- [ ] The shade is subtle enough not to compete with errors or highlights, in both themes.
+- [x] Selecting a cell lightly shades its 12 touching neighbors.
+- [x] The shade is subtle enough not to compete with errors or highlights, in both themes.
 
 <a id="tri-033"></a>
 ## TRI-033 · Returning players continue where they left off

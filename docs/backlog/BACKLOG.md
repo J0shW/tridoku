@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 51 todo · 1 in progress · 8 in review · 25 done · 1 won't do · plus 11 [research items](research.md)
+**86 items** · 48 todo · 2 in progress · 1 in review · 34 done · 1 won't do · plus 11 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -44,14 +44,14 @@ Help first-time players understand the game in seconds, and give winners somethi
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-026](m1-first-impression.md#tri-026) | Say what Tridoku is on the first screen | High | H | S | — | In review |
-| [TRI-027](m1-first-impression.md#tri-027) | First-time visitors get one clear way to start | Medium | H | S | TRI-026 | In review |
-| [TRI-028](m1-first-impression.md#tri-028) | Describe difficulties by experience, not givens | Medium | M | S | TRI-020 | In review |
-| [TRI-029](m1-first-impression.md#tri-029) | Rules intro opens automatically on first visit | High | H | M | — | Todo |
-| [TRI-030](m1-first-impression.md#tri-030) | "Power Cells" tip appears when a player is stuck | Medium | M | S | TRI-029 | Todo |
-| [TRI-031](m1-first-impression.md#tri-031) | Same rule colors on every difficulty | High | H | S | — | In review |
-| [TRI-032](m1-first-impression.md#tri-032) | Shade touching cells of the selected cell | Low | M | S | — | Todo |
-| [TRI-033](m1-first-impression.md#tri-033) | Returning players continue where they left off | Medium | H | S | — | In review |
+| [TRI-026](m1-first-impression.md#tri-026) | Say what Tridoku is on the first screen | High | H | S | — | Done |
+| [TRI-027](m1-first-impression.md#tri-027) | First-time visitors get one clear way to start | Medium | H | S | TRI-026 | Done |
+| [TRI-028](m1-first-impression.md#tri-028) | Describe difficulties by experience, not givens | Medium | M | S | TRI-020 | In progress |
+| [TRI-029](m1-first-impression.md#tri-029) | Rules intro opens automatically on first visit | High | H | M | — | Done |
+| [TRI-030](m1-first-impression.md#tri-030) | "Power Cells" tip appears when a player is stuck | Medium | M | S | TRI-029 | Done |
+| [TRI-031](m1-first-impression.md#tri-031) | Same rule colors on every difficulty | High | H | S | — | Done |
+| [TRI-032](m1-first-impression.md#tri-032) | Shade touching cells of the selected cell | Low | M | S | — | Done |
+| [TRI-033](m1-first-impression.md#tri-033) | Returning players continue where they left off | Medium | H | S | — | Done |
 | [TRI-034](m1-first-impression.md#tri-034) | Better win moment | Medium | H | S | — | Todo |
 | [TRI-035](m1-first-impression.md#tri-035) | Share button stays available after winning | Medium | M | S | — | Todo |
 | [TRI-036](m1-first-impression.md#tri-036) | Spoiler-free share grid | High | H | M | TRI-008 | Todo |
@@ -65,7 +65,7 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Todo |
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
 | [TRI-082](m1-first-impression.md#tri-082) | Evaluate PostHog as the analytics tool | Medium | H | S | TRI-081 | Todo |
-| [TRI-084](m1-first-impression.md#tri-084) | Footer has side margins on phones | Low | L | S | — | In review |
+| [TRI-084](m1-first-impression.md#tri-084) | Footer has side margins on phones | Low | L | S | — | Done |
 | [TRI-085](m1-first-impression.md#tri-085) | Update GitHub Actions to Node 24 versions | Low | L | S | — | Todo |
 | [TRI-086](m1-first-impression.md#tri-086) | Completed checkmarks refresh after midnight in an open tab | Low | M | S | — | Todo |
 
@@ -104,7 +104,7 @@ Make the game comfortable on small phones and playable without a mouse, a touchs
 | [TRI-064](m3-mobile-accessibility.md#tri-064) | Spoken announcements | Medium | M | S | TRI-063 | Todo |
 | [TRI-065](m3-mobile-accessibility.md#tri-065) | Errors visible without color | High | H | S | — | Todo |
 | [TRI-066](m3-mobile-accessibility.md#tri-066) | Respect reduced motion | Medium | L | S | — | Todo |
-| [TRI-067](m3-mobile-accessibility.md#tri-067) | Readable welcome card text | Medium | M | S | — | In review |
+| [TRI-067](m3-mobile-accessibility.md#tri-067) | Readable welcome card text | Medium | M | S | — | Done |
 | [TRI-068](m3-mobile-accessibility.md#tri-068) | Region lines visible in dark mode | High | M | S | — | Todo |
 
 ## [M4 · Depth and revenue](m4-depth-revenue.md)
