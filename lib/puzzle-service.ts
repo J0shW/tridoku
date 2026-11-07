@@ -1,6 +1,7 @@
 // Puzzle fetch service - loads pre-generated puzzles from JSON files
 
 import { IS_PRODUCTION, PRODUCTION_ORIGIN } from "@/lib/app-env"
+import { toDateKey } from "@/lib/dates"
 
 export type Difficulty = 'easy' | 'medium' | 'hard'
 
@@ -48,9 +49,7 @@ async function fetchPuzzlesForYear(year: number, origin = ""): Promise<PuzzleCac
 export async function getDailyPuzzle(date?: Date, difficulty: Difficulty = 'medium'): Promise<DailyPuzzle> {
   const targetDate = date || new Date()
   const year = targetDate.getFullYear()
-  const month = String(targetDate.getMonth() + 1).padStart(2, '0')
-  const day = String(targetDate.getDate()).padStart(2, '0')
-  const dateStr = `${year}-${month}-${day}`
+  const dateStr = toDateKey(targetDate)
 
   // Clear cache if year changed (e.g., played past midnight into new year)
   // or if cache is from a different year than requested

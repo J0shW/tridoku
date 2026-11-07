@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**80 items** · 70 todo · 8 in review · 1 done · 1 won't do · plus 10 [research items](research.md)
+**80 items** · 64 todo · 14 in review · 1 done · 1 won't do · plus 10 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -13,17 +13,17 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-001](m0-foundations.md#tri-001) | Test runner and CI checks on every PR | High | H | S | — | In review |
 | [TRI-002](m0-foundations.md#tri-002) | Working ESLint setup | Medium | L | S | TRI-001 | In review |
 | [TRI-003](m0-foundations.md#tri-003) | Turn type checking back on in builds | Medium | M | S | TRI-001 | In review |
-| [TRI-004](m0-foundations.md#tri-004) | One date-key helper used everywhere | High | H | S | TRI-001 | Todo |
-| [TRI-005](m0-foundations.md#tri-005) | Fix streaks resetting to 1 | Critical | H | S | TRI-004 | Todo |
-| [TRI-006](m0-foundations.md#tri-006) | Credit each completion to the puzzle's own date | High | H | S | TRI-004 | Todo |
-| [TRI-007](m0-foundations.md#tri-007) | Make win % meaningful | High | M | S | — | Todo |
-| [TRI-008](m0-foundations.md#tri-008) | Same puzzle number for everyone on the same date | High | H | S | TRI-004 | Todo |
+| [TRI-004](m0-foundations.md#tri-004) | One date-key helper used everywhere | High | H | S | TRI-001 | In review |
+| [TRI-005](m0-foundations.md#tri-005) | Fix streaks resetting to 1 | Critical | H | S | TRI-004 | In review |
+| [TRI-006](m0-foundations.md#tri-006) | Credit each completion to the puzzle's own date | High | H | S | TRI-004 | In review |
+| [TRI-007](m0-foundations.md#tri-007) | Make win % meaningful | High | M | S | — | In review |
+| [TRI-008](m0-foundations.md#tri-008) | Same puzzle number for everyone on the same date | High | H | S | TRI-004 | In review |
 | [TRI-009](m0-foundations.md#tri-009) | Replace the unsolvable backup puzzle | Critical | H | S | TRI-001 | Todo |
 | [TRI-010](m0-foundations.md#tri-010) | Fall back to the most recent real puzzle | Medium | M | M | TRI-009 | Todo |
 | [TRI-011](m0-foundations.md#tri-011) | Show an error and Retry when puzzles fail to load | High | H | S | — | Todo |
 | [TRI-012](m0-foundations.md#tri-012) | Alert when the puzzle pipeline falls behind | High | H | S | — | Todo |
 | [TRI-013](m0-foundations.md#tri-013) | Validate every puzzle in CI | High | M | S | TRI-001 | In review |
-| [TRI-014](m0-foundations.md#tri-014) | Exercise the year rollover | Medium | M | S | TRI-001 | Todo |
+| [TRI-014](m0-foundations.md#tri-014) | Exercise the year rollover | Medium | M | S | TRI-001 | In review |
 | [TRI-015](m0-foundations.md#tri-015) | Anonymous player ID and days-since-first-play on events | High | H | S | — | Todo |
 | [TRI-016](m0-foundations.md#tri-016) | Track puzzle starts | High | H | S | TRI-015 | Todo |
 | [TRI-017](m0-foundations.md#tri-017) | Track where players stop | High | H | S | TRI-015 | Todo |

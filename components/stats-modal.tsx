@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatTime } from "@/lib/tridoku"
+import { winRate } from "@/lib/stats"
 import { Check, X } from "lucide-react"
 
 interface StatsModalProps {
@@ -53,9 +54,7 @@ export function StatsModal({ open, onOpenChange, stats }: StatsModalProps) {
 }
 
 function DifficultyStats({ stats, difficulty }: { stats: DifficultyStatsData; difficulty: Difficulty }) {
-  const winRate = stats.gamesPlayed > 0 
-    ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) 
-    : 0
+  const winPercent = winRate(stats)
     
   const difficultyColors = {
     easy: 'text-green-600',
@@ -85,7 +84,7 @@ function DifficultyStats({ stats, difficulty }: { stats: DifficultyStatsData; di
       
       <div className="grid grid-cols-4 gap-4 py-6">
         <StatItem value={stats.gamesPlayed} label="Played" />
-        <StatItem value={winRate} label="Win %" />
+        <StatItem value={winPercent} label="Win %" />
         <StatItem value={stats.currentStreak} label="Current Streak" />
         <StatItem value={stats.maxStreak} label="Max Streak" />
       </div>

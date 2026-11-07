@@ -1,4 +1,6 @@
 // Tridoku puzzle generator and validator
+
+import { daysBetween, type DateKey } from './dates.ts'
 // Uses a simplified triangular grid structure
 
 export type CellId = string // Format: "row-col" (e.g. "0-0", "1-2")
@@ -306,13 +308,12 @@ export const TEST_NEARLY_SOLVED =
   '275374215965467' + // row 7
   '81346896734829135'  // row 8
 
-// Get puzzle number based on days since launch
-export function getPuzzleNumber(): number {
-  const launchDate = new Date('2026-01-01')
-  const today = new Date()
-  const diffTime = Math.abs(today.getTime() - launchDate.getTime())
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  return diffDays
+// Puzzle #1 is 1 Jan 2026. The number comes from the puzzle's date, so everyone
+// playing the same date sees the same number whatever their time zone (TRI-008).
+export const FIRST_PUZZLE_DATE = '2026-01-01'
+
+export function getPuzzleNumber(puzzleDate: DateKey): number {
+  return daysBetween(FIRST_PUZZLE_DATE, puzzleDate) + 1
 }
 
 // Arrow key navigation: returns the CellId to move to, or null if at edge.

@@ -14,24 +14,10 @@ import {
 } from "@/lib/tridoku"
 import { getDailyPuzzle } from "@/lib/puzzle-service"
 import { trackEvent } from "@/lib/analytics"
+import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
+import { defaultStats, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
 
-export interface DifficultyStats {
-  gamesPlayed: number
-  gamesWon: number
-  currentStreak: number
-  maxStreak: number
-  bestTime: number | null
-  lastPlayedDate: string | null
-  completedToday: boolean
-  todaysPuzzle?: string
-  todaysTime?: number
-}
-
-export interface GameStats {
-  easy: DifficultyStats
-  medium: DifficultyStats
-  hard: DifficultyStats
-}
+export type { DifficultyStats, GameStats } from "@/lib/stats"
 
 export type InputMode = 'pen' | 'pencil'
 
@@ -47,61 +33,20 @@ interface GameState {
   isViewMode: boolean
   inputMode: InputMode
   puzzleHash: string | null // Hash of original puzzle to validate saved progress
+  puzzleDate: DateKey | null // Date of the loaded puzzle (not necessarily today, e.g. after midnight)
   highlightedValue: number | null // Value to highlight across the board (double-tap feature)
 }
 
 const STORAGE_KEY = "tridoku-game-state"
 const STATS_KEY = "tridoku-stats"
 
-function getDefaultDifficultyStats(): DifficultyStats {
-  return {
-    gamesPlayed: 0,
-    gamesWon: 0,
-    currentStreak: 0,
-    maxStreak: 0,
-    bestTime: null,
-    lastPlayedDate: null,
-    completedToday: false,
-  }
-}
-
 function getStoredStats(): GameStats {
-  if (typeof window === "undefined") {
-    return {
-      easy: getDefaultDifficultyStats(),
-      medium: getDefaultDifficultyStats(),
-      hard: getDefaultDifficultyStats(),
-    }
-  }
-  const stored = localStorage.getItem(STATS_KEY)
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored)
-      // Migrate old stats format
-      if ('gamesPlayed' in parsed && !('easy' in parsed)) {
-        return {
-          easy: getDefaultDifficultyStats(),
-          medium: parsed,
-          hard: getDefaultDifficultyStats(),
-        }
-      }
-      // Ensure completedToday is reset for new day
-      const today = getTodayString()
-      Object.keys(parsed).forEach(key => {
-        const diff = key as Difficulty
-        if (parsed[diff].lastPlayedDate !== today) {
-          parsed[diff].completedToday = false
-        }
-      })
-      return parsed
-    } catch (e) {
-      console.error('Failed to parse stats:', e)
-    }
-  }
-  return {
-    easy: getDefaultDifficultyStats(),
-    medium: getDefaultDifficultyStats(),
-    hard: getDefaultDifficultyStats(),
+  if (typeof window === "undefined") return defaultStats()
+  try {
+    return normalizeStats(JSON.parse(localStorage.getItem(STATS_KEY) || "null"), todayKey())
+  } catch (e) {
+    console.error('Failed to parse stats:', e)
+    return defaultStats()
   }
 }
 
@@ -139,7 +84,7 @@ function saveGameProgress(gameState: GameState) {
     try { allProgress = JSON.parse(stored) } catch { /* ignore */ }
   }
   allProgress[gameState.difficulty] = {
-    date: getTodayString(),
+    date: gameState.puzzleDate ?? todayKey(),
     elapsedTime: gameState.elapsedTime,
     inputMode: gameState.inputMode,
     userCells,
@@ -155,7 +100,7 @@ function loadGameProgress(difficulty: Difficulty, currentPuzzleHash?: string): S
   try {
     const allProgress: SavedProgressByDifficulty = JSON.parse(stored)
     const progress = allProgress[difficulty]
-    if (!progress || progress.date !== getTodayString()) return null
+    if (!progress || normalizeDateKey(progress.date) !== todayKey()) return null
     // Validate that saved progress matches the current puzzle
     // This prevents loading yesterday's progress onto today's puzzle
     if (currentPuzzleHash && progress.puzzleHash && progress.puzzleHash !== currentPuzzleHash) {
@@ -180,14 +125,6 @@ function clearGameProgress(difficulty: Difficulty) {
   } catch { /* ignore */ }
 }
 
-function getTodayString(): string {
-  const today = new Date()
-  // Use zero-padded format to match puzzle service date format
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const day = String(today.getDate()).padStart(2, '0')
-  return `${today.getFullYear()}-${month}-${day}`
-}
-
 // Generate a simple hash of the puzzle's given cells to validate progress
 function getPuzzleHash(puzzleString: string): string {
   // Use a simple hash - just the puzzle string itself since it uniquely identifies the puzzle
@@ -207,13 +144,10 @@ export function useTridoku() {
     isViewMode: false,
     inputMode: 'pen',
     puzzleHash: null,
+    puzzleDate: null,
     highlightedValue: null,
   })
-  const [stats, setStats] = useState<GameStats>({
-    easy: getDefaultDifficultyStats(),
-    medium: getDefaultDifficultyStats(),
-    hard: getDefaultDifficultyStats(),
-  })
+  const [stats, setStats] = useState<GameStats>(defaultStats)
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
 
@@ -257,54 +191,24 @@ export function useTridoku() {
     // Clear in-progress save for this difficulty
     clearGameProgress(gameState.difficulty)
     
-    // Update stats for the current difficulty
-    const today = getTodayString()
+    // Record the win against the puzzle's own date (TRI-006). recordWin returns null
+    // if this puzzle was already counted, e.g. when reopening it in view mode.
     const difficulty = gameState.difficulty
-    const diffStats = stats[difficulty]
-    
-    // Check if this is a new win for this difficulty (not already counted today)
-    if (diffStats.completedToday) return
+    const newDiffStats = recordWin(stats[difficulty], {
+      puzzleDate: gameState.puzzleDate ?? todayKey(),
+      today: todayKey(),
+      time: gameState.elapsedTime,
+      solvedBoard: boardToString(gameState.cells),
+    })
+    if (!newDiffStats) return
 
     // Track puzzle completion (e.g. easy_completed, medium_completed, hard_completed)
     trackEvent(`${difficulty}_completed`, { time: gameState.elapsedTime })
 
-    const newDiffStats = { ...diffStats }
-    newDiffStats.gamesPlayed = (newDiffStats.gamesPlayed || 0) + 1
-    newDiffStats.gamesWon = (newDiffStats.gamesWon || 0) + 1
-    newDiffStats.completedToday = true
-    
-    // Update streak
-    if (diffStats.lastPlayedDate) {
-      const yesterday = new Date()
-      yesterday.setDate(yesterday.getDate() - 1)
-      const yesterdayStr = `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}`
-      
-      if (diffStats.lastPlayedDate === yesterdayStr) {
-        newDiffStats.currentStreak = (diffStats.currentStreak || 0) + 1
-      } else {
-        newDiffStats.currentStreak = 1
-      }
-    } else {
-      newDiffStats.currentStreak = 1
-    }
-    
-    newDiffStats.maxStreak = Math.max(newDiffStats.maxStreak || 0, newDiffStats.currentStreak)
-    
-    // Update best time
-    if (newDiffStats.bestTime == null || gameState.elapsedTime < newDiffStats.bestTime) {
-      newDiffStats.bestTime = gameState.elapsedTime
-    }
-    
-    newDiffStats.lastPlayedDate = today
-    
-    // Store the completed puzzle and time
-    newDiffStats.todaysPuzzle = boardToString(gameState.cells)
-    newDiffStats.todaysTime = gameState.elapsedTime
-    
     const newStats = { ...stats, [difficulty]: newDiffStats }
     setStats(newStats)
     saveStats(newStats)
-  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.cells, stats])
+  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.cells, gameState.puzzleDate, stats])
 
   // Select a cell by CellId
   const selectCell = useCallback((cellId: CellId | null) => {
@@ -329,9 +233,25 @@ export function useTridoku() {
     })
   }, [gameState.isViewMode])
 
+  // Count the puzzle as played on its first entry (TRI-007)
+  const markStarted = useCallback(() => {
+    const { difficulty, puzzleDate, isViewMode, selectedCellId, cells } = gameStateRef.current
+    if (!difficulty || !puzzleDate || isViewMode || !selectedCellId) return
+    const [row, col] = selectedCellId.split("-").map(Number)
+    if (cells[row]?.[col]?.isGiven) return
+    setStats(prev => {
+      const next = recordStart(prev[difficulty], puzzleDate)
+      if (!next) return prev
+      const all = { ...prev, [difficulty]: next }
+      saveStats(all)
+      return all
+    })
+  }, [])
+
   // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
   const setValue = useCallback((value: number) => {
     if (gameState.isViewMode) return
+    markStarted()
     setGameState(prev => {
       if (!prev.selectedCellId) return prev
       const [rowStr, colStr] = prev.selectedCellId.split("-")
@@ -377,7 +297,7 @@ export function useTridoku() {
         return { ...prev, cells: validatedCells, isComplete }
       }
     })
-  }, [gameState.isViewMode])
+  }, [gameState.isViewMode, markStarted])
 
   // Clear the selected cell (pen mode clears value, pencil mode does nothing - user must toggle marks individually)
   const clearCell = useCallback(() => {
@@ -457,7 +377,9 @@ export function useTridoku() {
       const diffStats = stats[difficulty]
       
     // Check if this difficulty was already completed today
-    if (diffStats.completedToday && diffStats.todaysPuzzle && diffStats.todaysTime !== undefined) {
+    // Today's puzzle already solved: show it in view mode. Compare dates rather than
+    // completedToday so a tab left open past midnight doesn't reopen yesterday's board.
+    if (diffStats.lastPlayedDate === todayKey() && diffStats.todaysPuzzle && diffStats.todaysTime !== undefined) {
       // Load completed puzzle in view mode
       const puzzleCells = loadPuzzle(diffStats.todaysPuzzle)
       setGameState({
@@ -472,6 +394,7 @@ export function useTridoku() {
         isViewMode: true,
         inputMode: 'pen',
         puzzleHash: diffStats.todaysPuzzle,
+        puzzleDate: diffStats.lastPlayedDate,
         highlightedValue: null,
       })
     } else {
@@ -504,6 +427,7 @@ export function useTridoku() {
           isViewMode: false,
           inputMode: savedProgress.inputMode,
           puzzleHash,
+          puzzleDate: dailyPuzzle.date,
           highlightedValue: null,
         })
       } else {
@@ -519,6 +443,7 @@ export function useTridoku() {
           isViewMode: false,
           inputMode: 'pen',
           puzzleHash,
+          puzzleDate: dailyPuzzle.date,
           highlightedValue: null,
         })
       }
@@ -539,13 +464,13 @@ export function useTridoku() {
   const getShareText = useCallback(() => {
     if (!gameState.isComplete || !gameState.difficulty) return ""
     
-    const puzzleNum = getPuzzleNumber()
+    const puzzleNum = getPuzzleNumber(gameState.puzzleDate ?? todayKey())
     const time = formatTime(gameState.elapsedTime)
     const difficultyEmoji = gameState.difficulty === 'easy' ? '🟢' : gameState.difficulty === 'medium' ? '🟡' : '🔴'
     const diffStats = stats[gameState.difficulty]
     
     return `Daily Tridoku #${puzzleNum} ${difficultyEmoji}\n⏱️ ${time}\n🔥 Streak: ${diffStats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
-  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, stats])
+  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.puzzleDate, stats])
 
   // Load a puzzle (fetches from pre-generated puzzles)
   const generateNewPuzzle = useCallback(async (difficulty?: Difficulty, customDate?: Date) => {
@@ -585,6 +510,7 @@ export function useTridoku() {
         isViewMode: false,
         inputMode: savedProgress.inputMode,
         puzzleHash,
+        puzzleDate: dailyPuzzle.date,
         highlightedValue: null,
       })
     } else {
@@ -600,6 +526,7 @@ export function useTridoku() {
         isViewMode: false,
         inputMode: 'pen',
         puzzleHash,
+        puzzleDate: dailyPuzzle.date,
         highlightedValue: null,
       })
     }
@@ -618,6 +545,7 @@ export function useTridoku() {
       isViewMode: false,
       inputMode: 'pen',
       puzzleHash: EXAMPLE_PUZZLE,
+      puzzleDate: todayKey(),
       highlightedValue: null,
     }))
     } finally {
@@ -653,6 +581,8 @@ export function useTridoku() {
     isViewMode: gameState.isViewMode,
     inputMode: gameState.inputMode,
     highlightedValue: gameState.highlightedValue,
+    puzzleDate: gameState.puzzleDate,
+    puzzleNumber: getPuzzleNumber(gameState.puzzleDate ?? todayKey()),
     stats,
     isLoading,
     isGenerating,

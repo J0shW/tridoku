@@ -63,9 +63,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Dates are formatted in at least three different ways (`getTodayString`, the inline `yesterdayStr`, `puzzle-service`), which caused the streak bug.
 
 **Done when**
-- [ ] `lib/dates.ts` exports `toDateKey(date)` (local `YYYY-MM-DD`, zero-padded) and `daysBetween(a, b)` (calendar days, via `date-fns` `differenceInCalendarDays`).
-- [ ] Every place that builds or compares a date key uses these helpers.
-- [ ] Unit tests cover single-digit months/days, month and year boundaries, and DST change days.
+- [x] `lib/dates.ts` exports `toDateKey(date)` (local `YYYY-MM-DD`, zero-padded) and `daysBetween(a, b)` (calendar days, via `date-fns` `differenceInCalendarDays`).
+- [x] Every place that builds or compares a date key uses these helpers.
+- [x] Unit tests cover single-digit months/days, month and year boundaries, and DST change days.
 
 <a id="tri-005"></a>
 ## TRI-005 · Fix streaks resetting to 1
@@ -77,10 +77,10 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `lastPlayedDate` is saved zero-padded (`2026-11-05`, `hooks/use-tridoku.ts:185`) but "yesterday" is built unpadded (`2026-11-5`, `use-tridoku.ts:282`). They only match on ~73 days a year, so streaks reset to 1 about 80% of the time.
 
 **Done when**
-- [ ] Streak continues when the previous completion was the previous calendar day, on every date of the year.
-- [ ] Streak resets to 1 after a missed day.
-- [ ] Existing saved stats in both date formats are read correctly (no player loses their history).
-- [ ] Unit tests cover 1–9 Nov, 31 Dec → 1 Jan and a missed day.
+- [x] Streak continues when the previous completion was the previous calendar day, on every date of the year.
+- [x] Streak resets to 1 after a missed day.
+- [x] Existing saved stats in both date formats are read correctly (no player loses their history).
+- [x] Unit tests cover 1–9 Nov, 31 Dec → 1 Jan and a missed day.
 
 **Check it in a preview.** Dev tools → Seed 5-day streak → Fill all but 3 → finish: streak reads 6. Then +1 day, solve again: 7.
 
@@ -94,9 +94,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Finishing a puzzle after midnight records it as the next day's completion. The real next-day puzzle then opens in view mode showing yesterday's board and can't be played.
 
 **Done when**
-- [ ] Completions, streaks and `todaysPuzzle` are keyed to the date of the puzzle being solved.
-- [ ] A puzzle started before midnight and finished after it counts for its own date.
-- [ ] After midnight, the next day's puzzle is playable even if yesterday's was finished late.
+- [x] Completions, streaks and `todaysPuzzle` are keyed to the date of the puzzle being solved.
+- [x] A puzzle started before midnight and finished after it counts for its own date.
+- [x] After midnight, the next day's puzzle is playable even if yesterday's was finished late.
 
 **Check it in a preview.** Dev tools → Tonight 23:58 → start Easy → wait 2 minutes → finish. Reload: today's Easy is playable, not in view mode.
 
@@ -110,9 +110,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `gamesPlayed` only increments on a win (`use-tridoku.ts:274`), so win % is always 100%.
 
 **Done when**
-- [ ] A game counts as played on its first digit or pencil mark (once per puzzle per day).
-- [ ] Win % = won ÷ played.
-- [ ] Existing stats are migrated without inflating or zeroing counts.
+- [x] A game counts as played on its first digit or pencil mark (once per puzzle per day).
+- [x] Win % = won ÷ played.
+- [x] Existing stats are migrated without inflating or zeroing counts.
 
 <a id="tri-008"></a>
 ## TRI-008 · Same puzzle number for everyone on the same date
@@ -124,9 +124,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The number is counted from UTC midnight on 1 Jan 2026 and rounded up (`lib/tridoku.ts:311-314`), but puzzles change at local midnight. On 6 Nov LA showed #310 in the morning and #311 in the evening; Tokyo showed #309.
 
 **Done when**
-- [ ] The puzzle number is derived from the puzzle's date key, so the same date gives the same number in every time zone.
-- [ ] Decide and document whether #1 stays 1 Jan 2026 or moves to the first published puzzle (21 Mar). Changing it renumbers every past share, so the default is to keep 1 Jan.
-- [ ] Unit tests cover several time zones.
+- [x] The puzzle number is derived from the puzzle's date key, so the same date gives the same number in every time zone.
+- [x] Decide and document whether #1 stays 1 Jan 2026 or moves to the first published puzzle (21 Mar). Changing it renumbers every past share, so the default is to keep 1 Jan.
+- [x] Unit tests cover several time zones.
 
 **Check it in a preview.** Dev tools → Tonight 23:58: the number stays the same until the puzzle changes at midnight.
 
@@ -207,8 +207,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** On 1 Jan the app fetches `2027.json`, which the Action creates on 29 Dec. The path has never run.
 
 **Done when**
-- [ ] Tests cover fetching across 31 Dec → 1 Jan, including a player who keeps the tab open across New Year.
-- [ ] Confirm the Action writes `2027.json` correctly (dry run with a 2027 date).
+- [x] Tests cover fetching across 31 Dec → 1 Jan, including a player who keeps the tab open across New Year.
+- [x] Confirm the Action writes `2027.json` correctly (dry run with a 2027 date).
 
 **Check it in a preview.** Dev tools: shift the clock to 31 Dec 23:58 and finish a puzzle after midnight.
 

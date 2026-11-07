@@ -1,7 +1,7 @@
 "use client"
 
 import { GameStats } from "@/hooks/use-tridoku"
-import { formatTime, getPuzzleNumber, Difficulty } from "@/lib/tridoku"
+import { formatTime, Difficulty } from "@/lib/tridoku"
 import {
   Dialog,
   DialogContent,
@@ -20,12 +20,12 @@ interface WinModalProps {
   stats: GameStats
   difficulty: Difficulty
   elapsedTime: number
+  puzzleNumber: number
   getShareText: () => string
 }
 
-export function WinModal({ open, onOpenChange, stats, difficulty, elapsedTime, getShareText }: WinModalProps) {
+export function WinModal({ open, onOpenChange, stats, difficulty, elapsedTime, puzzleNumber, getShareText }: WinModalProps) {
   const [copied, setCopied] = useState(false)
-  const puzzleNumber = getPuzzleNumber()
   const diffStats = stats[difficulty]
 
   const handleShare = async () => {
