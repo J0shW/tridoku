@@ -279,3 +279,19 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Done when**
 - [ ] Post after M0 and the M1 onboarding and sharing items ship.
 - [ ] Track the spike and D7 retention of that cohort.
+
+<a id="tri-082"></a>
+## TRI-082 · Evaluate PostHog as the analytics tool
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | H | S | Every metric in docs/metrics.md | [TRI-081](m0-foundations.md#tri-081) | Found in M0 (analytics tool review) |
+
+**Problem.** Umami's free plan fits our needs poorly: funnels can't split by event property, retention is basic, data is kept 6 months, and Claude can't read the data (MCP needs Pro; free-plan API access unconfirmed). PostHog's free plan (1M events/month, 1-year retention) has property-filtered funnels, retention cohorts, identified players and session replay.
+
+**Done when**
+- [ ] Confirm on PostHog's site that the free plan includes API access and the PostHog MCP; if not, record that and stop.
+- [ ] Add PostHog alongside Umami through `lib/analytics.ts`, loaded after the game is interactive, storing its ID in localStorage rather than a cookie, and identified with the existing anonymous player ID.
+- [ ] Serve PostHog through the site's own domain with the visitor's real IP passed through, as TRI-081 does for Umami.
+- [ ] Run both for 2–4 weeks; compare visitor and event counts, and check funnels and D1/D7 retention can be built for each difficulty.
+- [ ] Decide: keep PostHog and remove Umami, or keep Umami. Update `docs/metrics.md` and the footer privacy note to match.

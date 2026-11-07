@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**81 items** · 54 todo · 1 in progress · 1 in review · 24 done · 1 won't do · plus 10 [research items](research.md)
+**82 items** · 55 todo · 1 in progress · 1 in review · 24 done · 1 won't do · plus 11 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -63,6 +63,7 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-043](m1-first-impression.md#tri-043) | Feedback form knows the context | Medium | M | S | — | Todo |
 | [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Todo |
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
+| [TRI-082](m1-first-impression.md#tri-082) | Evaluate PostHog as the analytics tool | Medium | H | S | TRI-081 | Todo |
 
 ## [M2 · Puzzle quality and gameplay](m2-puzzle-quality.md)
 
