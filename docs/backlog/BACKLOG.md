@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 51 todo · 1 in progress · 8 in review · 25 done · 1 won't do · plus 11 [research items](research.md)
+**86 items** · 48 todo · 1 in progress · 11 in review · 25 done · 1 won't do · plus 11 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -47,10 +47,10 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-026](m1-first-impression.md#tri-026) | Say what Tridoku is on the first screen | High | H | S | — | In review |
 | [TRI-027](m1-first-impression.md#tri-027) | First-time visitors get one clear way to start | Medium | H | S | TRI-026 | In review |
 | [TRI-028](m1-first-impression.md#tri-028) | Describe difficulties by experience, not givens | Medium | M | S | TRI-020 | In review |
-| [TRI-029](m1-first-impression.md#tri-029) | Rules intro opens automatically on first visit | High | H | M | — | Todo |
-| [TRI-030](m1-first-impression.md#tri-030) | "Power Cells" tip appears when a player is stuck | Medium | M | S | TRI-029 | Todo |
+| [TRI-029](m1-first-impression.md#tri-029) | Rules intro opens automatically on first visit | High | H | M | — | In review |
+| [TRI-030](m1-first-impression.md#tri-030) | "Power Cells" tip appears when a player is stuck | Medium | M | S | TRI-029 | In review |
 | [TRI-031](m1-first-impression.md#tri-031) | Same rule colors on every difficulty | High | H | S | — | In review |
-| [TRI-032](m1-first-impression.md#tri-032) | Shade touching cells of the selected cell | Low | M | S | — | Todo |
+| [TRI-032](m1-first-impression.md#tri-032) | Shade touching cells of the selected cell | Low | M | S | — | In review |
 | [TRI-033](m1-first-impression.md#tri-033) | Returning players continue where they left off | Medium | H | S | — | In review |
 | [TRI-034](m1-first-impression.md#tri-034) | Better win moment | Medium | H | S | — | Todo |
 | [TRI-035](m1-first-impression.md#tri-035) | Share button stays available after winning | Medium | M | S | — | Todo |

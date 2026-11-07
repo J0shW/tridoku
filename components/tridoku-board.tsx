@@ -16,6 +16,7 @@ const CELL_FILLS: Record<Cell["color"], string> = {
 }
 
 const SELECTED_FILL = "var(--tridoku-selected-fill)"
+const TOUCHING_FILL = "var(--tridoku-touching-fill)"
 const SELECTED_STROKE = "var(--tridoku-selected-stroke)"
 const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
 
@@ -190,6 +191,12 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
     )
   }
 
+  // TRI-032: lightly shade the cells touching the selected one, since the
+  // no-touching rule is the one that's new compared with Sudoku.
+  const touching = new Set(
+    selectedCellId ? TRIDOKU_BOARD.flat().find((c) => c.id === selectedCellId && !c.hidden)?.neighbors ?? [] : [],
+  )
+
   return (
     <div className="w-full">
       <svg
@@ -224,6 +231,13 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                     stroke={isSelected ? "none" : "#000"}
                     strokeWidth={0.01}
                   />
+                  {touching.has(cell.id) && (
+                    <polygon
+                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+                      fill={TOUCHING_FILL}
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
                   {showErrors && gameCell?.hasError && !isSelected && (
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
