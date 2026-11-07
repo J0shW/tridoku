@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme-provider'
+import { IS_PRODUCTION, DEV_CLOCK_SCRIPT } from '@/lib/app-env'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
   title: 'Daily Tridoku',
   description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
   generator: 'v0.app',
+  // Keep preview and development builds out of search results.
+  ...(IS_PRODUCTION ? {} : { robots: { index: false, follow: false } }),
   openGraph: {
     title: 'Daily Tridoku',
     description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
@@ -61,6 +64,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased bg-background text-foreground">
+        {!IS_PRODUCTION && (
+          <Script id="dev-clock" strategy="beforeInteractive">
+            {DEV_CLOCK_SCRIPT}
+          </Script>
+        )}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
