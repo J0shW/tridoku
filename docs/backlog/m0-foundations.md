@@ -140,8 +140,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The fallback in `lib/puzzle-service.ts:78` is 82 characters; its first 81 put two 3s on the same outer edge. If the Action fails for 3+ days, every player gets an impossible puzzle on all three difficulties.
 
 **Done when**
-- [ ] The fallback is a known-good puzzle per difficulty.
-- [ ] A unit test proves each fallback has exactly one solution and no conflicting givens.
+- [x] The fallback is a known-good puzzle per difficulty.
+- [x] A unit test proves each fallback has exactly one solution and no conflicting givens.
 
 <a id="tri-010"></a>
 ## TRI-010 · Fall back to the most recent real puzzle
@@ -153,8 +153,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Even a valid static fallback is the same puzzle every time. A recent real puzzle is a better experience during an outage.
 
 **Done when**
-- [ ] If today's date is missing, the app serves the most recent available date's puzzle for that difficulty and shows a small notice.
-- [ ] The static fallback is used only if no puzzles load at all.
+- [x] If today's date is missing, the app serves the most recent available date's puzzle for that difficulty and shows a small notice.
+- [x] The static fallback is used only if no puzzles load at all.
 
 <a id="tri-011"></a>
 ## TRI-011 · Show an error and Retry when puzzles fail to load
@@ -166,9 +166,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** If `/puzzles/<year>.json` fails, choosing a difficulty does nothing: no board, no message (`use-tridoku.ts:544`).
 
 **Done when**
-- [ ] A failed load shows "Couldn't load today's puzzle" with a Retry button.
-- [ ] Retry refetches without reloading the page.
-- [ ] The failure is tracked as an analytics event.
+- [x] A failed load shows "Couldn't load today's puzzle" with a Retry button.
+- [x] Retry refetches without reloading the page.
+- [x] The failure is tracked as an analytics event.
 
 <a id="tri-012"></a>
 ## TRI-012 · Alert when the puzzle pipeline falls behind
@@ -180,9 +180,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The daily Action has no alerting. If it stops (failure, or GitHub disabling scheduled workflows after 60 days of repo inactivity) players get the fallback after 3 days.
 
 **Done when**
-- [ ] The Action fails when fewer than 3 future days exist after it runs, which emails the repo owner.
-- [ ] A second scheduled check (or the same job) verifies the live site serves today's puzzle.
-- [ ] Document whether bot commits keep the schedule alive; if not, add a keep-alive.
+- [x] The Action fails when fewer than 3 future days exist after it runs, which emails the repo owner.
+- [x] A second scheduled check (or the same job) verifies the live site serves today's puzzle.
+- [x] Document whether bot commits keep the schedule alive; if not, add a keep-alive.
 
 <a id="tri-013"></a>
 ## TRI-013 · Validate every puzzle in CI
