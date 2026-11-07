@@ -21,10 +21,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: pnpm
+
+      # The puzzle checks import app code (lib/tridoku.ts -> lib/dates.ts -> date-fns),
+      # so dependencies must be installed, exactly as in CI.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Generate missing puzzles for the next 3 days
         run: |

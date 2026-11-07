@@ -30,5 +30,10 @@ jobs:
       - name: Tests (including every published puzzle)
         run: pnpm test
 
+      # Same command the daily puzzle Action runs, under plain Node (not Vitest),
+      # so a change that breaks it is caught here rather than in the daily run.
+      - name: Grade puzzles as the daily Action does
+        run: pnpm grade-puzzles
+
       - name: Build
         run: pnpm build
