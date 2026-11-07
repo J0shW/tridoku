@@ -11,8 +11,8 @@ describe("share grid (TRI-036)", () => {
     const grid = regionGrid(undefined)
     expect(tiles(grid)).toEqual([1, 3, 5])
     const [top, middle, bottom] = grid.split("\n")
-    expect(top.startsWith("　 　 ")).toBe(true)
-    expect(middle.startsWith("　 🟩")).toBe(true)
+    expect(top.startsWith("　  　  🟩")).toBe(true)
+    expect(middle.startsWith("　  🟩")).toBe(true)
     expect(bottom.startsWith("🟩")).toBe(true)
   })
 
