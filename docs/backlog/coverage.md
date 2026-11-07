@@ -2,7 +2,7 @@
 
 Every numbered finding and recommendation in the [baseline review](../reviews/2026-11-06-baseline.md) and the backlog or research items that cover it. A finding with no item here would mean the backlog is incomplete.
 
-**123 findings, all covered.**
+**124 findings, all covered.**
 
 ## §1 Value proposition
 
@@ -201,6 +201,7 @@ Every numbered finding and recommendation in the [baseline review](../reviews/20
 | Evaluation plan | Repeatable milestone reviews | [TRI-025](m0-foundations.md#tri-025), [TRI-050](m2-puzzle-quality.md#tri-050) |
 | Found in M0 (TRI-002) | Game hook breaks React Compiler lint rules | [TRI-080](m2-puzzle-quality.md#tri-080) |
 | Found in M0 (Umami baseline) | Umami sees ~1/4 of visitors; likely blocked | [TRI-081](m0-foundations.md#tri-081) |
+| Found in M0 (analytics tool review) | Umami free plan fits poorly; Vercel Hobby is non-commercial | [TRI-082](m1-first-impression.md#tri-082), [R-11](research.md) |
 
 ## Review roadmap
 
