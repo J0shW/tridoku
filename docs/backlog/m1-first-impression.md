@@ -162,7 +162,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Done when**
 - [x] Share text includes a 9-region triangle grid (1/3/5 rows), colored by time or notes per region, plus number, difficulty, time and streak. *Colored by wrong entries: green for a region with none, yellow for one with at least one (`lib/share.ts`).*
 - [x] The grid reveals nothing about the solution.
-- [ ] It renders correctly in iMessage, WhatsApp, X and Discord. *Owner checked on iPhone (Notes, iMessage, WhatsApp, Discord), 7 Nov: shape right but leaning left by ~15% of a tile; indent widened. Re-check those, and X, after the fix.*
+- [ ] It renders correctly in iMessage, WhatsApp, X and Discord. *Centred correctly in Chromium in three fonts; not yet checked in the real apps.*
 
 <a id="tri-037"></a>
 ## TRI-037 · Share links are attributable
