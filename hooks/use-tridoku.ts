@@ -63,6 +63,7 @@ interface SavedProgress {
   inputMode: InputMode
   userCells: { row: number; col: number; value: number | null; pencilMarks: number[] }[]
   puzzleHash?: string // Hash of the original puzzle to validate progress matches
+  savedAt?: number // ms timestamp, to resume the most recent puzzle (TRI-033)
 }
 
 type SavedProgressByDifficulty = Partial<Record<Difficulty, SavedProgress>>
@@ -90,6 +91,7 @@ function saveGameProgress(gameState: GameState) {
     inputMode: gameState.inputMode,
     userCells,
     puzzleHash: gameState.puzzleHash,
+    savedAt: Date.now(),
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress))
 }
@@ -112,6 +114,29 @@ function loadGameProgress(difficulty: Difficulty, currentPuzzleHash?: string): S
     return progress
   } catch {
     return null
+  }
+}
+
+export interface PuzzleInProgress {
+  elapsedTime: number
+  savedAt: number
+}
+
+/** Puzzles started today and not finished, by difficulty (TRI-033). */
+function getTodaysProgress(): Partial<Record<Difficulty, PuzzleInProgress>> {
+  if (typeof window === "undefined") return {}
+  try {
+    const all: SavedProgressByDifficulty = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")
+    const out: Partial<Record<Difficulty, PuzzleInProgress>> = {}
+    for (const d of ["easy", "medium", "hard"] as const) {
+      const p = all[d]
+      if (p && normalizeDateKey(p.date) === todayKey() && p.userCells.some((c) => c.value != null || c.pencilMarks.length)) {
+        out[d] = { elapsedTime: p.elapsedTime, savedAt: p.savedAt ?? 0 }
+      }
+    }
+    return out
+  } catch {
+    return {}
   }
 }
 
@@ -175,6 +200,10 @@ export function useTridoku() {
   const [isGenerating, setIsGenerating] = useState(false)
   // Difficulty whose puzzle failed to load, if any (TRI-011)
   const [loadError, setLoadError] = useState<Difficulty | null>(null)
+  // Puzzles in progress today, read once on load for the welcome screen (TRI-033)
+  const [progressToday, setProgressToday] = useState<Partial<Record<Difficulty, PuzzleInProgress>>>({})
+  // Today's Easy puzzle, shown as a preview on the welcome screen (TRI-026)
+  const [previewPuzzle, setPreviewPuzzle] = useState<string | null>(null)
 
   // Keep a ref to the latest game state so callbacks always have current data
   const gameStateRef = useRef(gameState)
@@ -199,11 +228,19 @@ export function useTridoku() {
     return () => document.removeEventListener("visibilitychange", onHide)
   }, [])
 
-  // Load stats on mount (client-side only)
+  // Load stats and today's in-progress puzzles on mount (client-side only)
   useEffect(() => {
     const loadedStats = getStoredStats()
     setStats(loadedStats)
+    setProgressToday(getTodaysProgress())
     setIsLoading(false)
+  }, [])
+
+  // Fetch today's Easy puzzle for the welcome-screen preview. Failures just hide it.
+  useEffect(() => {
+    getDailyPuzzle(undefined, "easy")
+      .then((p) => setPreviewPuzzle(p.puzzle))
+      .catch(() => {})
   }, [])
 
   // Timer
@@ -234,6 +271,7 @@ export function useTridoku() {
     
     // Clear in-progress save for this difficulty
     clearGameProgress(gameState.difficulty)
+    setProgressToday(getTodaysProgress())
     
     // Record the win against the puzzle's own date (TRI-006). recordWin returns null
     // if this puzzle was already counted, e.g. when reopening it in view mode.
@@ -507,6 +545,7 @@ export function useTridoku() {
     const current = gameStateRef.current
     if (current.hasStarted && !current.isComplete && current.difficulty) {
       saveGameProgress(current)
+      setProgressToday(getTodaysProgress()) // keep the tab badges current
       // Leaving an in-progress puzzle to switch difficulty counts as abandoning it
       if (!current.isViewMode && current.difficulty !== difficulty) {
         trackEvent(`${current.difficulty}_abandoned`, {
@@ -522,6 +561,16 @@ export function useTridoku() {
     trackEvent(`${difficulty}_loaded`)
     await loadDifficulty(difficulty)
   }, [loadDifficulty, loadError])
+
+  // Returning players go straight back to the puzzle they were last playing (TRI-033)
+  const resumed = useRef(false)
+  useEffect(() => {
+    if (isLoading || resumed.current) return
+    resumed.current = true
+    const latest = (Object.entries(progressToday) as [Difficulty, PuzzleInProgress][])
+      .sort((a, b) => b[1].savedAt - a[1].savedAt)[0]
+    if (latest) changeDifficulty(latest[0])
+  }, [isLoading, progressToday, changeDifficulty])
 
   // Reload a difficulty's puzzle, ignoring a solved board (used by Reset and dev tools)
   const generateNewPuzzle = useCallback(async (difficulty?: Difficulty) => {
@@ -584,6 +633,8 @@ export function useTridoku() {
     highlightedValue: gameState.highlightedValue,
     puzzleDate: gameState.puzzleDate,
     fallback: gameState.fallback,
+    progressToday,
+    previewPuzzle,
     loadError,
     retryLoad,
     puzzleNumber: getPuzzleNumber(gameState.puzzleDate ?? todayKey()),

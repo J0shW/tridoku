@@ -1,50 +1,23 @@
 "use client"
 
-import { Cell, CellId, Board, TRIDOKU_BOARD, Difficulty } from "@/lib/tridoku"
+import { Cell, CellId, Board, TRIDOKU_BOARD } from "@/lib/tridoku"
 
 const ROW_HEIGHT = Math.sqrt(3)
 const SVG_WIDTH = 18
 const SVG_HEIGHT = 9 * ROW_HEIGHT
 const STROKE_MARGIN = 0.15 // Extra margin to prevent stroke clipping
 
-const EASY_FILL_COLORS: Record<Cell["color"], string> = {
-  outer: "var(--tridoku-easy-outer)",
-  inner: "var(--tridoku-easy-inner)",
-  overlap: "var(--tridoku-easy-overlap)",
-  none: "var(--tridoku-easy-none)",
-}
-
-const MEDIUM_FILL_COLORS: Record<Cell["color"], string> = {
-  outer: "var(--tridoku-medium-outer)",
-  inner: "var(--tridoku-medium-inner)",
-  overlap: "var(--tridoku-medium-overlap)",
-  none: "var(--tridoku-medium-none)",
-}
-
-const HARD_FILL_COLORS: Record<Cell["color"], string> = {
-  outer: "var(--tridoku-hard-outer)",
-  inner: "var(--tridoku-hard-inner)",
-  overlap: "var(--tridoku-hard-overlap)",
-  none: "var(--tridoku-hard-none)",
+// Cell fills by rule membership. The same on every difficulty (TRI-031).
+const CELL_FILLS: Record<Cell["color"], string> = {
+  outer: "var(--tridoku-cell-outer)",
+  inner: "var(--tridoku-cell-inner)",
+  overlap: "var(--tridoku-cell-overlap)",
+  none: "var(--tridoku-cell-none)",
 }
 
 const SELECTED_FILL = "var(--tridoku-selected-fill)"
 const SELECTED_STROKE = "var(--tridoku-selected-stroke)"
 const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
-
-function getDifficultyBasedColor(color: Cell["color"], difficulty: Difficulty | null | undefined): string {
-  if (!difficulty) return "var(--tridoku-easy-none)" // default to easy colors if difficulty is not provided
-  switch (difficulty) {
-    case "easy":
-      return EASY_FILL_COLORS[color]
-    case "medium":
-      return MEDIUM_FILL_COLORS[color]
-    case "hard":
-      return HARD_FILL_COLORS[color]
-    default:
-      return "var(--tridoku-easy-none)"
-  }
-}
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
   if (direction === "up") {
@@ -199,14 +172,13 @@ interface TridokuBoardProps {
   selectedCellId: CellId | null
   onCellClick: (cellId: CellId) => void
   isPaused: boolean
-  difficulty?: Difficulty | null
   highlightedValue?: number | null
   showErrors?: boolean
 }
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue, showErrors = false }: TridokuBoardProps) {
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, highlightedValue, showErrors = false }: TridokuBoardProps) {
   if (isPaused) {
     return (
       <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
@@ -248,7 +220,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, dif
                 <g key={cell.id} className="cursor-pointer" onClick={() => onCellClick(cell.id)}>
                   <polygon
                     points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                    fill={getDifficultyBasedColor(cell.color, difficulty)}
+                    fill={CELL_FILLS[cell.color]}
                     stroke={isSelected ? "none" : "#000"}
                     strokeWidth={0.01}
                   />

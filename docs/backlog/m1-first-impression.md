@@ -21,8 +21,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The welcome screen never says what the game is, that it's daily, or that it's Sudoku-like, and the board isn't shown.
 
 **Done when**
-- [ ] The welcome hero shows a static preview of today's board.
-- [ ] One line explains the game, e.g. "Sudoku on a triangle. 81 cells, 4 rules, a new puzzle every day."
+- [x] The welcome hero shows a static preview of today's board.
+- [x] One line explains the game, e.g. "Sudoku on a triangle. 81 cells, 4 rules, a new puzzle every day."
 
 **Check it in a preview.** Dev tools → Clear all saved data, then view the first screen on a phone.
 
@@ -36,8 +36,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** New players face three equal choices with no guidance.
 
 **Done when**
-- [ ] With no saved stats, the welcome screen shows a primary "Play today's puzzle" button that starts Easy, with the tier picker below.
-- [ ] Returning players see the tier picker as now.
+- [x] With no saved stats, the welcome screen shows a primary "Play today's puzzle" button that starts Easy, with the tier picker below.
+- [x] Returning players see the tier picker as now.
 
 <a id="tri-028"></a>
 ## TRI-028 · Describe difficulties by experience, not givens
@@ -49,9 +49,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** "40–50 starting numbers" means nothing to players, and the stated ranges are wrong (Hard says 24–30; actual 27–36).
 
 **Done when**
-- [ ] Cards read e.g. "Easy · great first puzzle", "Medium · needs one trick", "Hard · for Sudoku regulars".
+- [x] Cards read e.g. "Easy · great first puzzle", "Medium · needs one trick", "Hard · for Sudoku regulars".
 - [ ] Median solve times are added once TRI-020 has two weeks of data.
-- [ ] Given counts are removed from the UI.
+- [x] Given counts are removed from the UI.
 
 <a id="tri-029"></a>
 ## TRI-029 · Rules intro opens automatically on first visit
@@ -92,9 +92,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Blue means outer edge on Easy and inner triangle on Hard (`app/globals.css:52-63`); the rules teach only Easy's colors.
 
 **Done when**
-- [ ] Outer edge, inner triangle and overlap use the same fills on all difficulties.
-- [ ] Difficulty is signalled by an accent (tab underline, board outline).
-- [ ] The rules modal diagrams match the board.
+- [x] Outer edge, inner triangle and overlap use the same fills on all difficulties.
+- [x] Difficulty is signalled by an accent (tab underline, board outline).
+- [x] The rules modal diagrams match the board.
 
 <a id="tri-032"></a>
 ## TRI-032 · Shade touching cells of the selected cell
@@ -119,8 +119,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** A reload mid-puzzle drops players on the welcome screen; cards don't show progress.
 
 **Done when**
-- [ ] If a puzzle is in progress today, the app opens it directly.
-- [ ] Difficulty cards show "Continue · 04:12" or "✓ Completed".
+- [x] If a puzzle is in progress today, the app opens it directly.
+- [x] Difficulty cards show "Continue · 04:12" or "✓ Completed".
 
 <a id="tri-034"></a>
 ## TRI-034 · Better win moment
@@ -306,7 +306,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** At 390 px the footer privacy note runs edge to edge; the footer has no horizontal padding.
 
 **Done when**
-- [ ] The footer keeps at least a 16 px side margin at every width.
+- [x] The footer keeps at least a 16 px side margin at every width.
 
 <a id="tri-085"></a>
 ## TRI-085 · Update GitHub Actions to Node 24 versions
