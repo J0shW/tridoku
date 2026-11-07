@@ -370,7 +370,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Over the same 30 days Umami counted 12 visitors (17% mobile) and Vercel Analytics 44 (61% mobile). Umami's script and endpoint are on `cloud.umami.is`, which tracker blockers commonly block; Vercel's are first-party. Every Umami metric is likely missing most players, mobile ones especially.
 
 **Done when**
-- [ ] Umami's script and event endpoint are proxied through the site (Next.js rewrites, e.g. `/stats/script.js` and `/stats/api/send` to `cloud.umami.is`), following Umami's proxy guidance.
-- [ ] Events still only count on the production domain.
+- [x] Umami's script and event endpoint are proxied through the site (Next.js rewrites, e.g. `/stats/script.js` and `/stats/api/send` to `cloud.umami.is`), following Umami's proxy guidance.
+- [x] Events still only count on the production domain.
 - [ ] Visitor location still resolves correctly in Umami (the proxy forwards the client IP); if not, document the trade-off.
 - [ ] After a week, Umami's visitor count is compared with Vercel's and recorded in `docs/metrics.md`.

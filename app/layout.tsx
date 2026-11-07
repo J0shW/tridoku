@@ -82,7 +82,8 @@ export default function RootLayout({
         <Analytics />
         <Script
           defer
-          src="https://cloud.umami.is/script.js"
+          src="/p/t.js"
+          data-host-url="/p"
           data-website-id="9646cebf-b670-48a6-ad78-c9a7ddc38c63"
           data-domains="www.tridokupuzzle.com,tridokupuzzle.com"
         />

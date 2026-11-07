@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**81 items** · 55 todo · 1 in progress · 24 done · 1 won't do · plus 10 [research items](research.md)
+**81 items** · 54 todo · 1 in progress · 1 in review · 24 done · 1 won't do · plus 10 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -35,7 +35,7 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-023](m0-foundations.md#tri-023) | Remove unused UI components and dependencies | Medium | L | S | TRI-001 | Done |
 | [TRI-024](m0-foundations.md#tri-024) | Project housekeeping | Low | L | S | — | Done |
 | [TRI-025](m0-foundations.md#tri-025) | Repeatable evaluation harness | Medium | M | S | — | Done |
-| [TRI-081](m0-foundations.md#tri-081) | Serve Umami from the site's own domain | High | H | S | TRI-015 | Todo |
+| [TRI-081](m0-foundations.md#tri-081) | Serve Umami from the site's own domain | High | H | S | TRI-015 | In review |
 
 ## [M1 · First impression and sharing](m1-first-impression.md)
 
