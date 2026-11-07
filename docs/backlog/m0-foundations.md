@@ -374,3 +374,17 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] Events still only count on the production domain.
 - [ ] Visitor location still resolves correctly in Umami (the proxy forwards the client IP); if not, document the trade-off.
 - [ ] After a week, Umami's visitor count is compared with Vercel's and recorded in `docs/metrics.md`.
+
+<a id="tri-083"></a>
+## TRI-083 · Daily Action installs dependencies; CI runs the Action's grader
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Critical | H | S | Puzzle availability | [TRI-013](m0-foundations.md#tri-013) | Found in M0 review |
+
+**Problem.** Run 136 of the daily Action failed at Check every puzzle with `Cannot find package 'date-fns'`: since TRI-004, the grader's import chain needs packages, and the Action never installed them. No puzzles for 10 Nov were committed. CI installs packages, so it didn't notice.
+
+**Done when**
+- [x] The daily Action sets up pnpm and runs `pnpm install --frozen-lockfile` before generating (#43).
+- [x] CI runs `pnpm grade-puzzles`, the Action's exact command, under plain Node (#43).
+- [ ] After merging, a manual run publishes 10 Nov and its supply and live-site checks pass (this also completes TRI-012 and TRI-013).
