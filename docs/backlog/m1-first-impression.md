@@ -295,3 +295,40 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [ ] Serve PostHog through the site's own domain with the visitor's real IP passed through, as TRI-081 does for Umami.
 - [ ] Run both for 2–4 weeks; compare visitor and event counts, and check funnels and D1/D7 retention can be built for each difficulty.
 - [ ] Decide: keep PostHog and remove Umami, or keep Umami. Update `docs/metrics.md` and the footer privacy note to match.
+
+<a id="tri-084"></a>
+## TRI-084 · Footer has side margins on phones
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | L | S | Polish | none | Found in M0 review |
+
+**Problem.** At 390 px the footer privacy note runs edge to edge; the footer has no horizontal padding.
+
+**Done when**
+- [ ] The footer keeps at least a 16 px side margin at every width.
+
+<a id="tri-085"></a>
+## TRI-085 · Update GitHub Actions to Node 24 versions
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | L | S | Pipeline reliability | none | Found in M0 review |
+
+**Problem.** GitHub warns that actions/checkout@v4 and actions/setup-node@v4 target the deprecated Node 20 and are being forced onto Node 24.
+
+**Done when**
+- [ ] Both workflows use action versions that run on Node 24 (e.g. checkout@v5, setup-node@v5), with no deprecation warning in the run log.
+
+<a id="tri-086"></a>
+## TRI-086 · Completed checkmarks refresh after midnight in an open tab
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | M | S | D1 retention | none | Found in M0 review |
+
+**Problem.** Stats are normalised once on page load, so in a tab left open past midnight the welcome cards and difficulty tabs still show yesterday's "✓ Completed" until reload. Opening the difficulty correctly loads today's puzzle.
+
+**Done when**
+- [ ] When the local date changes (checked on focus, visibility change or a timer), stats are re-normalised and the checkmarks update.
+- [ ] Covered by a test using the dev-tools clock or fake timers.

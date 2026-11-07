@@ -19,7 +19,7 @@ Ask Claude (or do it yourself) with the [brief](PROMPT.md) unchanged, followed b
 | Review | When | File |
 |---|---|---|
 | Baseline | 6 Nov 2026 | [2026-11-06-baseline.md](../reviews/2026-11-06-baseline.md) |
-| M0 | When M0 is done | — |
+| M0 | 7 Nov 2026 | [2026-11-07-m0.md](../reviews/2026-11-07-m0.md) |
 | M1 | When M1 is done | — |
 | M2 | When M2 is done | — |
 | M3 | When M3 is done | — |
@@ -27,12 +27,14 @@ Ask Claude (or do it yourself) with the [brief](PROMPT.md) unchanged, followed b
 
 ## Baseline numbers to beat
 
-| Measure | Baseline |
-|---|---|
-| Scorecard total | 57 / 130 |
-| Puzzles with exactly one solution | 609 / 609 |
-| Hard puzzles that need only singles (too easy) | 34 / 203 |
-| Medium + Hard puzzles that need more than pairs | 59 / 406 |
-| Keyboard-only completion | Not possible |
-| Number pad visible at 360×640 | No |
-| Streak correct after consecutive days | Only on ~73 days a year |
+| Measure | Baseline | M0 |
+|---|---|---|
+| Scorecard total | 57 / 130 | 65 / 130 |
+| Puzzles with exactly one solution | 609 / 609 | 612 / 612 |
+| Hard puzzles that need only singles (too easy) | 34 / 203 | 35 / 204 |
+| Medium + Hard puzzles that need more than pairs | 59 / 406 | 59 / 408 |
+| Keyboard-only completion | Not possible | Not possible |
+| Number pad visible at 360×640 | No | No |
+| Streak correct after consecutive days | Only on ~73 days a year | Every day |
+| Same puzzle number in every time zone | No | Yes |
+| Failed download | Nothing happens | Error with Retry |

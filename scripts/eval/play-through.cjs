@@ -178,6 +178,51 @@ const start = async (page, diff) => {
     await ctx.close()
   }
 
+  // 8. Win rate counts unfinished puzzles (TRI-007)
+  {
+    const ctx = await browser.newContext()
+    const page = await ctx.newPage()
+    await page.goto(BASE)
+    await start(page, "medium")
+    const { puzzle, solution } = T.medium
+    const first = puzzle.indexOf("0")
+    await enter(page, first, solution[first], false)
+    await page.getByRole("button", { name: "Statistics" }).click()
+    await page.getByRole("tab", { name: "Medium" }).click()
+    const text = (await page.locator("[role=dialog]").innerText()).replace(/\s+/g, " ")
+    note("Stats after starting one Medium puzzle (expect 1 played, 0 win %)", text.match(/(\d+) Played (\d+) Win %/)?.slice(1).join(" played, ") + " win %")
+    await ctx.close()
+  }
+
+  // 9. Missing date: most recent puzzle with a notice (TRI-010)
+  {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
+    const page = await ctx.newPage()
+    await page.clock.install({ time: new Date(Date.now() + 30 * 864e5) })
+    await page.goto(BASE)
+    await start(page, "easy")
+    const notice = await page.locator("p[role=status]").innerText().catch(() => "")
+    note("30 days ahead (no puzzle published): notice shown (expect yes)", notice ? `yes: "${notice}"` : "no")
+    await shot(page, "fallback-notice")
+    await ctx.close()
+  }
+
+  // 10. Retry recovers after a failed download (TRI-011)
+  {
+    const ctx = await browser.newContext()
+    const page = await ctx.newPage()
+    let fail = true
+    await page.route("**/puzzles/**", (r) => (fail ? r.fulfill({ status: 503, body: "" }) : r.continue()))
+    await page.goto(BASE)
+    await page.getByRole("button", { name: /^easy/i }).first().click()
+    await page.getByRole("button", { name: "Retry" }).waitFor()
+    fail = false
+    await page.getByRole("button", { name: "Retry" }).click()
+    const loaded = await page.locator(CELL).first().waitFor({ timeout: 5000 }).then(() => true).catch(() => false)
+    note("Retry loads the puzzle once the server recovers (expect yes)", loaded ? "yes" : "no")
+    await ctx.close()
+  }
+
   fs.writeFileSync(path.join(OUT, "results.md"), `# Play-through results (${DATE})\n\nBase URL: ${BASE}\n\n${log.join("\n")}\n`)
   console.log(`\nSaved screenshots and results.md to ${OUT}`)
   await browser.close()

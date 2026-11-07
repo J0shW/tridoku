@@ -44,24 +44,28 @@ Plays the running app in headless Chromium:
    - keyboard-only entry
    - number pad at 360×640
    - reduced motion
+3. Checks added at M0: win % after an unfinished start, the notice when a date has no puzzle, and Retry after a failed download.
 
 ```sh
 pnpm build && pnpm start &               # or point it at a preview URL you can reach
-node scripts/eval/play-through.cjs http://localhost:3000 docs/reviews/2026-12-01-m0
+node scripts/eval/play-through.cjs http://localhost:3000 docs/reviews/<date>-m1
 ```
 
 It writes screenshots and a `results.md` to the output folder. It needs Playwright with Chromium (`npm i -g playwright && npx playwright install chromium`). If Playwright is installed globally, run it with `NODE_PATH=$(npm root -g)`.
 
 The board selector (`CELL` at the top) matches the SVG board as of the baseline. Update it when the board changes (for example once TRI-062 makes it a `role="grid"`).
 
-### Baseline results (6 Nov 2026)
+### Results by review
 
-| Check | Expected | Baseline |
-|---|---|---|
-| Streak after 5 days + today | 6 | 1 |
-| Puzzle number on the same date across time zones | all equal | #309, #310, #311 |
-| Next day's puzzle playable after a late finish | yes | no |
-| Failed download shows an error | yes | no |
-| Keyboard-only entry | yes | no |
-| Number pad visible at 360×640 | yes | no (bottom at 746 px) |
-| Selection animation with reduced motion | none | dash-animation |
+| Check | Expected | Baseline (6 Nov) | M0 (7 Nov) |
+|---|---|---|---|
+| Streak after 5 days + today | 6 | 1 | 6 |
+| Puzzle number on the same date across time zones | all equal | #309, #310, #311 | #311 everywhere |
+| Next day's puzzle playable after a late finish | yes | no | yes |
+| Failed download shows an error | yes | no | yes |
+| Retry recovers once the server is back | yes | — | yes |
+| Win % after one unfinished start | 0 % | — | 0 % |
+| Notice when a date has no puzzle | yes | — | yes |
+| Keyboard-only entry | yes | no | no |
+| Number pad visible at 360×640 | yes | no (bottom at 746 px) | no (746 px) |
+| Selection animation with reduced motion | none | dash-animation | dash-animation |

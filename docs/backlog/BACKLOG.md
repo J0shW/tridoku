@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**82 items** · 55 todo · 1 in progress · 1 in review · 24 done · 1 won't do · plus 11 [research items](research.md)
+**86 items** · 58 todo · 1 in progress · 4 in review · 22 done · 1 won't do · plus 11 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -21,8 +21,8 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-009](m0-foundations.md#tri-009) | Replace the unsolvable backup puzzle | Critical | H | S | TRI-001 | Done |
 | [TRI-010](m0-foundations.md#tri-010) | Fall back to the most recent real puzzle | Medium | M | M | TRI-009 | Done |
 | [TRI-011](m0-foundations.md#tri-011) | Show an error and Retry when puzzles fail to load | High | H | S | — | Done |
-| [TRI-012](m0-foundations.md#tri-012) | Alert when the puzzle pipeline falls behind | High | H | S | — | Done |
-| [TRI-013](m0-foundations.md#tri-013) | Validate every puzzle in CI | High | M | S | TRI-001 | Done |
+| [TRI-012](m0-foundations.md#tri-012) | Alert when the puzzle pipeline falls behind | High | H | S | — | In review |
+| [TRI-013](m0-foundations.md#tri-013) | Validate every puzzle in CI | High | M | S | TRI-001 | In review |
 | [TRI-014](m0-foundations.md#tri-014) | Exercise the year rollover | Medium | M | S | TRI-001 | Done |
 | [TRI-015](m0-foundations.md#tri-015) | Anonymous player ID and days-since-first-play on events | High | H | S | — | Done |
 | [TRI-016](m0-foundations.md#tri-016) | Track puzzle starts | High | H | S | TRI-015 | Done |
@@ -36,6 +36,7 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-024](m0-foundations.md#tri-024) | Project housekeeping | Low | L | S | — | Done |
 | [TRI-025](m0-foundations.md#tri-025) | Repeatable evaluation harness | Medium | M | S | — | Done |
 | [TRI-081](m0-foundations.md#tri-081) | Serve Umami from the site's own domain | High | H | S | TRI-015 | In review |
+| [TRI-083](m0-foundations.md#tri-083) | Daily Action installs dependencies; CI runs the Action's grader | Critical | H | S | TRI-013 | In review |
 
 ## [M1 · First impression and sharing](m1-first-impression.md)
 
@@ -64,6 +65,9 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Todo |
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
 | [TRI-082](m1-first-impression.md#tri-082) | Evaluate PostHog as the analytics tool | Medium | H | S | TRI-081 | Todo |
+| [TRI-084](m1-first-impression.md#tri-084) | Footer has side margins on phones | Low | L | S | — | Todo |
+| [TRI-085](m1-first-impression.md#tri-085) | Update GitHub Actions to Node 24 versions | Low | L | S | — | Todo |
+| [TRI-086](m1-first-impression.md#tri-086) | Completed checkmarks refresh after midnight in an open tab | Low | M | S | — | Todo |
 
 ## [M2 · Puzzle quality and gameplay](m2-puzzle-quality.md)
 
