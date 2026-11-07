@@ -137,7 +137,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Hard subtitle 2.06:1 and Medium 3.19:1 contrast.
 
 **Done when**
-- [ ] All card text reaches ≥4.5:1 in both themes.
+- [x] All card text reaches ≥4.5:1 in both themes.
 
 <a id="tri-068"></a>
 ## TRI-068 · Region lines visible in dark mode

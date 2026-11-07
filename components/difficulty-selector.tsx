@@ -26,7 +26,7 @@ export function DifficultySelector({
   const difficulties: Array<{ value: Difficulty; label: string; bgColor: string; darkBgColor: string; textColor: string; darkTextColor: string; borderColor: string }> = [
     { value: 'easy', label: 'Easy', bgColor: 'bg-[#bfdde2] hover:bg-[#bfdde2]', darkBgColor: 'dark:bg-[#bfdde2]/90 hover:dark:bg-[#bfdde2]/90', textColor: 'text-[#2d5a3a]', darkTextColor: 'dark:text-[#1a3324]', borderColor: 'border-[#98ac8b] dark:border-[#bfdde2]' },
     { value: 'medium', label: 'Medium', bgColor: 'bg-[#ecbd6c] hover:bg-[#ecbd6c]', darkBgColor: 'dark:bg-[#ecbd6c]/90 hover:dark:bg-[#ecbd6c]/90', textColor: 'text-[#6b4423]', darkTextColor: 'dark:text-[#3d2614]', borderColor: 'border-[#e2885b] dark:border-[#ecbd6c]' },
-    { value: 'hard', label: 'Hard', bgColor: 'bg-[#e26495] hover:bg-[#e26495]', darkBgColor: 'dark:bg-[#e26495]/90 hover:dark:bg-[#e26495]/90', textColor: 'text-[#6b2447]', darkTextColor: 'dark:text-[#3d1529]', borderColor: 'border-[#b47098] dark:border-[#e26495]' },
+    { value: 'hard', label: 'Hard', bgColor: 'bg-[#e26495] hover:bg-[#e26495]', darkBgColor: 'dark:bg-[#e26495]/90 hover:dark:bg-[#e26495]/90', textColor: 'text-[#2e0f1f]', darkTextColor: 'dark:text-[#2e0f1f]', borderColor: 'border-[#b47098] dark:border-[#e26495]' },
   ]
 
   return (
