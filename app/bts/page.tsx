@@ -130,8 +130,6 @@ const FAIL_IMAGES = [
 ]
 
 function JumbledVsFixed() {
-  const correctCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
       {/* Wrong — carousel of real screenshots */}

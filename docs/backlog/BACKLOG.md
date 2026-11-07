@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**79 items** · 77 todo · 1 done · 1 won't do · plus 10 [research items](research.md)
+**80 items** · 70 todo · 8 in review · 1 done · 1 won't do · plus 10 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -10,9 +10,9 @@ Make the game trustworthy and start measuring before changing anything players s
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-001](m0-foundations.md#tri-001) | Test runner and CI checks on every PR | High | H | S | — | Todo |
-| [TRI-002](m0-foundations.md#tri-002) | Working ESLint setup | Medium | L | S | TRI-001 | Todo |
-| [TRI-003](m0-foundations.md#tri-003) | Turn type checking back on in builds | Medium | M | S | TRI-001 | Todo |
+| [TRI-001](m0-foundations.md#tri-001) | Test runner and CI checks on every PR | High | H | S | — | In review |
+| [TRI-002](m0-foundations.md#tri-002) | Working ESLint setup | Medium | L | S | TRI-001 | In review |
+| [TRI-003](m0-foundations.md#tri-003) | Turn type checking back on in builds | Medium | M | S | TRI-001 | In review |
 | [TRI-004](m0-foundations.md#tri-004) | One date-key helper used everywhere | High | H | S | TRI-001 | Todo |
 | [TRI-005](m0-foundations.md#tri-005) | Fix streaks resetting to 1 | Critical | H | S | TRI-004 | Todo |
 | [TRI-006](m0-foundations.md#tri-006) | Credit each completion to the puzzle's own date | High | H | S | TRI-004 | Todo |
@@ -22,7 +22,7 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-010](m0-foundations.md#tri-010) | Fall back to the most recent real puzzle | Medium | M | M | TRI-009 | Todo |
 | [TRI-011](m0-foundations.md#tri-011) | Show an error and Retry when puzzles fail to load | High | H | S | — | Todo |
 | [TRI-012](m0-foundations.md#tri-012) | Alert when the puzzle pipeline falls behind | High | H | S | — | Todo |
-| [TRI-013](m0-foundations.md#tri-013) | Validate every puzzle in CI | High | M | S | TRI-001 | Todo |
+| [TRI-013](m0-foundations.md#tri-013) | Validate every puzzle in CI | High | M | S | TRI-001 | In review |
 | [TRI-014](m0-foundations.md#tri-014) | Exercise the year rollover | Medium | M | S | TRI-001 | Todo |
 | [TRI-015](m0-foundations.md#tri-015) | Anonymous player ID and days-since-first-play on events | High | H | S | — | Todo |
 | [TRI-016](m0-foundations.md#tri-016) | Track puzzle starts | High | H | S | TRI-015 | Todo |
@@ -30,10 +30,10 @@ Make the game trustworthy and start measuring before changing anything players s
 | [TRI-018](m0-foundations.md#tri-018) | Accurate share tracking | Medium | M | S | — | Todo |
 | [TRI-019](m0-foundations.md#tri-019) | Track rules depth, Ko-fi, Feedback and play style | Medium | M | S | TRI-015 | Todo |
 | [TRI-020](m0-foundations.md#tri-020) | Metrics definitions and dashboard | Medium | H | S | TRI-016, TRI-017, TRI-018 | Todo |
-| [TRI-021](m0-foundations.md#tri-021) | Fix the stray "0" in Statistics | Low | L | S | — | Todo |
-| [TRI-022](m0-foundations.md#tri-022) | Hide /test outside development | Low | L | S | — | Todo |
-| [TRI-023](m0-foundations.md#tri-023) | Remove unused UI components and dependencies | Medium | L | S | TRI-001 | Todo |
-| [TRI-024](m0-foundations.md#tri-024) | Project housekeeping | Low | L | S | — | Todo |
+| [TRI-021](m0-foundations.md#tri-021) | Fix the stray "0" in Statistics | Low | L | S | — | In review |
+| [TRI-022](m0-foundations.md#tri-022) | Hide /test outside development | Low | L | S | — | In review |
+| [TRI-023](m0-foundations.md#tri-023) | Remove unused UI components and dependencies | Medium | L | S | TRI-001 | In review |
+| [TRI-024](m0-foundations.md#tri-024) | Project housekeeping | Low | L | S | — | In review |
 | [TRI-025](m0-foundations.md#tri-025) | Repeatable evaluation harness | Medium | M | S | — | Done |
 
 ## [M1 · First impression and sharing](m1-first-impression.md)
@@ -81,6 +81,7 @@ Make every label honest and every puzzle fair, and give stuck players a way forw
 | [TRI-055](m2-puzzle-quality.md#tri-055) | Tell players when a full board is wrong | Medium | M | S | — | Todo |
 | [TRI-056](m2-puzzle-quality.md#tri-056) | Dim digits that are fully placed | Low | M | S | — | Todo |
 | [TRI-057](m2-puzzle-quality.md#tri-057) | Make highlight-a-digit discoverable | Low | L | S | — | Todo |
+| [TRI-080](m2-puzzle-quality.md#tri-080) | Restructure the game-state hook | Medium | M | M | TRI-052 | Todo |
 
 ## [M3 · Mobile and accessibility](m3-mobile-accessibility.md)
 

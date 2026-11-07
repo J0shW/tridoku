@@ -24,7 +24,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Generate missing puzzles for the next 3 days
         run: |
@@ -50,6 +50,11 @@ jobs:
               --endMonth=$MONTH \
               --endDay=$DAY
           done
+
+      # Stop before committing if any puzzle is malformed, has conflicting
+      # givens or doesn't have exactly one solution. A failed run emails the repo owner.
+      - name: Check every puzzle
+        run: node --experimental-strip-types scripts/eval/grade-puzzles.ts
 
       - name: Commit and push if changed
         run: |

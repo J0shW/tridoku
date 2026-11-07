@@ -6,14 +6,16 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { IS_PRODUCTION, DEV_CLOCK_SCRIPT } from '@/lib/app-env'
 import './globals.css'
 
+// Calling the loaders registers the Geist font faces referenced in globals.css.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geist = Geist({ subsets: ["latin"] });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.tridokupuzzle.com'),
   title: 'Daily Tridoku',
   description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
-  generator: 'v0.app',
   // Keep preview and development builds out of search results.
   ...(IS_PRODUCTION ? {} : { robots: { index: false, follow: false } }),
   openGraph: {

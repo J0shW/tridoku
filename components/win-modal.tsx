@@ -33,10 +33,10 @@ export function WinModal({ open, onOpenChange, stats, difficulty, elapsedTime, g
 
     trackEvent("result_shared", {
       difficulty,
-      method: typeof navigator !== "undefined" && navigator.share ? "native_share" : "clipboard",
+      method: typeof navigator.share === "function" ? "native_share" : "clipboard",
     })
 
-    if (navigator.share) {
+    if (typeof navigator.share === "function") {
       try {
         await navigator.share({
           title: "Daily Tridoku",

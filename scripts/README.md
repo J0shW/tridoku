@@ -1,90 +1,52 @@
-# Tridoku Puzzle Generator
+# Scripts
 
-This directory contains scripts for pre-generating Tridoku puzzles.
+| Script | What it does |
+|---|---|
+| `generate-puzzles.mjs` | Generates the daily puzzles (easy, medium, hard) into `public/puzzles/<year>.json` |
+| `generate-favicon.mjs` | Builds the favicon images |
+| `eval/` | Puzzle grading and the browser play-through used for product reviews ([README](eval/README.md)) |
 
-## Quick Start - Testing the System
+## How daily puzzles are published
 
-The web app now fetches puzzles instead of generating them in the browser. Each day has **3 puzzles** (easy, medium, hard). Sample puzzles are at `public/puzzles/2026.json`.
+1. The **Generate Daily Puzzle** GitHub Action (`.github/workflows/daily-puzzle.yml`) runs at 06:00 UTC every day.
+2. It makes sure puzzles exist for the next 3 days (UTC), generating any that are missing with `generate-puzzles.mjs`.
+3. It checks every puzzle with `scripts/eval/grade-puzzles.ts`. If any is malformed, has conflicting givens or doesn't have exactly one solution, the run fails before committing, and GitHub emails the repo owner.
+4. It commits the updated `public/puzzles/<year>.json` to `main`, which deploys to production on Vercel.
 
-1. Run the app: `npm run dev`
-2. Click "New Puzzle" - it will fetch from the JSON file
-3. If today's date isn't in the file, it uses a fallback puzzle
+The app fetches the year's file and picks the entry for the player's local date (`lib/puzzle-service.ts`).
 
-## Architecture Change
+## Generating puzzles by hand
 
-**Before:** Generate puzzles in browser → 10+ minute freeze ❌  
-**After:** Fetch pre-generated puzzles → instant load ✅
+```sh
+# Fill any missing days in a range (existing days are kept)
+node scripts/generate-puzzles.mjs --year=2026 --startMonth=11 --startDay=10 --endMonth=11 --endDay=12
 
-1. **generate-puzzles.mjs** - Offline Node.js script that generates puzzles
-2. **public/puzzles/YYYY.json** - Yearly puzzle files
-3. **lib/puzzle-service.ts** - Web app fetches daily puzzle from JSON
-
-## Generating Real Puzzles (TODO)
-
-The current script uses placeholder puzzles. To generate a full year:
-
-```bash
-node scripts/generate-puzzles.mjs
+# Regenerate the range, overwriting existing days
+node scripts/generate-puzzles.mjs --year=2026 --startMonth=11 --startDay=10 --endMonth=11 --endDay=12 --doHardReplace
 ```
 
-⚠️ **This will take time** (possibly hours) but only needs to run once per year.
+Then run `pnpm grade-puzzles` (or `pnpm test`) to check the result.
 
-**Implementation steps:**
-1. Copy generator code from `lib/tridoku.ts` to `generate-puzzles.mjs`
-2. Remove browser-specific dependencies
-3. Run the script overnight to generate all puzzles
+## How puzzles are made
 
-## File Format
+For each day and difficulty, seeded by the date:
 
-Each puzzle JSON file contains 3 puzzles per date (easy, medium, hard):
+1. Fill a complete valid board by randomized backtracking.
+2. Remove cells in groups of three that are 120° rotations of each other, keeping each removal only if the puzzle still has exactly one solution. This makes every puzzle rotationally symmetric.
+3. Stop near a target number of givens for the difficulty: Easy 42–48, Medium 33–39, Hard 24–30. Results can land up to 6 above target.
+
+Difficulty is currently set only by the number of givens. Grading by solving technique is planned in TRI-046 and TRI-047 (see `docs/backlog/`).
+
+## File format
+
 ```json
 {
-  "2026-03-19": {
-    "easy": {
-      "date": "2026-03-19",
-      "difficulty": "easy",
-      "seed": 20260319,
-      "puzzle": "string of 81 digits (0-9)",
-      "metadata": {
-        "generatedAt": "2026-03-19T00:00:00Z",
-        "givens": 45
-      }
-    },
-    "medium": {
-      "date": "2026-03-19",
-      "difficulty": "medium",
-      "seed": 21260319,
-      "puzzle": "string of 81 digits (0-9)",
-      "metadata": {
-        "generatedAt": "2026-03-19T00:00:00Z",
-        "givens": 35
-      }
-    },
-    "hard": {
-      "date": "2026-03-19",
-      "difficulty": "hard",
-      "seed": 22260319,
-      "puzzle": "string of 81 digits (0-9)",
-      "metadata": {
-        "generatedAt": "2026-03-19T00:00:00Z",
-        "givens": 25
-      }
-    }
+  "2026-11-06": {
+    "easy":   { "date": "2026-11-06", "difficulty": "easy",   "seed": 20261106, "puzzle": "<81 digits, 0 = empty>", "metadata": { "generatedAt": "…", "givens": 45 } },
+    "medium": { "…": "…" },
+    "hard":   { "…": "…" }
   }
 }
 ```
 
-## Files Changed
-
-✅ `lib/puzzle-service.ts` - Service to fetch puzzles by difficulty  
-✅ `hooks/use-tridoku.ts` - Updated to pass difficulty to service  
-✅ `public/puzzles/2026.json` - 3 puzzles per date (easy/medium/hard)  
-✅ `scripts/generate-puzzles.mjs` - Generates all 3 difficulties per day
-
-## Why This Approach?
-
-- Browser generation was impossibly slow (10+ min freeze)
-- This is how most puzzle games work (Wordle, NYT, etc.)
-- Offline generation can take its time to ensure quality
-- Web app loads puzzles instantly with a simple fetch
-- **3 difficulties guarantee variety for all skill levels**
+The 81 digits list the playable cells row by row, top to bottom and left to right.

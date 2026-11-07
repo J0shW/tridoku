@@ -205,7 +205,6 @@ interface TridokuBoardProps {
 }
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
-const HIGHLIGHTED_STROKE = "var(--tridoku-highlighted-stroke)"
 
 export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, difficulty, highlightedValue, showErrors = false }: TridokuBoardProps) {
   if (isPaused) {

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { Pause, Play, RotateCcw, Eye, EyeOff, FlaskConical } from "lucide-react"
+import { Pause, Play, RotateCcw, Eye, EyeOff } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +21,6 @@ interface GameControlsProps {
   onTogglePause: () => void
   onToggleErrors: () => void
   onReset: () => void
-  onTestSolve?: () => void
   onGenerateNew?: () => void
   isComplete: boolean
   isViewMode?: boolean
@@ -34,12 +33,10 @@ export function GameControls({
   onTogglePause,
   onToggleErrors,
   onReset,
-  onTestSolve,
   isComplete,
   isViewMode = false,
   isGenerating = false,
 }: GameControlsProps) {
-  const isDev = process.env.NODE_ENV === 'development'
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const handleResetClick = () => {
@@ -101,23 +98,6 @@ export function GameControls({
         <RotateCcw className="h-5 w-5" />
       </Button>
 
-      {/* {isDev && onTestSolve && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onTestSolve}
-          disabled={isComplete}
-          className={cn(
-            "h-12 w-12 rounded-full transition-all duration-150",
-            "hover:bg-secondary hover:scale-110",
-            "border border-dashed border-orange-500/50"
-          )}
-          aria-label="Load nearly-solved puzzle (dev)"
-          title="Dev: Load test solve"
-        >
-          <FlaskConical className="h-5 w-5 text-orange-500" />
-        </Button>
-      )} */}
 
       {/* Reset Confirmation Dialog */}
       <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>

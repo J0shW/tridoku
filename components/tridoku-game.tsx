@@ -14,7 +14,6 @@ import { KofiWidget } from "@/components/kofi-widget"
 import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
-import { Difficulty } from "@/lib/tridoku"
 import { getPuzzleNumber, getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
@@ -50,7 +49,6 @@ export function TridokuGame() {
     toggleErrors,
     togglePause,
     resetPuzzle,
-    loadTestSolve,
     getShareText,
     generateNewPuzzle,
     changeDifficulty,
@@ -297,7 +295,6 @@ export function TridokuGame() {
                 onTogglePause={togglePause}
                 onToggleErrors={toggleErrors}
                 onReset={resetPuzzle}
-                onTestSolve={loadTestSolve}
                 isComplete={isComplete}
                 isViewMode={isViewMode}
                 isGenerating={isGenerating}
