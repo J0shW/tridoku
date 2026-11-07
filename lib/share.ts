@@ -17,9 +17,10 @@ export function shareUrl(difficulty: Difficulty): string {
 
 const CLEAN = "🟩"
 const SLIPPED = "🟨"
-// One tile's width of indent. Emoji are about 1.2em wide in most chat apps; an
-// ideographic space (1em) plus a thin space (~0.2em) comes closest across fonts.
-const TILE_INDENT = "　 "
+// One tile's width of indent: an ideographic space, a thin space and a regular space.
+// The regular space was added after the owner lined the grid up by hand in iPhone Notes
+// and iMessage (7 Nov): without it the top rows sat left of centre.
+const TILE_INDENT = "　  "
 
 /**
  * The 9 regions as a triangle of tiles in rows of 1, 3 and 5, left to right as on the

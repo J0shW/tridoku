@@ -4,20 +4,20 @@ import { msUntilNextDay } from "@/lib/dates"
 import { buildShareText, compareWithBest, formatCountdown, nextUnfinished, regionGrid, shareUrl } from "@/lib/share"
 import { defaultStats } from "@/lib/stats"
 
-const tiles = (grid: string) => grid.split("\n").map((row) => [...row.replace(/[　 ]/g, "")].length)
+const tiles = (grid: string) => grid.split("\n").map((row) => [...row.replace(/[^\S\n]/g, "")].length)
 
 describe("share grid (TRI-036)", () => {
   it("is 9 tiles in rows of 1, 3 and 5, centred", () => {
     const grid = regionGrid(undefined)
     expect(tiles(grid)).toEqual([1, 3, 5])
     const [top, middle, bottom] = grid.split("\n")
-    expect(top.startsWith("　 　 ")).toBe(true)
-    expect(middle.startsWith("　 🟩")).toBe(true)
+    expect(top.startsWith("　  　  🟩")).toBe(true)
+    expect(middle.startsWith("　  🟩")).toBe(true)
     expect(bottom.startsWith("🟩")).toBe(true)
   })
 
   it("marks regions with a wrong entry yellow, in board order", () => {
-    const grid = regionGrid([0, 1, 0, 0, 0, 0, 3, 0, 1]).replace(/[　 ]/g, "")
+    const grid = regionGrid([0, 1, 0, 0, 0, 0, 3, 0, 1]).replace(/[^\S\n]/g, "")
     expect(grid).toBe("🟩\n🟨🟩🟩\n🟩🟩🟨🟩🟨")
   })
 
