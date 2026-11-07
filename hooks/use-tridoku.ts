@@ -16,6 +16,7 @@ import { trackEvent } from "@/lib/analytics"
 import { bumpCounter, getCounters } from "@/lib/play-counters"
 import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
 import { defaultStats, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
+import { buildShareText } from "@/lib/share"
 
 export type { DifficultyStats, GameStats } from "@/lib/stats"
 
@@ -276,16 +277,17 @@ export function useTridoku() {
     // Record the win against the puzzle's own date (TRI-006). recordWin returns null
     // if this puzzle was already counted, e.g. when reopening it in view mode.
     const difficulty = gameState.difficulty
+    const counters = getCounters(difficulty, gameState.puzzleDate ?? todayKey())
     const newDiffStats = recordWin(stats[difficulty], {
       puzzleDate: gameState.puzzleDate ?? todayKey(),
       today: todayKey(),
       time: gameState.elapsedTime,
       solvedBoard: boardToString(gameState.cells),
+      regionErrors: counters.regionErrors,
     })
     if (!newDiffStats) return
 
     // Track puzzle completion (e.g. easy_completed, medium_completed, hard_completed)
-    const counters = getCounters(difficulty, gameState.puzzleDate ?? todayKey())
     trackEvent(`${difficulty}_completed`, {
       difficulty,
       time: gameState.elapsedTime,
@@ -354,7 +356,7 @@ export function useTridoku() {
     }
     if (cell.value === value) return
     const after = validateBoard(cells.map((r, ri) => (ri === row ? r.map((c, ci) => (ci === col ? { ...c, value } : c)) : r)))
-    if (after[row][col].hasError) bumpCounter(difficulty, puzzleDate, "errors")
+    if (after[row][col].hasError) bumpCounter(difficulty, puzzleDate, "errors", cell.boldedRegion)
   }, [])
 
   // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
@@ -588,16 +590,17 @@ export function useTridoku() {
     return gameState.hasStarted && !gameState.isComplete && !gameState.isViewMode && gameState.elapsedTime > 0
   }, [gameState.hasStarted, gameState.isComplete, gameState.isViewMode, gameState.elapsedTime])
 
-  // Generate share text
+  // Share text: result, spoiler-free region grid and an attributed link (lib/share.ts)
   const getShareText = useCallback(() => {
     if (!gameState.isComplete || !gameState.difficulty) return ""
-    
-    const puzzleNum = getPuzzleNumber(gameState.puzzleDate ?? todayKey())
-    const time = formatTime(gameState.elapsedTime)
-    const difficultyEmoji = gameState.difficulty === 'easy' ? '🟢' : gameState.difficulty === 'medium' ? '🟡' : '🔴'
     const diffStats = stats[gameState.difficulty]
-    
-    return `Daily Tridoku #${puzzleNum} ${difficultyEmoji}\n⏱️ ${time}\n🔥 Streak: ${diffStats.currentStreak}\n\nPlay at: ${typeof window !== 'undefined' ? window.location.href : ''}`
+    return buildShareText({
+      puzzleNumber: getPuzzleNumber(gameState.puzzleDate ?? todayKey()),
+      difficulty: gameState.difficulty,
+      time: gameState.elapsedTime,
+      streak: diffStats.currentStreak,
+      regionErrors: diffStats.todaysRegionErrors,
+    })
   }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.puzzleDate, stats])
 
   // Reset puzzle
@@ -666,10 +669,4 @@ function boardToString(cells: Cell[][]): string {
     }
   }
   return result
-}
-
-function formatTime(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
 }

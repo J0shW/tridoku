@@ -132,9 +132,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The win modal says "Come back tomorrow" with no countdown and no next step.
 
 **Done when**
-- [ ] A live countdown to the next puzzle.
-- [ ] A "Next: Medium →" button when another tier is unfinished.
-- [ ] Time compared with the player's best for that tier.
+- [x] A live countdown to the next puzzle.
+- [x] A "Next: Medium →" button when another tier is unfinished.
+- [x] Time compared with the player's best for that tier.
 
 **Check it in a preview.** Dev tools → Fill all but 3 → finish.
 
@@ -148,7 +148,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** After closing the win modal, view mode has no way to share.
 
 **Done when**
-- [ ] View mode shows a Share button that reopens the result card.
+- [x] View mode shows a Share button that reopens the result card.
 
 <a id="tri-036"></a>
 ## TRI-036 · Spoiler-free share grid
@@ -160,9 +160,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Share text is plain (time and streak only, `use-tridoku.ts:576`).
 
 **Done when**
-- [ ] Share text includes a 9-region triangle grid (1/3/5 rows), colored by time or notes per region, plus number, difficulty, time and streak.
-- [ ] The grid reveals nothing about the solution.
-- [ ] It renders correctly in iMessage, WhatsApp, X and Discord.
+- [x] Share text includes a 9-region triangle grid (1/3/5 rows), colored by time or notes per region, plus number, difficulty, time and streak. *Colored by wrong entries: green for a region with none, yellow for one with at least one (`lib/share.ts`).*
+- [x] The grid reveals nothing about the solution.
+- [ ] It renders correctly in iMessage, WhatsApp, X and Discord. *Centred correctly in Chromium in three fonts; not yet checked in the real apps.*
 
 <a id="tri-037"></a>
 ## TRI-037 · Share links are attributable
@@ -174,8 +174,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Shared links are `window.location.href` with no tracking parameter.
 
 **Done when**
-- [ ] Shared links use the canonical URL plus `?utm_source=share&utm_content=<difficulty>`.
-- [ ] Umami reports visits by `utm_source`.
+- [x] Shared links use the canonical URL plus `?utm_source=share&utm_content=<difficulty>`.
+- [ ] Umami reports visits by `utm_source`. *Owner check after release: Umami → UTM report.*
 
 <a id="tri-038"></a>
 ## TRI-038 · Daily social preview image
@@ -187,8 +187,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The OG image is a square generic triangle declared as a 2:1 card, so it's cropped and doesn't show the game.
 
 **Done when**
-- [ ] A 1200×630 image generated with `next/og` shows a partly filled board, the tagline and today's puzzle number.
-- [ ] Twitter and Open Graph metadata point to it with correct sizes.
+- [x] A 1200×630 image generated with `next/og` shows a partly filled board, the tagline and today's puzzle number. *`/og?date=…`: that day's Easy givens. "Today" is the date in Edmonton (`lib/og.ts`).*
+- [x] Twitter and Open Graph metadata point to it with correct sizes.
 
 <a id="tri-039"></a>
 ## TRI-039 · robots.txt and sitemap
@@ -226,8 +226,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Ko-fi is only in the footer, never at the moment of peak goodwill.
 
 **Done when**
-- [ ] The win modal shows one line, "Enjoying Tridoku? Buy me a coffee ☕", at most once a week per player.
-- [ ] Clicks are tracked.
+- [x] The win modal shows one line, "Enjoying Tridoku? Buy me a coffee ☕", at most once a week per player.
+- [x] Clicks are tracked. *`kofi_opened {source: "win_modal"}`, plus `kofi_prompt_shown` for conversion.*
 
 <a id="tri-042"></a>
 ## TRI-042 · One-tap difficulty rating after a win
@@ -239,8 +239,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** There's no signal for whether a puzzle felt too easy or too hard.
 
 **Done when**
-- [ ] The win modal offers Too easy / Just right / Too hard.
-- [ ] The choice is sent as `difficulty_rated {difficulty, tier, rating, time}`.
+- [x] The win modal offers Too easy / Just right / Too hard.
+- [x] The choice is sent as `difficulty_rated {difficulty, tier, rating, time}`. *Without `tier` until TRI-046 adds tiers.*
 
 <a id="tri-043"></a>
 ## TRI-043 · Feedback form knows the context

@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme-provider'
 import { IS_PRODUCTION, DEV_CLOCK_SCRIPT } from '@/lib/app-env'
+import { OG_IMAGE_SIZE, ogImagePath } from '@/lib/og'
 import './globals.css'
 
 // Calling the loaders registers the Geist font faces referenced in globals.css.
@@ -12,50 +13,56 @@ const _geist = Geist({ subsets: ["latin"] });
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://www.tridokupuzzle.com'),
-  title: 'Daily Tridoku',
-  description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
-  // Keep preview and development builds out of search results.
-  ...(IS_PRODUCTION ? {} : { robots: { index: false, follow: false } }),
-  openGraph: {
+const DESCRIPTION = 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!'
+
+// Rebuilt hourly so the preview image (TRI-038) follows the date.
+export const revalidate = 3600
+
+export function generateMetadata(): Metadata {
+  const image = {
+    url: ogImagePath(),
+    width: OG_IMAGE_SIZE.width,
+    height: OG_IMAGE_SIZE.height,
+    alt: "Today's Daily Tridoku: a triangular Sudoku board, partly filled",
+  }
+  return {
+    metadataBase: new URL('https://www.tridokupuzzle.com'),
     title: 'Daily Tridoku',
-    description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
-    url: 'https://www.tridokupuzzle.com',
-    siteName: 'Tridoku',
-    type: 'website',
-    images: [
-      {
-        url: 'https://www.tridokupuzzle.com/og-image.png',
-        width: 1024,
-        height: 1024,
-        alt: 'Tridoku - A Daily Triangular Sudoku Puzzle',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Daily Tridoku',
-    description: 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!',
-    images: ['https://www.tridokupuzzle.com/og-image.png'],
-  },
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
+    description: DESCRIPTION,
+    // Keep preview and development builds out of search results.
+    ...(IS_PRODUCTION ? {} : { robots: { index: false, follow: false } }),
+    openGraph: {
+      title: 'Daily Tridoku',
+      description: DESCRIPTION,
+      url: 'https://www.tridokupuzzle.com',
+      siteName: 'Tridoku',
+      type: 'website',
+      images: [image],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: 'Daily Tridoku',
+      description: DESCRIPTION,
+      images: [image],
+    },
+    icons: {
+      icon: [
+        {
+          url: '/icon-light-32x32.png',
+          media: '(prefers-color-scheme: light)',
+        },
+        {
+          url: '/icon-dark-32x32.png',
+          media: '(prefers-color-scheme: dark)',
+        },
+        {
+          url: '/icon.svg',
+          type: 'image/svg+xml',
+        },
+      ],
+      apple: '/apple-icon.png',
+    },
+  }
 }
 
 export default function RootLayout({

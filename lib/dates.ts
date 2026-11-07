@@ -39,3 +39,15 @@ export function daysBetween(from: DateKey, to: DateKey): number {
 export function addDays(key: DateKey, days: number): DateKey {
   return toDateKey(addDaysFns(fromDateKey(key), days))
 }
+
+/** Milliseconds from `now` until the next local midnight, when the next puzzle opens. */
+export function msUntilNextDay(now: Date): number {
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+  return Math.max(0, midnight.getTime() - now.getTime())
+}
+
+/** Calendar date of `date` in an IANA time zone (used on the server, which runs in UTC). */
+export function dateKeyInZone(date: Date, timeZone: string): DateKey {
+  // en-CA formats as YYYY-MM-DD
+  return new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(date)
+}

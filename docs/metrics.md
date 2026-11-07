@@ -54,7 +54,7 @@ Traffic is small, so expect weekly numbers to swing a lot. Compare four-week win
 | **D1 / D7 retention** | Of players whose first visit was day N, the share with any event on day N+1 / N+7 | Every event's `days_since_first`; Umami's identified player ID |
 | **Median solve time** | Median `time` on `{difficulty}_completed`, by difficulty | `{difficulty}_completed.time` |
 | **Abandonment point** | Distribution of `pct_filled` when players leave without finishing | `session_end`, `{difficulty}_abandoned` (both have `pct_filled`) |
-| **Share rate** | (`result_shared` with outcome `shared` or `copied`, plus `result_copied`) ÷ completions; share-driven visits once TRI-037 adds `utm_source=share` | `result_shared.outcome`, `result_copied` |
+| **Share rate** | (`result_shared` with outcome `shared` or `copied`, plus `result_copied`) ÷ completions. Share-driven visits: Umami's UTM report, `utm_source=share`, split by `utm_content` (difficulty) | `result_shared.outcome`, `result_copied`, page views with UTM |
 | **Multi-tier days** | Players completing 2+ difficulties on the same day ÷ players completing any | `{difficulty}_completed` per player per day |
 | **Rules effect** | Completion rate for players with `rules_seen = true` vs `false` on `puzzle_started`; share of `rules_opened` that reach `rules_completed` | `puzzle_started.rules_seen`, `rules_step`, `rules_completed` |
 
@@ -71,11 +71,13 @@ Every event also carries `days_since_first` (whole days since this browser's fir
 | `session_end` | Page hidden with an unfinished, started puzzle (once per page load) | `difficulty`, `pct_filled`, `time` |
 | `result_shared` | Share button | `difficulty`, `method` (`native_share` / `clipboard`), `outcome` (`shared` / `cancelled` / `copied` / `failed`) |
 | `result_copied` | Copy button | `difficulty` |
+| `difficulty_rated` | Too easy / Just right / Too hard tapped in the win modal (once per puzzle) | `difficulty`, `rating` (`too_easy` / `just_right` / `too_hard`), `time` (s). `tier` is added once TRI-046 grades puzzles |
 | `rules_opened` | How to Play opened | — |
 | `rules_step` | Rules page changed | `n` (1-based), `of` |
 | `rules_completed` | Last rules page reached | — |
 | `error_check_toggled` | Show errors on/off | `enabled`, `difficulty` |
-| `kofi_opened` | Support me opened | — |
+| `kofi_prompt_shown` | Win modal showed "Buy me a coffee" (one puzzle a week; again if that result is reopened) | `difficulty` |
+| `kofi_opened` | Ko-fi panel opened | `source` (`footer` / `win_modal`) |
 | `feedback_opened` | Feedback opened | — |
 | `puzzle_load_failed` | Puzzles couldn't be downloaded | `difficulty`, `reason` |
 | `puzzle_fallback_served` | Today's puzzle missing; another was served | `difficulty`, `source` (date or `backup`) |

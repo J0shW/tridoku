@@ -58,8 +58,25 @@ describe("play counters", () => {
     bumpCounter("hard", "2026-11-07", "errors")
     bumpCounter("hard", "2026-11-07", "errors")
     bumpCounter("hard", "2026-11-07", "notes")
-    expect(getCounters("hard", "2026-11-07")).toEqual({ errors: 2, notes: 1, resets: 0 })
-    expect(getCounters("easy", "2026-11-07")).toEqual({ errors: 0, notes: 0, resets: 0 })
-    expect(getCounters("hard", "2026-11-06")).toEqual({ errors: 0, notes: 0, resets: 0 })
+    expect(getCounters("hard", "2026-11-07")).toMatchObject({ errors: 2, notes: 1, resets: 0 })
+    expect(getCounters("easy", "2026-11-07")).toMatchObject({ errors: 0, notes: 0, resets: 0 })
+    expect(getCounters("hard", "2026-11-06")).toMatchObject({ errors: 0, notes: 0, resets: 0 })
+  })
+
+  it("counts wrong entries per region for the share grid (TRI-036)", async () => {
+    const { bumpCounter, getCounters } = await import("@/lib/play-counters")
+    bumpCounter("easy", "2026-11-07", "errors", 4)
+    bumpCounter("easy", "2026-11-07", "errors", 4)
+    bumpCounter("easy", "2026-11-07", "errors", 8)
+    bumpCounter("easy", "2026-11-07", "notes")
+    const c = getCounters("easy", "2026-11-07")
+    expect(c.errors).toBe(3)
+    expect(c.regionErrors).toEqual([0, 0, 0, 0, 2, 0, 0, 0, 1])
+  })
+
+  it("reads counters saved before per-region counts existed", async () => {
+    localStorage.setItem("tridoku-play-counters", JSON.stringify({ "2026-11-07:medium": { errors: 2, notes: 0, resets: 1 } }))
+    const { getCounters } = await import("@/lib/play-counters")
+    expect(getCounters("medium", "2026-11-07")).toEqual({ errors: 2, notes: 0, resets: 1, regionErrors: Array(9).fill(0) })
   })
 })

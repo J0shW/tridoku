@@ -45,6 +45,14 @@ const start = async (page, diff) => {
 
 ;(async () => {
   const browser = await chromium.launch()
+  // Play as someone who has seen the rules, so the first-visit intro (TRI-029) doesn't
+  // cover the board. Step 1 still opens How to Play itself for its screenshot.
+  const newContext = browser.newContext.bind(browser)
+  browser.newContext = async (opts) => {
+    const ctx = await newContext(opts)
+    await ctx.addInitScript(() => localStorage.setItem("tridoku-rules-seen", "true"))
+    return ctx
+  }
 
   // 1. Full play-throughs with screenshots
   for (const vp of [

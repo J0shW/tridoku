@@ -16,7 +16,7 @@ import { InputModeToggle } from "@/components/input-mode-toggle"
 import { WelcomeScreen } from "@/components/welcome-screen"
 import { Button } from "@/components/ui/button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X, RotateCw } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
 import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
@@ -58,6 +58,7 @@ export function TridokuGame() {
     inputMode,
     highlightedValue,
     puzzleNumber,
+    puzzleDate,
     fallback,
     progressToday,
     previewPuzzle,
@@ -336,13 +337,19 @@ export function TridokuGame() {
               </div>
             </div>
 
-            {/* View mode indicator */}
+            {/* View mode indicator, with a way back to the result card (TRI-035) */}
             {isViewMode && (
-              <div className="bg-[#bfdde2]/60 dark:bg-[#bfdde2]/90 border-2 border-[#98ac8b] rounded-lg p-4 flex items-center justify-center gap-2">
-                <Eye className="h-5 w-5 text-[#2d5a3a]" />
-                <p className="text-[#2d5a3a] font-semibold">
-                  View Mode: You completed this puzzle today!
-                </p>
+              <div className="bg-[#bfdde2]/60 dark:bg-[#bfdde2]/90 border-2 border-[#98ac8b] rounded-lg p-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-3">
+                <div className="flex items-center gap-2">
+                  <Eye className="h-5 w-5 shrink-0 text-[#2d5a3a]" />
+                  <p className="text-[#2d5a3a] font-semibold">
+                    You completed this puzzle today!
+                  </p>
+                </div>
+                <Button size="sm" className="gap-2" onClick={() => setShowWin(true)}>
+                  <Share2 className="h-4 w-4" />
+                  Share result
+                </Button>
               </div>
             )}
             {/* Input mode toggle and number pad */}
@@ -422,7 +429,12 @@ export function TridokuGame() {
         difficulty={difficulty || 'medium'}
         elapsedTime={elapsedTime}
         puzzleNumber={puzzleNumber}
+        puzzleDate={puzzleDate}
         getShareText={getShareText}
+        onPlayNext={(d) => {
+          setShowWin(false)
+          changeDifficulty(d)
+        }}
       />
 
       <RulesModal

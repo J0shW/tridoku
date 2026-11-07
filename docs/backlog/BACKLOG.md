@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 48 todo · 2 in progress · 1 in review · 34 done · 1 won't do · plus 12 [research items](research.md)
+**86 items** · 41 todo · 2 in progress · 8 in review · 34 done · 1 won't do · plus 12 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -52,15 +52,15 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-031](m1-first-impression.md#tri-031) | Same rule colors on every difficulty | High | H | S | — | Done |
 | [TRI-032](m1-first-impression.md#tri-032) | Shade touching cells of the selected cell | Low | M | S | — | Done |
 | [TRI-033](m1-first-impression.md#tri-033) | Returning players continue where they left off | Medium | H | S | — | Done |
-| [TRI-034](m1-first-impression.md#tri-034) | Better win moment | Medium | H | S | — | Todo |
-| [TRI-035](m1-first-impression.md#tri-035) | Share button stays available after winning | Medium | M | S | — | Todo |
-| [TRI-036](m1-first-impression.md#tri-036) | Spoiler-free share grid | High | H | M | TRI-008 | Todo |
-| [TRI-037](m1-first-impression.md#tri-037) | Share links are attributable | Medium | M | S | — | Todo |
-| [TRI-038](m1-first-impression.md#tri-038) | Daily social preview image | Medium | M | M | TRI-008 | Todo |
+| [TRI-034](m1-first-impression.md#tri-034) | Better win moment | Medium | H | S | — | In review |
+| [TRI-035](m1-first-impression.md#tri-035) | Share button stays available after winning | Medium | M | S | — | In review |
+| [TRI-036](m1-first-impression.md#tri-036) | Spoiler-free share grid | High | H | M | TRI-008 | In review |
+| [TRI-037](m1-first-impression.md#tri-037) | Share links are attributable | Medium | M | S | — | In review |
+| [TRI-038](m1-first-impression.md#tri-038) | Daily social preview image | Medium | M | M | TRI-008 | In review |
 | [TRI-039](m1-first-impression.md#tri-039) | robots.txt and sitemap | Medium | M | S | — | Todo |
 | [TRI-040](m1-first-impression.md#tri-040) | "How to play Tridoku" page | Medium | M | S | TRI-029 | Todo |
-| [TRI-041](m1-first-impression.md#tri-041) | Ko-fi prompt at the win moment | Medium | M | S | TRI-019 | Todo |
-| [TRI-042](m1-first-impression.md#tri-042) | One-tap difficulty rating after a win | Medium | H | S | — | Todo |
+| [TRI-041](m1-first-impression.md#tri-041) | Ko-fi prompt at the win moment | Medium | M | S | TRI-019 | In review |
+| [TRI-042](m1-first-impression.md#tri-042) | One-tap difficulty rating after a win | Medium | H | S | — | In review |
 | [TRI-043](m1-first-impression.md#tri-043) | Feedback form knows the context | Medium | M | S | — | Todo |
 | [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Todo |
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
