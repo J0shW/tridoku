@@ -83,3 +83,20 @@ describe("win rate (TRI-007)", () => {
     expect(s.easy.gamesPlayed).toBe(0)
   })
 })
+
+describe("win details kept for the result card (TRI-034, TRI-036)", () => {
+  it("keeps the best time from before this solve and the region errors", () => {
+    let s = solveDays("2026-11-01", 1) // best 300
+    s = recordWin(s, { puzzleDate: "2026-11-02", today: "2026-11-02", time: 250, solvedBoard: "x", regionErrors: [0, 1, 0, 0, 0, 0, 0, 0, 0] })!
+    expect(s.bestTime).toBe(250)
+    expect(s.previousBestTime).toBe(300)
+    expect(s.todaysRegionErrors).toEqual([0, 1, 0, 0, 0, 0, 0, 0, 0])
+    const reloaded = normalizeStats(JSON.parse(JSON.stringify({ easy: s })), "2026-11-02").easy
+    expect(reloaded.previousBestTime).toBe(300)
+    expect(reloaded.todaysRegionErrors).toEqual([0, 1, 0, 0, 0, 0, 0, 0, 0])
+  })
+
+  it("has no previous best on a first solve", () => {
+    expect(solveDays("2026-11-01", 1).previousBestTime).toBeNull()
+  })
+})

@@ -6,6 +6,31 @@ import { X } from "lucide-react"
 import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { trackEvent } from "@/lib/analytics"
 
+/** The Ko-fi donation panel in a dialog. Also opened from the win modal (TRI-041). */
+export function KofiDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="w-[360px] max-w-[calc(100vw-5rem)] left-[calc(50%-1.5rem)] gap-0 overflow-visible rounded-2xl border-0 p-0 shadow-2xl"
+      >
+        <DialogTitle className="sr-only">Support me on Ko-fi</DialogTitle>
+        <DialogClose className="absolute -right-3 -top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground shadow-lg ring-offset-background transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+          <X className="h-5 w-5" />
+          <span className="sr-only">Close</span>
+        </DialogClose>
+        <iframe
+          id="kofiframe"
+          src="https://ko-fi.com/joshwhitney/?hidefeed=true&widget=true&embed=true&preview=true"
+          title="joshwhitney"
+          className="h-[680px] max-h-[80vh] w-full overflow-hidden rounded-2xl border-0"
+          style={{ background: "#f9f9f9" }}
+        />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 /** A custom "Support me" button (matching the feedback button) that opens the Ko-fi donation panel in a dialog. */
 export function KofiWidget() {
   const [open, setOpen] = useState(false)
@@ -16,7 +41,7 @@ export function KofiWidget() {
         type="button"
         onClick={() => {
           setOpen(true)
-          trackEvent("kofi_opened")
+          trackEvent("kofi_opened", { source: "footer" })
         }}
         aria-label="Support me on Ko-fi"
         className="inline-flex items-center gap-2 rounded-md bg-foreground/5 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-foreground/10 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -25,25 +50,7 @@ export function KofiWidget() {
         Support me
       </button>
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent
-          showCloseButton={false}
-          className="w-[360px] max-w-[calc(100vw-5rem)] left-[calc(50%-1.5rem)] gap-0 overflow-visible rounded-2xl border-0 p-0 shadow-2xl"
-        >
-          <DialogTitle className="sr-only">Support me on Ko-fi</DialogTitle>
-          <DialogClose className="absolute -right-3 -top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-background text-foreground shadow-lg ring-offset-background transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
-            <X className="h-5 w-5" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-          <iframe
-            id="kofiframe"
-            src="https://ko-fi.com/joshwhitney/?hidefeed=true&widget=true&embed=true&preview=true"
-            title="joshwhitney"
-            className="h-[680px] max-h-[80vh] w-full overflow-hidden rounded-2xl border-0"
-            style={{ background: "#f9f9f9" }}
-          />
-        </DialogContent>
-      </Dialog>
+      <KofiDialog open={open} onOpenChange={setOpen} />
     </>
   )
 }

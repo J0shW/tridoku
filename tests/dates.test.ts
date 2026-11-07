@@ -58,3 +58,12 @@ describe("addDays / fromDateKey", () => {
     expect(toDateKey(fromDateKey("2026-03-08"))).toBe("2026-03-08")
   })
 })
+
+describe("dateKeyInZone (TRI-038)", () => {
+  it("gives the calendar date in another zone", async () => {
+    const { dateKeyInZone } = await import("@/lib/dates")
+    const instant = new Date("2026-11-08T05:30:00Z") // 22:30 on the 7th in Edmonton
+    expect(dateKeyInZone(instant, "America/Edmonton")).toBe("2026-11-07")
+    expect(dateKeyInZone(instant, "Asia/Tokyo")).toBe("2026-11-08")
+  })
+})

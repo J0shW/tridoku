@@ -22,6 +22,10 @@ export interface DifficultyStats {
   /** Solved board and time for lastPlayedDate, shown in view mode. */
   todaysPuzzle?: string
   todaysTime?: number
+  /** Best time before lastPlayedDate's solve, for "compared with your best" (TRI-034). */
+  previousBestTime?: number | null
+  /** Wrong entries per region in lastPlayedDate's solve, for the share grid (TRI-036). */
+  todaysRegionErrors?: number[]
 }
 
 export type GameStats = Record<Difficulty, DifficultyStats>
@@ -66,6 +70,10 @@ function normalizeDifficulty(raw: unknown, today: DateKey): DifficultyStats {
   if (!lastPlayedDate || daysBetween(lastPlayedDate, today) > 1) stats.currentStreak = 0
   if (typeof r.todaysPuzzle === "string") stats.todaysPuzzle = r.todaysPuzzle
   if (typeof r.todaysTime === "number") stats.todaysTime = r.todaysTime
+  if (typeof r.previousBestTime === "number" || r.previousBestTime === null) stats.previousBestTime = r.previousBestTime
+  if (Array.isArray(r.todaysRegionErrors) && r.todaysRegionErrors.every((n) => typeof n === "number")) {
+    stats.todaysRegionErrors = r.todaysRegionErrors
+  }
   return stats
 }
 
@@ -96,10 +104,12 @@ interface Win {
   today: DateKey
   time: number
   solvedBoard: string
+  /** Wrong entries per region, kept for sharing this result later. */
+  regionErrors?: number[]
 }
 
 /** Records a solve. Returns null if this puzzle was already counted. */
-export function recordWin(stats: DifficultyStats, { puzzleDate, today, time, solvedBoard }: Win): DifficultyStats | null {
+export function recordWin(stats: DifficultyStats, { puzzleDate, today, time, solvedBoard, regionErrors }: Win): DifficultyStats | null {
   const gap = stats.lastPlayedDate ? daysBetween(stats.lastPlayedDate, puzzleDate) : null
   if (gap !== null && gap <= 0) return null
 
@@ -117,6 +127,8 @@ export function recordWin(stats: DifficultyStats, { puzzleDate, today, time, sol
     completedToday: puzzleDate === today,
     todaysPuzzle: solvedBoard,
     todaysTime: time,
+    previousBestTime: stats.bestTime,
+    todaysRegionErrors: regionErrors,
   }
 }
 
