@@ -13,6 +13,7 @@ import { DifficultySelector } from "@/components/difficulty-selector"
 import { KofiWidget } from "@/components/kofi-widget"
 import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
+import { WelcomeScreen } from "@/components/welcome-screen"
 import { Button } from "@/components/ui/button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X, RotateCw } from "lucide-react"
@@ -58,6 +59,8 @@ export function TridokuGame() {
     highlightedValue,
     puzzleNumber,
     fallback,
+    progressToday,
+    previewPuzzle,
     loadError,
     retryLoad,
     stats,
@@ -213,91 +216,15 @@ export function TridokuGame() {
       {/* Main content */}
       <main className="flex-1 container max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
         {!hasStarted ? (
-          /* Welcome screen - choose difficulty */
-          <div className="flex-1 flex items-center justify-center">
-            <div className="max-w-md w-full space-y-8 text-center">
-              <div className="space-y-4">
-                <div className="flex justify-center">
-                  <Triangle className="h-20 w-20 text-primary fill-primary/20" />
-                </div>
-                <h2 className="text-4xl font-bold text-foreground">Welcome to Tridoku</h2>
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">First time here?</p>
-                  <Button
-                    variant="outline"
-                    className="gap-2"
-                    onClick={openRules}
-                  >
-                    <HelpCircle className="h-4 w-4" />
-                    How to Play
-                  </Button>
-                </div>
-              </div>
-
-              <div className="space-y-6 pt-4">
-                <p className="text-lg text-muted-foreground">
-                  Choose your difficulty level to begin today&apos;s puzzle
-                </p>
-                {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
-                <div className="space-y-3">
-                  <button
-                    onClick={() => changeDifficulty('easy')}
-                    disabled={isGenerating}
-                    className="w-full py-6 px-8 rounded-lg border-2 border-[#98ac8b] bg-[#bfdde2] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-left">
-                        <h3 className="text-2xl font-bold text-[#2d5a3a] group-hover:text-[#1f4028]">Easy</h3>
-                        <p className="text-sm text-[#4a6b56] mt-1">40-50 starting numbers</p>
-                      </div>
-                      {stats.easy.completedToday && (
-                        <div className="text-[#2d5a3a] text-sm font-semibold">✓ Completed</div>
-                      )}
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => changeDifficulty('medium')}
-                    disabled={isGenerating}
-                    className="w-full py-6 px-8 rounded-lg border-2 border-[#e2885b] bg-[#ecbd6c] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-left">
-                        <h3 className="text-2xl font-bold text-[#6b4423] group-hover:text-[#4d2f18]">Medium</h3>
-                        <p className="text-sm text-[#8a5f3a] mt-1">30-40 starting numbers</p>
-                      </div>
-                      {stats.medium.completedToday && (
-                        <div className="text-[#6b4423] text-sm font-semibold">✓ Completed</div>
-                      )}
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => changeDifficulty('hard')}
-                    disabled={isGenerating}
-                    className="w-full py-6 px-8 rounded-lg border-2 border-[#b47098] bg-[#e26495] hover:opacity-80 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="text-left">
-                        <h3 className="text-2xl font-bold text-[#6b2447] group-hover:text-[#4d1a33]">Hard</h3>
-                        <p className="text-sm text-[#8a456b] mt-1">24-30 starting numbers</p>
-                      </div>
-                      {stats.hard.completedToday && (
-                        <div className="text-[#6b2447] text-sm font-semibold">✓ Completed</div>
-                      )}
-                    </div>
-                  </button>
-                </div>
-
-                {isGenerating && (
-                  <div className="flex items-center justify-center gap-3 py-4">
-                    <Spinner className="h-5 w-5 text-primary" />
-                    <p className="text-muted-foreground">Loading puzzle...</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          <WelcomeScreen
+            stats={stats}
+            progressToday={progressToday}
+            previewPuzzle={previewPuzzle}
+            isGenerating={isGenerating}
+            errorNotice={loadError && !isGenerating ? <LoadErrorNotice onRetry={retryLoad} /> : null}
+            onPlay={changeDifficulty}
+            onOpenRules={openRules}
+          />
         ) : (
           /* Game view - active puzzle */
           <>
@@ -345,7 +272,6 @@ export function TridokuGame() {
                   selectedCellId={selectedCellId}
                   onCellClick={selectCell}
                   isPaused={isPaused}
-                  difficulty={difficulty}
                   highlightedValue={highlightedValue}
                   showErrors={showErrors}
                 />
@@ -433,7 +359,7 @@ export function TridokuGame() {
         />
       )}
 
-      <footer className="text-center pt-4 pb-24 sm:pb-4 text-xs text-muted-foreground/60">
+      <footer className="text-center pt-4 pb-24 sm:pb-4 px-4 text-xs text-muted-foreground/60">
         <div className="mb-4 flex flex-wrap items-center justify-center gap-3">
           <KofiWidget />
           <TallyWidget />
