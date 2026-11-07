@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useTridoku } from "@/hooks/use-tridoku"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { NumberPad } from "@/components/number-pad"
@@ -8,7 +8,7 @@ import { GameControls } from "@/components/game-controls"
 import { TimerDisplay } from "@/components/timer-display"
 import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
-import { RulesModal } from "@/components/rules-modal"
+import { RulesModal, POWER_CELLS_TIP_INDEX, type RulesTab } from "@/components/rules-modal"
 import { DifficultySelector } from "@/components/difficulty-selector"
 import { KofiWidget } from "@/components/kofi-widget"
 import { TallyWidget } from "@/components/tally-widget"
@@ -93,15 +93,72 @@ export function TridokuGame() {
     localStorage.setItem('tridoku-pencil-tip-dismissed', 'true')
   }, [])
 
-  const openRules = useCallback(() => {
-    trackEvent("rules_opened")
+  // Which card the rules open at, and whether this is the first-visit intro (TRI-029)
+  const [rulesView, setRulesView] = useState<{ tab: RulesTab; step: number; firstTime: boolean }>({
+    tab: "rules",
+    step: 0,
+    firstTime: false,
+  })
+
+  const openRulesAt = useCallback((tab: RulesTab, step: number, firstTime = false) => {
+    trackEvent("rules_opened", { tab, auto: firstTime })
     try {
       localStorage.setItem("tridoku-rules-seen", "true") // read by puzzle_started (TRI-016)
     } catch {
       /* storage unavailable */
     }
+    setRulesView({ tab, step, firstTime })
     setShowRules(true)
   }, [])
+
+  const openRules = useCallback(() => openRulesAt("rules", 0), [openRulesAt])
+
+  // First visit (nothing played, nothing in progress, rules never opened): starting a
+  // puzzle also opens the three rule cards over it (TRI-029).
+  const playFromWelcome = useCallback(
+    (d: Parameters<typeof changeDifficulty>[0]) => {
+      let rulesSeen = false
+      try {
+        rulesSeen = localStorage.getItem("tridoku-rules-seen") === "true"
+      } catch {
+        /* storage unavailable */
+      }
+      const firstVisit =
+        !rulesSeen &&
+        Object.values(stats).every((st) => st.gamesPlayed === 0 && st.gamesWon === 0) &&
+        Object.keys(progressToday).length === 0
+      if (firstVisit) openRulesAt("rules", 0, true)
+      changeDifficulty(d)
+    },
+    [stats, progressToday, changeDifficulty, openRulesAt],
+  )
+
+  // TRI-030: after 60 s without a new rule-abiding entry, offer the Power Cells tip once.
+  const POWER_TIP_KEY = "tridoku-tip-power-cells-seen"
+  const progressCount = useMemo(
+    () => cells.flat().filter((c) => !c.hidden && !c.isGiven && c.value != null && !c.hasError).length,
+    [cells],
+  )
+  const lastProgressAt = useRef(0)
+  useEffect(() => {
+    lastProgressAt.current = Date.now()
+  }, [progressCount, difficulty, isPaused])
+  const [showPowerTip, setShowPowerTip] = useState(false)
+  useEffect(() => {
+    if (!hasStarted || isViewMode || isComplete || isPaused) return
+    const timer = setInterval(() => {
+      if (Date.now() - lastProgressAt.current < 60_000) return
+      try {
+        if (localStorage.getItem(POWER_TIP_KEY) === "true") return
+        localStorage.setItem(POWER_TIP_KEY, "true")
+      } catch {
+        return
+      }
+      setShowPowerTip(true)
+      trackEvent("tip_shown", { tip: "power_cells", difficulty: difficulty ?? "unknown" })
+    }, 5_000)
+    return () => clearInterval(timer)
+  }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
 
   // Show win modal when complete
@@ -222,7 +279,7 @@ export function TridokuGame() {
             previewPuzzle={previewPuzzle}
             isGenerating={isGenerating}
             errorNotice={loadError && !isGenerating ? <LoadErrorNotice onRetry={retryLoad} /> : null}
-            onPlay={changeDifficulty}
+            onPlay={playFromWelcome}
             onOpenRules={openRules}
           />
         ) : (
@@ -297,6 +354,28 @@ export function TridokuGame() {
                     disabled={isPaused || isComplete}
                   />
                 </div>
+                {showPowerTip && !isComplete && (
+                  <div role="status" className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 pr-8 text-center text-sm text-muted-foreground">
+                    <button
+                      onClick={() => setShowPowerTip(false)}
+                      className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
+                      aria-label="Dismiss tip"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                    Stuck? A digit just outside a region rules out every cell it touches inside that region.
+                    That often leaves only one place for it.{" "}
+                    <button
+                      className="font-medium text-foreground underline underline-offset-2"
+                      onClick={() => {
+                        setShowPowerTip(false)
+                        openRulesAt("tips", POWER_CELLS_TIP_INDEX)
+                      }}
+                    >
+                      Show me
+                    </button>
+                  </div>
+                )}
                 {inputMode === 'pencil' && !pencilTipDismissed && (
                   <div className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-center text-sm text-muted-foreground">
                     <button
@@ -348,6 +427,9 @@ export function TridokuGame() {
       <RulesModal
         open={showRules}
         onOpenChange={setShowRules}
+        initialTab={rulesView.tab}
+        initialStep={rulesView.step}
+        firstTime={rulesView.firstTime}
       />
 
       {!IS_PRODUCTION && (

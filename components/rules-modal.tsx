@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye } from "lucide-react"
-import { TRIDOKU_BOARD, type Cell } from "@/lib/tridoku"
+import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { cn } from "@/lib/utils"
@@ -18,6 +18,11 @@ import {
 interface RulesModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  /** Tab and card to open at (default: the first rule) */
+  initialTab?: "rules" | "tips"
+  initialStep?: number
+  /** First visit: the last rules card says "Start playing" */
+  firstTime?: boolean
 }
 
 // ─── SVG helpers ───────────────────────────────────────────────────────────────
@@ -383,146 +388,7 @@ function PowerCellExample() {
   )
 }
 
-// ─── Full board preview ─────────────────────────────────────────────────────
-
-function fullBoardFill(color: Cell["color"]): string {
-  switch (color) {
-    case "outer":
-      return "var(--tridoku-easy-outer)"
-    case "inner":
-      return "var(--tridoku-easy-inner)"
-    case "overlap":
-      return "var(--tridoku-easy-overlap)"
-    default:
-      return "var(--tridoku-easy-none)"
-  }
-}
-
-type BoldEdge = { x1: number; y1: number; x2: number; y2: number }
-
-function regionAt(row: number, col: number): number | null {
-  if (row < 0 || row >= 9 || col < 0 || col >= 17) return null
-  const cell = TRIDOKU_BOARD[row][col]
-  if (cell.hidden) return null
-  return cell.boldedRegion
-}
-
-function computeBoldEdges(): BoldEdge[] {
-  const edges: BoldEdge[] = []
-  for (const boardRow of TRIDOKU_BOARD) {
-    for (const cell of boardRow) {
-      if (cell.hidden) continue
-      const { row, col, direction, boldedRegion } = cell
-      if (direction === "up") {
-        const yBase = (row + 1) * ROW_H
-        const yTop = row * ROW_H
-        if (regionAt(row, col - 1) !== boldedRegion) edges.push({ x1: col, y1: yBase, x2: col + 1, y2: yTop })
-        if (regionAt(row, col + 1) !== boldedRegion) edges.push({ x1: col + 1, y1: yTop, x2: col + 2, y2: yBase })
-        if (regionAt(row + 1, col) !== boldedRegion) edges.push({ x1: col, y1: yBase, x2: col + 2, y2: yBase })
-      } else {
-        const yTop = row * ROW_H
-        const yBottom = (row + 1) * ROW_H
-        if (regionAt(row, col - 1) !== boldedRegion) edges.push({ x1: col, y1: yTop, x2: col + 1, y2: yBottom })
-        if (regionAt(row, col + 1) !== boldedRegion) edges.push({ x1: col + 2, y1: yTop, x2: col + 1, y2: yBottom })
-        if (regionAt(row - 1, col) !== boldedRegion) edges.push({ x1: col, y1: yTop, x2: col + 2, y2: yTop })
-      }
-    }
-  }
-  return edges
-}
-
-const BOLD_EDGES = computeBoldEdges()
-
-// A handful of sample givens so the preview reads like a real puzzle
-const SAMPLE_GIVENS: Record<string, number> = {
-  "0-8": 5,
-  "1-7": 2,
-  "2-6": 7,
-  "2-12": 3,
-  "3-3": 8,
-  "3-13": 1,
-  "4-5": 4,
-  "4-9": 6,
-  "4-13": 9,
-  "5-4": 2,
-  "5-14": 5,
-  "6-2": 6,
-  "6-16": 8,
-  "7-7": 3,
-  "8-8": 1,
-  "8-14": 7,
-}
-
-function FullBoardExample() {
-  const allCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
-  return (
-    <svg
-      viewBox={`-0.2 -0.2 18.4 ${BOARD_SVG_H + 0.4}`}
-      className="w-full max-w-44 mx-auto block"
-      aria-hidden="true"
-    >
-      {allCells.map((cell) => {
-        const c = centroid(cell.row, cell.col, cell.direction)
-        const val = SAMPLE_GIVENS[cell.id]
-        return (
-          <g key={cell.id}>
-            <polygon
-              points={triPts(cell.row, cell.col, cell.direction)}
-              fill={fullBoardFill(cell.color)}
-              stroke="#000"
-              strokeWidth="0.01"
-            />
-            {val !== undefined && (
-              <text
-                x={c.x}
-                y={c.y}
-                dy="0.03"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="0.8"
-                fontWeight="700"
-                fill="#1a1a1a"
-              >
-                {val}
-              </text>
-            )}
-          </g>
-        )
-      })}
-      {BOLD_EDGES.map((edge, i) => (
-        <line
-          key={`bold-${i}`}
-          x1={edge.x1}
-          y1={edge.y1}
-          x2={edge.x2}
-          y2={edge.y2}
-          className="stroke-tridoku-region-stroke"
-          strokeWidth="0.12"
-          strokeLinecap="round"
-        />
-      ))}
-    </svg>
-  )
-}
-
 // ─── Step content ────────────────────────────────────────────────────────────
-
-function IntroStep() {
-  return (
-    <div className="flex flex-col items-center text-center">
-      <div className="mt-1 mb-1 w-full">
-        <FullBoardExample />
-      </div>
-      <p className="text-muted-foreground leading-relaxed text-pretty">
-        Tridoku is a puzzle game originally created by Japheth J. Light. It is similar to Sudoku, but with{" "}
-        <strong className="text-foreground">triangles!</strong>
-      </p>
-      <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-pretty">
-        Let&apos;s walk through how it works, one step at a time.
-      </p>
-    </div>
-  )
-}
 
 function SelectCellStep() {
   const methods = [
@@ -721,102 +587,118 @@ interface Step {
   content: React.ReactNode
 }
 
-const STEPS: Step[] = [
-  {
-    title: "Welcome to Tridoku",
-    subtitle: "The triangular twist on Sudoku",
-    content: <IntroStep />,
-  },
-  {
-    title: "Selecting a Cell",
-    subtitle: "Click, tap, or use the arrow keys",
-    content: <SelectCellStep />,
-  },
+// TRI-029: the rules fit in three cards; everything else is a tip.
+const RULE_STEPS: Step[] = [
   {
     title: "Rule 1: Regions",
-    subtitle: "The core constraint",
+    subtitle: "Sudoku on a triangle",
     content: (
       <RuleStep example={<RegionExample />}>
-        Each bolded triangular region must contain the digits 1 through 9 exactly once.
+        Fill every triangle with a digit from 1 to 9. Each bold-outlined region holds 1 to 9
+        exactly once.
       </RuleStep>
     ),
   },
   {
-    title: "Rule 2: Outer Edges",
-    subtitle: "The three big sides",
+    title: "Rule 2: Edges",
+    subtitle: "The big triangle and the one inside it",
     content: (
-      <RuleStep example={<OuterEdgesExample />}>
-        The three sides of the large triangle must each contain digits 1 through 9.
-      </RuleStep>
+      <div>
+        <p className="text-muted-foreground leading-relaxed text-center text-pretty">
+          Each of the three outer sides holds 1 to 9 once, and so does each side of the
+          upside-down triangle in the middle.
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <OuterEdgesExample />
+          <InnerTriangleExample />
+        </div>
+        <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-center text-pretty">
+          On the board, <strong className="text-foreground">blue</strong> cells are on an outer side,{" "}
+          <strong className="text-foreground">yellow</strong> cells on the inner triangle, and{" "}
+          <strong className="text-foreground">green</strong> cells on both.
+        </p>
+      </div>
     ),
   },
   {
-    title: "Rule 3: Inner Triangle",
-    subtitle: "The inverted triangle in the middle",
-    content: (
-      <RuleStep example={<InnerTriangleExample />}>
-        The inner triangle&apos;s edges must also contain digits 1 through 9.
-      </RuleStep>
-    ),
-  },
-  {
-    title: "Rule 4: No Touching",
-    subtitle: "Keep matching digits apart",
+    title: "Rule 3: No Touching",
+    subtitle: "The rule Sudoku doesn't have",
     content: (
       <RuleStep example={<NoTouchingExample />}>
-        Identical numbers cannot touch each other, not even at a single corner point.
+        The same digit can never touch itself, not even at a single corner point.
       </RuleStep>
     ),
-  },
-  {
-    title: "Pen & Pencil",
-    subtitle: "Final answers vs. candidate notes",
-    content: <PenPencilStep />,
-  },
-  {
-    title: "Highlight a Digit",
-    subtitle: "Double-tap to see matching cells",
-    content: <HighlightStep />,
-  },
-  {
-    title: "Show Errors",
-    subtitle: "Flag rule-breaking digits",
-    content: <ShowErrorsStep />,
-  },
-  {
-    title: "Power Cells",
-    subtitle: "Eliminate candidates fast",
-    content: <PowerCellsStep />,
   },
 ]
 
-export function RulesModal({ open, onOpenChange }: RulesModalProps) {
-  const [step, setStep] = useState(0)
+const TIP_STEPS: Step[] = [
+  { title: "Selecting a Cell", subtitle: "Click, tap, or use the arrow keys", content: <SelectCellStep /> },
+  { title: "Pen & Pencil", subtitle: "Final answers vs. candidate notes", content: <PenPencilStep /> },
+  { title: "Highlight a Digit", subtitle: "Double-tap to see matching cells", content: <HighlightStep /> },
+  { title: "Show Errors", subtitle: "Flag rule-breaking digits", content: <ShowErrorsStep /> },
+  { title: "Power Cells", subtitle: "Eliminate candidates fast", content: <PowerCellsStep /> },
+]
 
-  // Reset to the first step whenever the modal is (re)opened
+export type RulesTab = "rules" | "tips"
+export const POWER_CELLS_TIP_INDEX = TIP_STEPS.length - 1
+
+export function RulesModal({ open, onOpenChange, initialTab = "rules", initialStep = 0, firstTime = false }: RulesModalProps) {
+  const [tab, setTab] = useState<RulesTab>(initialTab)
+  const [step, setStep] = useState(initialStep)
+
+  // Start at the requested card whenever the modal is (re)opened
   const [wasOpen, setWasOpen] = useState(open)
   if (open !== wasOpen) {
     setWasOpen(open)
-    if (open) setStep(0)
+    if (open) {
+      setTab(initialTab)
+      setStep(initialStep)
+    }
   }
+
+  const steps = tab === "rules" ? RULE_STEPS : TIP_STEPS
 
   // Track how far players get through the rules (TRI-019)
   const goTo = (next: number) => {
-    const n = Math.max(0, Math.min(STEPS.length - 1, next))
+    const n = Math.max(0, Math.min(steps.length - 1, next))
     if (n === step) return
     setStep(n)
-    trackEvent("rules_step", { n: n + 1, of: STEPS.length })
-    if (n === STEPS.length - 1) trackEvent("rules_completed")
+    trackEvent("rules_step", { tab, n: n + 1, of: steps.length })
+    if (tab === "rules" && n === steps.length - 1) trackEvent("rules_completed")
+  }
+
+  const switchTab = (next: RulesTab) => {
+    if (next === tab) return
+    setTab(next)
+    setStep(0)
+    trackEvent("rules_tab", { tab: next })
   }
 
   const isFirst = step === 0
-  const isLast = step === STEPS.length - 1
-  const current = STEPS[step]
+  const isLast = step === steps.length - 1
+  const current = steps[step]
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-border space-y-3">
+          <div className="mx-auto inline-flex rounded-lg border border-border bg-muted p-1 gap-1" role="tablist" aria-label="How to play">
+            {(["rules", "tips"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                aria-selected={tab === t}
+                onClick={() => switchTab(t)}
+                className={cn(
+                  "px-3 py-1 text-sm font-medium rounded-md transition-all",
+                  tab === t ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t === "rules" ? "Rules" : "Tips"}
+              </button>
+            ))}
+          </div>
           <DialogTitle className="text-center text-2xl font-bold text-balance">{current.title}</DialogTitle>
           <DialogDescription className="text-center">{current.subtitle}</DialogDescription>
         </DialogHeader>
@@ -835,7 +717,7 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
           </Button>
 
           <div className="flex items-center gap-1.5" aria-hidden="true">
-            {STEPS.map((_, i) => (
+            {steps.map((_, i) => (
               <button
                 key={i}
                 type="button"
@@ -850,7 +732,7 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
           </div>
 
           {isLast ? (
-            <Button onClick={() => onOpenChange(false)}>Got it!</Button>
+            <Button onClick={() => onOpenChange(false)}>{firstTime && tab === "rules" ? "Start playing" : "Got it!"}</Button>
           ) : (
             <Button onClick={() => goTo(step + 1)}>
               Next
@@ -858,6 +740,11 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
             </Button>
           )}
         </div>
+        {tab === "rules" && (
+          <p className="pb-3 -mt-1 text-center text-xs text-muted-foreground">
+            Tridoku was created by Japheth J. Light.
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   )
