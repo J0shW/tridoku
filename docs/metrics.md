@@ -4,11 +4,44 @@ What we measure, how, and where to read it. Events are sent to Umami (`lib/analy
 
 ## Baseline (before M0 analytics)
 
-From Vercel Analytics, which only keeps 31 days on the current plan:
+Last 30 days to 7 Nov 2026, recorded before the M0 analytics changes shipped.
 
-| Period | Visitors | Page views | Mobile visitors |
-|---|---|---|---|
-| 8 Oct – 6 Nov 2026 | 44 | 55 | 27 (61%) |
+### Traffic
+
+| Source | Visitors | Visits | Page views | Mobile |
+|---|---|---|---|---|
+| Vercel Analytics (8 Oct – 6 Nov) | 44 | — | 55 | 27 of 44 (61%) |
+| Umami overview | 12 | 29 | 32 | 2 of 12 (17%); laptop 9, desktop 1 |
+| Umami, visitors who triggered any event | 5 | 22 | — | — |
+
+Umami's bounce rate was 38%. Its visit duration reads 0 s, because the game is a single page: Umami measures time between page views. Ignore that number.
+
+**The two tools disagree.** Umami saw about a quarter of Vercel's visitors, and far fewer of them on mobile. The likely cause is that Umami's script loads from `cloud.umami.is`, which ad and tracker blockers commonly block (Safari's tracking protection among them). Vercel's script loads from the site's own domain. If that's right, Umami is missing most players, mobile players especially, and every Umami-based metric is skewed toward desktop users who don't block trackers. TRI-081 serves Umami from the site's own domain to fix this. Until then, use Vercel for traffic and device numbers, and treat Umami event rates as rough.
+
+### Events (Umami)
+
+| Event | Count |
+|---|---|
+| `error_check_toggled` | 28 |
+| `easy_loaded` | 15 |
+| `medium_loaded` | 14 |
+| `hard_loaded` | 6 |
+| `easy_completed` | 8 |
+| `medium_completed` | 3 |
+| `hard_completed` | 0 |
+| `easy_abandoned` | 3 |
+| `medium_abandoned` | 4 |
+| `hard_abandoned` | 1 |
+| `rules_opened` | 0 |
+| `result_shared` | 0 |
+
+Completed ÷ loaded is **Easy 53% (8/15), Medium 21% (3/14), Hard 0% (0/6)**. Those rates are low estimates: before M0, `*_loaded` also fired on every Reset and every return to a puzzle, so it counts more than real starts.
+
+What stands out:
+- **Nobody opened How to Play, and nobody shared**, out of the 5 players with any event. Onboarding (TRI-029) and the share grid (TRI-036) start from zero.
+- **Error checking was toggled 28 times**, a third of all events, about 6 per player. Players lean on it heavily, so making errors clear (TRI-055, TRI-065) matters.
+- **No Hard puzzle was finished**, consistent with the review finding that many Hard puzzles need advanced techniques (TRI-046, TRI-047).
+- With 5 event-sending players, possibly including the owner, these are anecdotes, not rates.
 
 Traffic is small, so expect weekly numbers to swing a lot. Compare four-week windows, and treat any metric built on fewer than ~30 players as a hint, not a result.
 
@@ -51,13 +84,22 @@ Every event also carries `days_since_first` (whole days since this browser's fir
 
 ## Setting up Umami reports
 
-To do in the Umami dashboard (Claude has no access to it):
+To do in the Umami dashboard (Claude has no access to it). Menu names may differ slightly by Umami version.
 
-1. **Funnel**: page view → `puzzle_started` → `easy_completed` (repeat for medium and hard), window 1 day. Gives activation and completion.
-2. **Retention**: on any event, break down by `days_since_first`. Players active on day N+1 or N+7 of their first visit show up as `days_since_first` = 1 or 7. Umami's built-in Retention report is a cross-check, but it groups by Umami's own visitor tracking, which may not match the anonymous ID.
-3. **Event data**: `easy_completed` / `medium_completed` / `hard_completed` by `time`, `errors`, `pencil_marks`; `session_end` and `*_abandoned` by `pct_filled`; `result_shared` by `outcome`; `puzzle_started` by `rules_seen`.
-4. **Goals**: `result_shared` (outcome = shared or copied) and `kofi_opened`.
+1. **Check events arrive** after the M0 analytics change deploys: play one puzzle on the live site (open How to Play, enter a digit, finish, tap Copy). **Realtime** or **Events** should show `puzzle_started`, `rules_step`, an `*_completed` event with `errors` / `pencil_marks` / `resets`, and `result_copied`.
+2. **Activation funnel**: Reports → Funnel, named "Activation": step 1 viewed page `/`, step 2 event `puzzle_started`, window 1 day. Umami funnels can't filter steps by event property, so don't build per-difficulty "started → completed" funnels; they'd mix difficulties. Use step 3 instead.
+3. **Event property breakdowns** (Events → click an event):
+   - `puzzle_started` by `difficulty`: divide each `*_completed` count by it for **completion rate**.
+   - `puzzle_started` by `rules_seen`: rules effect.
+   - `*_completed` by `time` (solve time), `errors`, `pencil_marks`.
+   - `session_end` and `*_abandoned` by `pct_filled`: **where players give up**.
+   - `result_shared` by `outcome`; `rules_step` by `n`.
+   - Any event by `days_since_first`: values 1 and 7 are **D1 and D7 returning players**.
+4. **Retention**: Reports → Retention, if your plan has it, as a cross-check. It uses Umami's own visitor tracking, not the anonymous ID.
+5. **Goals**: Reports → Goals: event `result_shared` and event `kofi_opened`.
+
+Check once a month and compare four-week windows.
 
 ## Vercel Analytics
 
-Kept for now. It's free on the current plan, needs no setup, and gives device, country and referrer for page views, and it's the source of the baseline above. Umami holds all game events. If the Umami dashboard ends up covering page views well enough, remove `<Analytics />` from `app/layout.tsx` to save a script.
+Kept for now. It's free on the current plan, needs no setup, and gives device, country and referrer for page views, and its first-party script sees more visitors than Umami does (see the baseline). Umami holds all game events. If the Umami dashboard ends up covering page views well enough, remove `<Analytics />` from `app/layout.tsx` to save a script.

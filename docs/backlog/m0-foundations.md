@@ -359,3 +359,18 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] `docs/evaluation/PROMPT.md` holds the original brief.
 - [x] `scripts/eval/` holds the puzzle grader and the browser play-through.
 - [x] `docs/evaluation/README.md` explains how to run a milestone review.
+
+<a id="tri-081"></a>
+## TRI-081 · Serve Umami from the site's own domain
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| High | H | S | Accuracy of every Umami metric | [TRI-015](m0-foundations.md#tri-015) | Found in M0 (Umami baseline) |
+
+**Problem.** Over the same 30 days Umami counted 12 visitors (17% mobile) and Vercel Analytics 44 (61% mobile). Umami's script and endpoint are on `cloud.umami.is`, which tracker blockers commonly block; Vercel's are first-party. Every Umami metric is likely missing most players, mobile ones especially.
+
+**Done when**
+- [ ] Umami's script and event endpoint are proxied through the site (Next.js rewrites, e.g. `/stats/script.js` and `/stats/api/send` to `cloud.umami.is`), following Umami's proxy guidance.
+- [ ] Events still only count on the production domain.
+- [ ] Visitor location still resolves correctly in Umami (the proxy forwards the client IP); if not, document the trade-off.
+- [ ] After a week, Umami's visitor count is compared with Vercel's and recorded in `docs/metrics.md`.
