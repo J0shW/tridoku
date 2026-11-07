@@ -10,7 +10,8 @@ const nextConfig = {
   async rewrites() {
     return [
       { source: '/p/t.js', destination: 'https://cloud.umami.is/script.js' },
-      { source: '/p/api/send', destination: 'https://cloud.umami.is/api/send' },
+      // Umami Cloud's own tracker sends to gateway.umami.is/api/send by default.
+      { source: '/p/api/send', destination: 'https://gateway.umami.is/api/send' },
     ]
   },
   // Puzzle files are public. Allowing cross-origin reads lets preview deployments
