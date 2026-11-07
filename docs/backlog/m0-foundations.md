@@ -290,7 +290,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 **Done when**
 - [x] `docs/metrics.md` defines each metric, its formula and its events.
-- [x] An Umami dashboard (or saved reports) shows them.
+- [ ] An Umami dashboard (or saved reports) shows them.
 - [x] Decide whether to keep Vercel Analytics alongside Umami; remove it if unused.
 
 <a id="tri-021"></a>

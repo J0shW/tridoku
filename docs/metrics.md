@@ -86,6 +86,10 @@ Every event also carries `days_since_first` (whole days since this browser's fir
 
 To do in the Umami dashboard (Claude has no access to it). Menu names may differ slightly by Umami version.
 
+**Status (7 Nov 2026):**
+- Goals (step 5) are set up.
+- The Activation funnel (step 2) is still to do. Its step 2 event, `puzzle_started`, doesn't exist in Umami until the M0 analytics change is live and someone has played.
+
 1. **Check events arrive** after the M0 analytics change deploys: play one puzzle on the live site (open How to Play, enter a digit, finish, tap Copy). **Realtime** or **Events** should show `puzzle_started`, `rules_step`, an `*_completed` event with `errors` / `pencil_marks` / `resets`, and `result_copied`.
 2. **Activation funnel**: Reports → Funnel, named "Activation": step 1 viewed page `/`, step 2 event `puzzle_started`, window 1 day. Umami funnels can't filter steps by event property, so don't build per-difficulty "started → completed" funnels; they'd mix difficulties. Use step 3 instead.
 3. **Event property breakdowns** (Events → click an event):
