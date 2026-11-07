@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 48 todo · 2 in progress · 1 in review · 34 done · 1 won't do · plus 11 [research items](research.md)
+**86 items** · 48 todo · 2 in progress · 1 in review · 34 done · 1 won't do · plus 12 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
