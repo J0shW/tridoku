@@ -15,7 +15,9 @@ import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { Button } from "@/components/ui/button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X, RotateCw } from "lucide-react"
+import { format } from "date-fns"
+import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import Link from "next/link"
@@ -26,6 +28,20 @@ import { IS_PRODUCTION } from "@/lib/app-env"
 // Loaded only outside production, so it never ships to players.
 const DevTools = dynamic(() => import("@/components/dev-tools").then((m) => m.DevTools), { ssr: false })
 
+
+function LoadErrorNotice({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div role="alert" className="flex flex-col items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-4 text-center">
+      <p className="text-sm text-foreground">
+        Couldn&apos;t load today&apos;s puzzle. Check your connection and try again.
+      </p>
+      <Button size="sm" onClick={onRetry} className="gap-2">
+        <RotateCw className="h-4 w-4" />
+        Retry
+      </Button>
+    </div>
+  )
+}
 
 export function TridokuGame() {
   const {
@@ -41,6 +57,9 @@ export function TridokuGame() {
     inputMode,
     highlightedValue,
     puzzleNumber,
+    fallback,
+    loadError,
+    retryLoad,
     stats,
     isLoading,
     isGenerating,
@@ -214,6 +233,7 @@ export function TridokuGame() {
                 <p className="text-lg text-muted-foreground">
                   Choose your difficulty level to begin today&apos;s puzzle
                 </p>
+                {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
                 <div className="space-y-3">
                   <button
                     onClick={() => changeDifficulty('easy')}
@@ -286,6 +306,17 @@ export function TridokuGame() {
               />
             </div>
             
+            {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
+            {fallback && !isViewMode && (
+              <p role="status" className="rounded-lg border border-border bg-muted/60 px-4 py-2.5 text-center text-sm text-muted-foreground">
+                Today&apos;s puzzle isn&apos;t ready yet, so here&apos;s{" "}
+                {fallback.sourceDate
+                  ? <>the puzzle from {format(fromDateKey(fallback.sourceDate), "d MMMM")}</>
+                  : <>a backup puzzle</>}
+                . It still counts toward your streak.
+              </p>
+            )}
+
             {/* Timer and controls row */}
             <div className="flex items-center justify-between">
               <TimerDisplay seconds={elapsedTime} isPaused={isPaused} />

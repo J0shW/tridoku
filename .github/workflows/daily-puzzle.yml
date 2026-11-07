@@ -67,3 +67,16 @@ jobs:
             git commit -m "chore: generate missing puzzles for the next 3 days"
             git push
           fi
+
+      # TRI-012: fail loudly (GitHub emails the repo owner) if players could get a
+      # fallback puzzle. Checks the repo has puzzles through 3 days ahead, and that
+      # the live site serves today's and tomorrow's (UTC), which catches a failed deploy.
+      # Note: GitHub disables scheduled workflows after 60 days without repository
+      # activity. This workflow commits new puzzles every day, which counts as
+      # activity, so that shouldn't happen; but if it ever were disabled these checks
+      # wouldn't run either.
+      - name: Check puzzles exist for the next 3 days
+        run: node scripts/check-puzzle-supply.mjs --days=3
+
+      - name: Check the live site serves today's puzzle
+        run: node scripts/check-puzzle-supply.mjs --live=https://www.tridokupuzzle.com --days=1
