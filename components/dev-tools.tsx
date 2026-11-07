@@ -95,12 +95,12 @@ interface DevToolsProps {
 
 export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevToolsProps) {
   const [open, setOpen] = useState(false)
-  const [now, setNow] = useState<Date | null>(null)
+  // Rendered client-side only (next/dynamic with ssr: false), so reading the clock here is safe.
+  const [now, setNow] = useState(() => new Date())
   const [message, setMessage] = useState<string | null>(null)
-  const offset = now ? readOffset() : 0
+  const offset = readOffset()
 
   useEffect(() => {
-    setNow(new Date())
     const t = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(t)
   }, [])
@@ -218,7 +218,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
           <section className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Clock</p>
             <p className="text-xs">
-              App time: <span className="font-mono">{now ? now.toLocaleString() : "…"}</span>
+              App time: <span className="font-mono">{now.toLocaleString()}</span>
               {offset !== 0 && <span className="ml-1 rounded bg-amber-200 px-1 text-amber-900">shifted</span>}
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -260,7 +260,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
       >
         <Wrench className="h-3.5 w-3.5" />
         {envLabel}
-        {offset !== 0 && now && <span className="font-mono font-normal">· {dateKey(now)}</span>}
+        {offset !== 0 && <span className="font-mono font-normal">· {dateKey(now)}</span>}
       </button>
     </div>
   )

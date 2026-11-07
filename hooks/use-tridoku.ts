@@ -4,13 +4,11 @@ import { useState, useEffect, useCallback, useRef } from "react"
 import { 
   Cell, 
   CellId,
-  TRIDOKU_BOARD,
   getPuzzleNumber,
   loadPuzzle,
   validateBoard,
   isPuzzleComplete,
   EXAMPLE_PUZZLE,
-  TEST_NEARLY_SOLVED,
   Difficulty,
   createEmptyBoard
 } from "@/lib/tridoku"
@@ -293,7 +291,7 @@ export function useTridoku() {
     newDiffStats.maxStreak = Math.max(newDiffStats.maxStreak || 0, newDiffStats.currentStreak)
     
     // Update best time
-    if (!newDiffStats.bestTime || gameState.elapsedTime < newDiffStats.bestTime) {
+    if (newDiffStats.bestTime == null || gameState.elapsedTime < newDiffStats.bestTime) {
       newDiffStats.bestTime = gameState.elapsedTime
     }
     
@@ -433,22 +431,6 @@ export function useTridoku() {
     setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }))
   }, [])
 
-  // Reset puzzle
-  const resetPuzzle = useCallback(() => {
-    if (gameState.difficulty) {
-      // Resetting an in-progress, incomplete puzzle counts as abandoning it
-      const current = gameStateRef.current
-      if (current.hasStarted && !current.isComplete && !current.isViewMode) {
-        trackEvent(`${gameState.difficulty}_abandoned`, {
-          reason: "reset",
-          time: current.elapsedTime,
-        })
-      }
-      clearGameProgress(gameState.difficulty)
-      generateNewPuzzle(gameState.difficulty)
-    }
-  }, [gameState.difficulty])
-  
   // Change difficulty
   const changeDifficulty = useCallback(async (difficulty: Difficulty) => {
     if (difficulty === gameState.difficulty) return
@@ -553,17 +535,6 @@ export function useTridoku() {
     return gameState.hasStarted && !gameState.isComplete && !gameState.isViewMode && gameState.elapsedTime > 0
   }, [gameState.hasStarted, gameState.isComplete, gameState.isViewMode, gameState.elapsedTime])
 
-  // Load nearly-solved puzzle for testing
-  const loadTestSolve = useCallback(() => {
-    setGameState(prev => ({
-      ...prev,
-      cells: loadPuzzle(TEST_NEARLY_SOLVED),
-      selectedCellId: null,
-      isComplete: false,
-      showErrors: false,
-    }))
-  }, [])
-
   // Generate share text
   const getShareText = useCallback(() => {
     if (!gameState.isComplete || !gameState.difficulty) return ""
@@ -654,6 +625,22 @@ export function useTridoku() {
     }
   }, [gameState.difficulty])
 
+  // Reset puzzle
+  const resetPuzzle = useCallback(() => {
+    if (gameState.difficulty) {
+      // Resetting an in-progress, incomplete puzzle counts as abandoning it
+      const current = gameStateRef.current
+      if (current.hasStarted && !current.isComplete && !current.isViewMode) {
+        trackEvent(`${gameState.difficulty}_abandoned`, {
+          reason: "reset",
+          time: current.elapsedTime,
+        })
+      }
+      clearGameProgress(gameState.difficulty)
+      generateNewPuzzle(gameState.difficulty)
+    }
+  }, [gameState.difficulty, generateNewPuzzle])
+
   return {
     cells: gameState.cells,
     selectedCellId: gameState.selectedCellId,
@@ -675,7 +662,6 @@ export function useTridoku() {
     toggleErrors,
     togglePause,
     resetPuzzle,
-    loadTestSolve,
     getShareText,
     generateNewPuzzle,
     changeDifficulty,

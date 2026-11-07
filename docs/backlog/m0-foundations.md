@@ -21,9 +21,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** There are no automated tests, type checking is skipped during builds and nothing runs on pull requests. Most M0 fixes touch date logic that is easy to break silently.
 
 **Done when**
-- [ ] Vitest added as a dev dependency with a `pnpm test` script.
-- [ ] A GitHub Actions workflow runs `pnpm test`, `pnpm lint` and `tsc --noEmit` on every pull request.
-- [ ] At least one smoke test exists (e.g. `createEmptyBoard()` has 81 visible cells, 9 regions of 9).
+- [x] Vitest added as a dev dependency with a `pnpm test` script.
+- [x] A GitHub Actions workflow runs `pnpm test`, `pnpm lint` and `tsc --noEmit` on every pull request.
+- [x] At least one smoke test exists (e.g. `createEmptyBoard()` has 81 visible cells, 9 regions of 9).
 
 <a id="tri-002"></a>
 ## TRI-002 · Working ESLint setup
@@ -35,9 +35,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `pnpm lint` fails: ESLint 10 finds no config file and ESLint isn't a dependency.
 
 **Done when**
-- [ ] `eslint` and `eslint-config-next` added as dev dependencies.
-- [ ] An `eslint.config.mjs` flat config exists.
-- [ ] `pnpm lint` passes (fix or explicitly disable existing violations).
+- [x] `eslint` and `eslint-config-next` added as dev dependencies.
+- [x] An `eslint.config.mjs` flat config exists.
+- [x] `pnpm lint` passes (fix or explicitly disable existing violations).
 
 <a id="tri-003"></a>
 ## TRI-003 · Turn type checking back on in builds
@@ -49,9 +49,9 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `next.config.mjs:4` sets `ignoreBuildErrors: true`. `tsc` reports one error (`components/win-modal.tsx:36`, `navigator.share` checked as a function reference).
 
 **Done when**
-- [ ] The `win-modal.tsx:36` error is fixed.
-- [ ] `ignoreBuildErrors` is removed.
-- [ ] `pnpm build` passes with type checking.
+- [x] The `win-modal.tsx:36` error is fixed.
+- [x] `ignoreBuildErrors` is removed.
+- [x] `pnpm build` passes with type checking.
 
 <a id="tri-004"></a>
 ## TRI-004 · One date-key helper used everywhere
@@ -194,8 +194,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Nothing checks generated puzzles after the generator runs. A bad puzzle would ship silently.
 
 **Done when**
-- [ ] A test checks every puzzle in `public/puzzles/*.json`: 81 characters, no conflicting givens, exactly one solution (independent solver, no iteration cap).
-- [ ] The test runs on PRs and in the daily Action before committing.
+- [x] A test checks every puzzle in `public/puzzles/*.json`: 81 characters, no conflicting givens, exactly one solution (independent solver, no iteration cap).
+- [x] The test runs on PRs and in the daily Action before committing.
 
 <a id="tri-014"></a>
 ## TRI-014 · Exercise the year rollover
@@ -303,7 +303,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `stats-modal.tsx:93` uses `{stats.bestTime && …}`, which renders `0` when best time is 0.
 
 **Done when**
-- [ ] Numeric conditions use explicit checks (`!= null`) across the codebase.
+- [x] Numeric conditions use explicit checks (`!= null`) across the codebase.
 
 <a id="tri-022"></a>
 ## TRI-022 · Hide /test outside development
@@ -315,8 +315,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `/test` is public and runs the generator on the main thread, freezing the tab.
 
 **Done when**
-- [ ] `/test` returns 404 outside development.
-- [ ] `/bts` stays public (it's a growth asset) but `/test` is excluded from search.
+- [x] `/test` returns 404 in production (previews and `pnpm dev` keep it).
+- [x] `/bts` stays public (it's a growth asset) but `/test` is excluded from search.
 
 <a id="tri-023"></a>
 ## TRI-023 · Remove unused UI components and dependencies
@@ -328,8 +328,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Only 8 of ~57 `components/ui` files are imported. recharts, react-hook-form, zod, cmdk, embla, vaul, react-day-picker, input-otp and sonner are unused.
 
 **Done when**
-- [ ] Unused `components/ui` files and dependencies are deleted.
-- [ ] `pnpm build` and the app work unchanged.
+- [x] Unused `components/ui` files and dependencies are deleted.
+- [x] `pnpm build` and the app work unchanged.
 
 <a id="tri-024"></a>
 ## TRI-024 · Project housekeeping
@@ -341,10 +341,10 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Both `yarn.lock` and `pnpm-lock.yaml` exist, the package is named `my-project`, the metadata says `generator: 'v0.app'`, and `scripts/README.md` describes placeholder puzzles that no longer exist.
 
 **Done when**
-- [ ] `yarn.lock` removed; `packageManager` set in `package.json`.
-- [ ] Package renamed to `tridoku`.
-- [ ] `generator` meta removed.
-- [ ] `scripts/README.md` updated to describe the real pipeline.
+- [x] `yarn.lock` removed; `packageManager` set in `package.json`.
+- [x] Package renamed to `tridoku`.
+- [x] `generator` meta removed.
+- [x] `scripts/README.md` updated to describe the real pipeline.
 
 <a id="tri-025"></a>
 ## TRI-025 · Repeatable evaluation harness

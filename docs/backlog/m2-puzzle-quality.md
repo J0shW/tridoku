@@ -169,3 +169,19 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Done when**
 - [ ] Long-pressing a number-pad digit also highlights it.
 - [ ] A one-time hint appears the first time a player taps the same filled cell twice.
+
+<a id="tri-080"></a>
+## TRI-080 · Restructure the game-state hook
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | M | M | Maintainability | [TRI-052](m2-puzzle-quality.md#tri-052) | Found in M0 (TRI-002) |
+
+**Problem.** `hooks/use-tridoku.ts` sets state inside effects (loading stats on mount, recording a win) and duplicates puzzle-loading logic between `changeDifficulty` and `generateNewPuzzle`. The React Compiler lint rules flag these; they are warnings for this file only (`eslint.config.mjs`).
+
+**Done when**
+- [ ] Stats load through a lazy initializer or external store instead of an effect.
+- [ ] Winning is recorded in the action that completes the puzzle, not in an effect.
+- [ ] Puzzle loading lives in one function.
+- [ ] The lint overrides for this file are removed and `pnpm lint` has no warnings for it.
+- [ ] Do this together with Undo (TRI-052), which needs the same state reshaping.

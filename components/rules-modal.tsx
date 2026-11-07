@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye } from "lucide-react"
 import { TRIDOKU_BOARD, type Cell } from "@/lib/tridoku"
 import { Button } from "@/components/ui/button"
@@ -793,9 +793,11 @@ export function RulesModal({ open, onOpenChange }: RulesModalProps) {
   const [step, setStep] = useState(0)
 
   // Reset to the first step whenever the modal is (re)opened
-  useEffect(() => {
+  const [wasOpen, setWasOpen] = useState(open)
+  if (open !== wasOpen) {
+    setWasOpen(open)
     if (open) setStep(0)
-  }, [open])
+  }
 
   const isFirst = step === 0
   const isLast = step === STEPS.length - 1

@@ -1,6 +1,6 @@
 "use client"
 
-import { GameStats } from "@/hooks/use-tridoku"
+import { GameStats, type DifficultyStats as DifficultyStatsData } from "@/hooks/use-tridoku"
 import { Difficulty } from "@/lib/tridoku"
 import {
   Dialog,
@@ -52,7 +52,7 @@ export function StatsModal({ open, onOpenChange, stats }: StatsModalProps) {
   )
 }
 
-function DifficultyStats({ stats, difficulty }: { stats: any; difficulty: Difficulty }) {
+function DifficultyStats({ stats, difficulty }: { stats: DifficultyStatsData; difficulty: Difficulty }) {
   const winRate = stats.gamesPlayed > 0 
     ? Math.round((stats.gamesWon / stats.gamesPlayed) * 100) 
     : 0
@@ -90,14 +90,14 @@ function DifficultyStats({ stats, difficulty }: { stats: any; difficulty: Diffic
         <StatItem value={stats.maxStreak} label="Max Streak" />
       </div>
 
-      {stats.bestTime && (
+      {stats.bestTime != null && (
         <div className="text-center py-4 border-t border-border">
           <p className="text-muted-foreground text-sm mb-1">Best Time</p>
           <p className="text-3xl font-bold text-primary">{formatTime(stats.bestTime)}</p>
         </div>
       )}
       
-      {!stats.bestTime && stats.gamesPlayed === 0 && (
+      {stats.bestTime == null && stats.gamesPlayed === 0 && (
         <div className="text-center py-4 border-t border-border text-muted-foreground">
           <p className="text-sm">No games played yet at this difficulty</p>
         </div>
