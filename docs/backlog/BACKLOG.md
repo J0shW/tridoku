@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 36 todo · 2 in progress · 4 in review · 43 done · 1 won't do · plus 12 [research items](research.md)
+**86 items** · 35 todo · 2 in progress · 3 in review · 44 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -54,7 +54,7 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-033](m1-first-impression.md#tri-033) | Returning players continue where they left off | Medium | H | S | — | Done |
 | [TRI-034](m1-first-impression.md#tri-034) | Better win moment | Medium | H | S | — | Done |
 | [TRI-035](m1-first-impression.md#tri-035) | Share button stays available after winning | Medium | M | S | — | Done |
-| [TRI-036](m1-first-impression.md#tri-036) | Spoiler-free share grid | High | H | M | TRI-008 | In review |
+| [TRI-036](m1-first-impression.md#tri-036) | Spoiler-free share grid | High | H | M | TRI-008 | Done |
 | [TRI-037](m1-first-impression.md#tri-037) | Share links are attributable | Medium | M | S | — | In review |
 | [TRI-038](m1-first-impression.md#tri-038) | Daily social preview image | Medium | M | M | TRI-008 | Done |
 | [TRI-039](m1-first-impression.md#tri-039) | robots.txt and sitemap | Medium | M | S | — | Done |
@@ -62,7 +62,7 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-041](m1-first-impression.md#tri-041) | Ko-fi prompt at the win moment | Medium | M | S | TRI-019 | Done |
 | [TRI-042](m1-first-impression.md#tri-042) | One-tap difficulty rating after a win | Medium | H | S | — | Done |
 | [TRI-043](m1-first-impression.md#tri-043) | Feedback form knows the context | Medium | M | S | — | Done |
-| [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Todo |
+| [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Won't do |
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
 | [TRI-082](m1-first-impression.md#tri-082) | Evaluate PostHog as the analytics tool | Medium | H | S | TRI-081 | Todo |
 | [TRI-084](m1-first-impression.md#tri-084) | Footer has side margins on phones | Low | L | S | — | Done |
@@ -75,7 +75,7 @@ Make every label honest and every puzzle fair, and give stuck players a way forw
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-046](m2-puzzle-quality.md#tri-046) | Grade puzzles by solving technique | Critical | H | M | TRI-013 | Todo |
+| [TRI-046](m2-puzzle-quality.md#tri-046) | Grade puzzles by solving technique | Critical | H | M | TRI-013, R-13 | Todo |
 | [TRI-047](m2-puzzle-quality.md#tri-047) | Accept puzzles only at the right tier | Critical | H | S | TRI-046 | Todo |
 | [TRI-048](m2-puzzle-quality.md#tri-048) | Uniqueness check can't report a false "unique" | Low | M | S | — | Todo |
 | [TRI-049](m2-puzzle-quality.md#tri-049) | Weekly difficulty rhythm | Medium | M | S | TRI-047 | Todo |
