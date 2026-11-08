@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 38 todo · 2 in progress · 4 in review · 41 done · 1 won't do · plus 12 [research items](research.md)
+**86 items** · 38 todo · 2 in progress · 3 in review · 42 done · 1 won't do · plus 12 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -61,7 +61,7 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-040](m1-first-impression.md#tri-040) | "How to play Tridoku" page | Medium | M | S | TRI-029 | Done |
 | [TRI-041](m1-first-impression.md#tri-041) | Ko-fi prompt at the win moment | Medium | M | S | TRI-019 | Done |
 | [TRI-042](m1-first-impression.md#tri-042) | One-tap difficulty rating after a win | Medium | H | S | — | Done |
-| [TRI-043](m1-first-impression.md#tri-043) | Feedback form knows the context | Medium | M | S | — | In review |
+| [TRI-043](m1-first-impression.md#tri-043) | Feedback form knows the context | Medium | M | S | — | Done |
 | [TRI-044](m1-first-impression.md#tri-044) | Weekly feedback review routine | Low | M | S | TRI-043 | Todo |
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
 | [TRI-082](m1-first-impression.md#tri-082) | Evaluate PostHog as the analytics tool | Medium | H | S | TRI-081 | Todo |
