@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 39 todo · 2 in progress · 5 in review · 39 done · 1 won't do · plus 12 [research items](research.md)
+**86 items** · 39 todo · 2 in progress · 3 in review · 41 done · 1 won't do · plus 12 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -57,8 +57,8 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-036](m1-first-impression.md#tri-036) | Spoiler-free share grid | High | H | M | TRI-008 | In review |
 | [TRI-037](m1-first-impression.md#tri-037) | Share links are attributable | Medium | M | S | — | In review |
 | [TRI-038](m1-first-impression.md#tri-038) | Daily social preview image | Medium | M | M | TRI-008 | Done |
-| [TRI-039](m1-first-impression.md#tri-039) | robots.txt and sitemap | Medium | M | S | — | In review |
-| [TRI-040](m1-first-impression.md#tri-040) | "How to play Tridoku" page | Medium | M | S | TRI-029 | In review |
+| [TRI-039](m1-first-impression.md#tri-039) | robots.txt and sitemap | Medium | M | S | — | Done |
+| [TRI-040](m1-first-impression.md#tri-040) | "How to play Tridoku" page | Medium | M | S | TRI-029 | Done |
 | [TRI-041](m1-first-impression.md#tri-041) | Ko-fi prompt at the win moment | Medium | M | S | TRI-019 | Done |
 | [TRI-042](m1-first-impression.md#tri-042) | One-tap difficulty rating after a win | Medium | H | S | — | Done |
 | [TRI-043](m1-first-impression.md#tri-043) | Feedback form knows the context | Medium | M | S | — | Todo |
