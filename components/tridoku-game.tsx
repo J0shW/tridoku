@@ -462,6 +462,10 @@ export function TridokuGame() {
         <p className="mb-2">No sign-up. We count anonymous play statistics to improve the game.</p>
         <span>© {new Date().getFullYear()} Josh Whitney</span>
         <span className="mx-2">·</span>
+        <Link href="/how-to-play" className="hover:text-muted-foreground transition-colors">
+          How to play
+        </Link>
+        <span className="mx-2">·</span>
         <Link href="/bts" className="hover:text-muted-foreground transition-colors">
           Behind the Scenes
         </Link>

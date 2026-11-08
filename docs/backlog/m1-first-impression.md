@@ -200,8 +200,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `/robots.txt` and `/sitemap.xml` return 404.
 
 **Done when**
-- [ ] `app/robots.ts` and `app/sitemap.ts` exist.
-- [ ] `/test` is disallowed; previews stay noindex.
+- [x] `app/robots.ts` and `app/sitemap.ts` exist.
+- [x] `/test` is disallowed; previews stay noindex. *Previews' robots.txt disallows everything, on top of the existing noindex tag.*
 
 <a id="tri-040"></a>
 ## TRI-040 · "How to play Tridoku" page
@@ -213,8 +213,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Nothing on the site targets searches like "triangular sudoku" or "tridoku online".
 
 **Done when**
-- [ ] A static `/how-to-play` page explains the four rules in text with diagrams.
-- [ ] It has its own title and description and links to today's puzzle.
+- [x] A static `/how-to-play` page explains the four rules in text with diagrams. *Same diagrams as the rules modal, now in `components/rule-diagrams.tsx`.*
+- [x] It has its own title and description and links to today's puzzle. *Also linked from the footer and listed in the sitemap.*
 
 <a id="tri-041"></a>
 ## TRI-041 · Ko-fi prompt at the win moment
