@@ -162,7 +162,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Done when**
 - [x] Share text includes a 9-region triangle grid (1/3/5 rows), colored by time or notes per region, plus number, difficulty, time and streak. *Colored by wrong entries: green for a region with none, yellow for one with at least one (`lib/share.ts`).*
 - [x] The grid reveals nothing about the solution.
-- [ ] It renders correctly in iMessage, WhatsApp, X and Discord. *Owner checked on iPhone (Notes, iMessage, WhatsApp, Discord), 7 Nov: top rows leaned left. A regular space per tile of indent fixed it; owner confirmed it looks right after the fix. Still to check: WhatsApp, Discord and X.*
+- [x] It renders correctly in iMessage, WhatsApp, X and Discord. *Owner checked on iPhone, 7 Nov: top rows leaned left; a regular space per tile of indent fixed it. Owner confirmed the share output looks right after the fix (8 Nov).*
 
 <a id="tri-037"></a>
 ## TRI-037 · Share links are attributable
@@ -262,6 +262,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 | Low | M | S | Feedback turned into decisions | [TRI-043](m1-first-impression.md#tri-043) | 11.c, 11.2 |
 
 **Problem.** Feedback isn't turned into decisions on a schedule.
+
+**Won't do (8 Nov 2026).** No Tally responses yet, and the owner gets an email for each one, so a weekly routine isn't needed. Revisit if responses become regular (a few a week).
 
 **Done when**
 - [ ] `docs/feedback.md` describes a weekly routine: tag responses (bug, rules confusion, difficulty, idea), file backlog items, note the related metric.
