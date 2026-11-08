@@ -17,6 +17,7 @@ import { bumpCounter, getCounters } from "@/lib/play-counters"
 import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
 import { defaultStats, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
 import { buildShareText } from "@/lib/share"
+import { watchDateChange } from "@/lib/date-watch"
 
 export type { DifficultyStats, GameStats } from "@/lib/stats"
 
@@ -236,6 +237,16 @@ export function useTridoku() {
     setProgressToday(getTodaysProgress())
     setIsLoading(false)
   }, [])
+
+  // A tab left open past midnight: re-derive "completed today" and in-progress badges (TRI-086)
+  useEffect(
+    () =>
+      watchDateChange((today) => {
+        setStats((prev) => normalizeStats(prev, today))
+        setProgressToday(getTodaysProgress())
+      }),
+    [],
+  )
 
   // Fetch today's Easy puzzle for the welcome-screen preview. Failures just hide it.
   useEffect(() => {
