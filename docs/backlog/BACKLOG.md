@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 35 todo · 2 in progress · 3 in review · 44 done · 2 won't do · plus 12 [research items](research.md)
+**86 items** · 35 todo · 2 in progress · 3 in review · 44 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -75,7 +75,7 @@ Make every label honest and every puzzle fair, and give stuck players a way forw
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-046](m2-puzzle-quality.md#tri-046) | Grade puzzles by solving technique | Critical | H | M | TRI-013 | Todo |
+| [TRI-046](m2-puzzle-quality.md#tri-046) | Grade puzzles by solving technique | Critical | H | M | TRI-013, R-13 | Todo |
 | [TRI-047](m2-puzzle-quality.md#tri-047) | Accept puzzles only at the right tier | Critical | H | S | TRI-046 | Todo |
 | [TRI-048](m2-puzzle-quality.md#tri-048) | Uniqueness check can't report a false "unique" | Low | M | S | — | Todo |
 | [TRI-049](m2-puzzle-quality.md#tri-049) | Weekly difficulty rhythm | Medium | M | S | TRI-047 | Todo |

@@ -15,12 +15,12 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
-| Critical | H | M | Completion rate by difficulty, solve-time spread | [TRI-013](m0-foundations.md#tri-013) | 3.1, 3.a |
+| Critical | H | M | Completion rate by difficulty, solve-time spread | [TRI-013](m0-foundations.md#tri-013), [R-13](research.md) | 3.1, 3.a |
 
 **Problem.** Difficulty is set only by the number of givens. 17% of Hard puzzles need only singles; 7% of Medium and 22% of Hard need more than pairs, possibly guessing.
 
 **Done when**
-- [ ] The generator runs a logic grader (singles, power-cell eliminations, naked pairs/triples) on every candidate.
+- [ ] The generator runs a logic grader on every candidate, using the techniques and definitions found in R-13 (at least singles, power-cell eliminations, naked pairs/triples).
 - [ ] Each puzzle's `metadata` stores `tier` and technique counts.
 - [ ] The grader lives in shared code used by both the generator and the CI test.
 
@@ -34,7 +34,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** The generator accepts results up to 6 givens above target and never checks difficulty.
 
 **Done when**
-- [ ] Easy = Tier 1; Medium = Tier 2; Hard = Tier 2–3 with a minimum number of eliminations; Tier 4+ is rejected (or saved for Expert, TRI-076).
+- [ ] Each difficulty accepts only puzzles matching its R-13 definition. Starting point before R-13: Easy = Tier 1; Medium = Tier 2; Hard = Tier 2–3 with a minimum number of eliminations; Tier 4+ is rejected (or saved for Expert, TRI-076).
 - [ ] CI fails if a published puzzle's tier doesn't match its label.
 - [ ] Future puzzles already generated are regenerated with the new rules.
 
