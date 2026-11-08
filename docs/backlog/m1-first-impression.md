@@ -318,7 +318,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** GitHub warns that actions/checkout@v4 and actions/setup-node@v4 target the deprecated Node 20 and are being forced onto Node 24.
 
 **Done when**
-- [ ] Both workflows use action versions that run on Node 24 (e.g. checkout@v5, setup-node@v5), with no deprecation warning in the run log. *checkout, setup-node and pnpm/action-setup are on v5, all `node24`. Tick once a CI run and a daily-puzzle run show no warning.*
+- [ ] Both workflows use action versions that run on Node 24 (e.g. checkout@v5, setup-node@v5), with no deprecation warning in the run log. *checkout, setup-node and pnpm/action-setup are on v5, all `node24`. CI run on #52 showed no warning (8 Nov); tick once a daily-puzzle run on main is clean too.*
 
 <a id="tri-086"></a>
 ## TRI-086 · Completed checkmarks refresh after midnight in an open tab
