@@ -252,7 +252,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Tally responses don't say which puzzle, difficulty or device.
 
 **Done when**
-- [ ] The Feedback button passes hidden fields: puzzle number, date, difficulty, solved, device type, app version.
+- [x] The Feedback button passes hidden fields: puzzle number, date, difficulty, solved, device type, app version. *Sent as `puzzle_number`, `puzzle_date`, `difficulty`, `solved`, `device_type`, `app_version` (`lib/feedback-context.ts`). Each must also exist as a hidden field in the Tally form, or Tally drops it.*
 
 <a id="tri-044"></a>
 ## TRI-044 · Weekly feedback review routine
