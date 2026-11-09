@@ -138,7 +138,8 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
   }, [menuOpen])
 
   return (
-    <div className="flex items-center gap-1.5">
+    // Check, with the More menu under it to mirror the timer and Undo on the left
+    <div className="flex flex-col items-end gap-2">
       <button
         type="button"
         onClick={onToggleErrors}
@@ -148,13 +149,12 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
         title={showErrors ? "Error checking on" : "Error checking off"}
         className={cn(
           PILL,
-          "gap-1.5 pl-2.5 pr-3 text-sm font-semibold @max-[325px]:w-9 @max-[325px]:justify-center @max-[325px]:px-0",
+          "gap-1.5 pl-2.5 pr-3 text-sm font-semibold",
           showErrors && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
         )}
       >
         <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
-        {/* On a narrow board the corner is too small for the label */}
-        <span className="@max-[325px]:sr-only">Check</span>
+        <span>Check</span>
       </button>
 
       <div ref={menuRef} className="relative">

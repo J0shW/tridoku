@@ -49,8 +49,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 **Done when**
 - [x] The timer is a pill that pauses and resumes when tapped; paused, the board area keeps its size and shows Resume.
-- [x] Error checking is a labelled "Check" toggle with a clear on state (icon only on very narrow boards).
-- [x] Reset moves into a "⋯" menu, keeping its confirmation.
+- [x] Error checking is a labelled "Check" toggle with a clear on state.
+- [x] Reset moves into a "⋯" menu, keeping its confirmation. *Since TRI-052, ⋯ sits under Check, mirroring Undo under the timer; with the corner to itself, Check keeps its label on every phone width.*
 - [x] Both sit in the empty top corners beside the triangle.
 - [x] The rules modal's tip describes Check.
 
