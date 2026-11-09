@@ -46,7 +46,19 @@ Compared with our puzzles, walking each one with singles only and counting the p
 | Our Medium (singles-solvable ones) | — | 38 | 6.8 | 3.4 |
 | Our Hard (singles-solvable ones) | — | 34 | 5.7 | 5.4 |
 
-So book level 1 is about as hard to *spot* as our Easy, with a similar number of moves open at each step, but it is about a third longer: 51 cells to fill against 37. More levels are needed before drawing conclusions.
+So book level 1 is about as hard to *spot* as our Easy, with a similar number of moves open at each step, but it is about a third longer: 51 cells to fill against 37.
+
+**Level 2 (7 puzzles, pages 59–65).** Again exactly 30 givens and tier 1 on our grader, so our current tiers cannot tell level 1 from level 2. Finer measures do:
+
+| Set | Puzzles | Moves available per step | Solvable by naked singles alone | Solvable by hidden singles in regions alone | Solvable by hidden singles in regions and edges |
+|---|---|---|---|---|---|
+| Book level 1 | 8 | 8.0 | 3 of 8 | 0 of 8 | 8 of 8 |
+| Book level 2 | 7 | 6.5 | 0 of 7 | 0 of 7 | 7 of 7 |
+| Our Easy (last 30 days) | 30 | 8.3 | 14 of 30 | 8 of 30 | 28 of 30 |
+
+- A *naked single* is a cell where only one digit fits once every region, edge and touching cell is checked. A *hidden single* is a digit that fits in only one cell of a region or edge.
+- Level 2 offers fewer moves at each step, and no level-2 puzzle can be finished with naked singles alone.
+- The samples are small, so treat these as early signals; levels 3 and 4 will show whether harder techniques appear.
 
 | Page | Level | Givens | Our tier |
 |---|---|---|---|
@@ -58,3 +70,10 @@ So book level 1 is about as hard to *spot* as our Easy, with a similar number of
 | 36 | 1 | 30 | 1 |
 | 37 | 1 | 30 | 1 |
 | 46 | 1 | 30 | 1 |
+| 59 | 2 | 30 | 1 |
+| 60 | 2 | 30 | 1 |
+| 61 | 2 | 30 | 1 |
+| 62 | 2 | 30 | 1 |
+| 63 | 2 | 30 | 1 |
+| 64 | 2 | 30 | 1 |
+| 65 | 2 | 30 | 1 |
