@@ -2,11 +2,11 @@
 
 Puzzles transcribed from a Tridoku book, to learn how it decides each puzzle's level before we build our own technique grader (TRI-046, TRI-047). See [R-13](../../backlog/research.md).
 
-**Source:** a printed Tridoku puzzle book owned by Josh (title and author to be added). The puzzles are the book author's work and are kept here only for this research.
+**Source:** *Tridoku* by Japheth J. Light, the puzzle's inventor (Josh's copy). The puzzles are the author's work and are kept here only for this research.
 
 ## Levels
 
-The book marks each puzzle's level with small triangles in the page's top corner: one triangle is level 1 (easiest), and so on.
+The book has four levels, marked with 1 to 4 small triangles in the page's top corner. Level 1 is the easiest.
 
 ## Files
 
