@@ -80,9 +80,18 @@ describe("play counters", () => {
     expect(getCounters("easy", "2026-11-07").quickClears).toBe(1)
   })
 
+  it("counts undos and digits re-entered after an undo (TRI-052)", async () => {
+    const { bumpCounter, getCounters } = await import("@/lib/play-counters")
+    bumpCounter("hard", "2026-11-07", "undos")
+    bumpCounter("hard", "2026-11-07", "undos")
+    bumpCounter("hard", "2026-11-07", "undoReentries")
+    const c = getCounters("hard", "2026-11-07")
+    expect([c.undos, c.undoReentries]).toEqual([2, 1])
+  })
+
   it("reads counters saved before per-region counts existed", async () => {
     localStorage.setItem("tridoku-play-counters", JSON.stringify({ "2026-11-07:medium": { errors: 2, notes: 0, resets: 1 } }))
     const { getCounters } = await import("@/lib/play-counters")
-    expect(getCounters("medium", "2026-11-07")).toEqual({ errors: 2, notes: 0, resets: 1, quickClears: 0, regionErrors: Array(9).fill(0) })
+    expect(getCounters("medium", "2026-11-07")).toEqual({ errors: 2, notes: 0, resets: 1, quickClears: 0, undos: 0, undoReentries: 0, regionErrors: Array(9).fill(0) })
   })
 })

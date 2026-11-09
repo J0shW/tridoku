@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react"
 import { 
   Cell, 
   CellId,
@@ -18,6 +18,8 @@ import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
 import { defaultStats, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
 import { buildShareText } from "@/lib/share"
 import { watchDateChange } from "@/lib/date-watch"
+import { createLocalStore, hydrated } from "@/lib/local-store"
+import { describeUndo, parseUndoHistory, pushStep, snapshot, type CellSnapshot, type UndoStep } from "@/lib/undo"
 
 export type { DifficultyStats, GameStats } from "@/lib/stats"
 
@@ -38,6 +40,7 @@ interface GameState {
   puzzleDate: DateKey | null // Date of the loaded puzzle (not necessarily today, e.g. after midnight)
   fallback: DailyPuzzle["fallback"] | null // Set when today's puzzle wasn't available (TRI-010)
   highlightedValue: number | null // Value to highlight across the board (double-tap feature)
+  undoHistory: UndoStep[] // Steps Undo can take back, oldest first (TRI-052)
 }
 
 const STORAGE_KEY = "tridoku-game-state"
@@ -66,6 +69,7 @@ interface SavedProgress {
   userCells: { row: number; col: number; value: number | null; pencilMarks: number[] }[]
   puzzleHash?: string // Hash of the original puzzle to validate progress matches
   savedAt?: number // ms timestamp, to resume the most recent puzzle (TRI-033)
+  undo?: UndoStep[] // Undo history, so it survives a reload (TRI-052)
 }
 
 type SavedProgressByDifficulty = Partial<Record<Difficulty, SavedProgress>>
@@ -94,6 +98,7 @@ function saveGameProgress(gameState: GameState) {
     userCells,
     puzzleHash: gameState.puzzleHash,
     savedAt: Date.now(),
+    undo: gameState.undoHistory,
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress))
 }
@@ -180,38 +185,87 @@ function hasSeenRules(): boolean {
   }
 }
 
+export interface UndoFeedback {
+  cellId: CellId
+  /** What the undo put back, e.g. "Removed 7" (lib/undo.ts). */
+  label: string
+  /** Changes on every undo so the board flash and button label restart. */
+  key: number
+}
+
+// Stats and today's in-progress puzzles live in localStorage. They are read through
+// external stores so the server render and hydration see defaults (TRI-080).
+const statsStore = createLocalStore<GameStats>(getStoredStats, defaultStats())
+const progressStore = createLocalStore<Partial<Record<Difficulty, PuzzleInProgress>>>(getTodaysProgress, {})
+
+function setStats(stats: GameStats) {
+  statsStore.set(stats)
+  saveStats(stats)
+}
+
+const INITIAL_STATE: GameState = {
+  cells: createEmptyBoard(),
+  selectedCellId: null,
+  isComplete: false,
+  isPaused: false,
+  elapsedTime: 0,
+  showErrors: false,
+  difficulty: null,
+  hasStarted: false,
+  isViewMode: false,
+  inputMode: 'pen',
+  puzzleHash: null,
+  puzzleDate: null,
+  fallback: null,
+  highlightedValue: null,
+  undoHistory: [],
+}
+
+function parseCellId(id: CellId): [number, number] {
+  const [row, col] = id.split("-").map(Number)
+  return [row, col]
+}
+
+/** The state after one cell changes: re-validated, and finished if that solved the puzzle. */
+function withCell(prev: GameState, cellId: CellId, next: CellSnapshot): GameState {
+  const [row, col] = parseCellId(cellId)
+  const cells = validateBoard(
+    prev.cells.map((r, ri) =>
+      ri === row ? r.map((c, ci) => (ci === col ? { ...c, value: next.value, pencilMarks: next.pencilMarks } : c)) : r,
+    ),
+  )
+  const isComplete = isPuzzleComplete(cells)
+  // A solved puzzle goes straight to view mode
+  return isComplete ? { ...prev, cells, isComplete, isViewMode: true, selectedCellId: null } : { ...prev, cells, isComplete }
+}
+
 export function useTridoku() {
-  const [gameState, setGameState] = useState<GameState>({
-    cells: createEmptyBoard(),
-    selectedCellId: null,
-    isComplete: false,
-    isPaused: false,
-    elapsedTime: 0,
-    showErrors: false,
-    difficulty: null,
-    hasStarted: false,
-    isViewMode: false,
-    inputMode: 'pen',
-    puzzleHash: null,
-    puzzleDate: null,
-    fallback: null,
-    highlightedValue: null,
-  })
-  const [stats, setStats] = useState<GameStats>(defaultStats)
-  const [isLoading, setIsLoading] = useState(true)
+  const [gameState, setGameState] = useState<GameState>(INITIAL_STATE)
+  const stats = useSyncExternalStore(statsStore.subscribe, statsStore.get, statsStore.getServer)
+  const progressToday = useSyncExternalStore(progressStore.subscribe, progressStore.get, progressStore.getServer)
+  // localStorage can only be read in the browser, so the server renders the loading screen
+  const isLoading = !useSyncExternalStore(hydrated.subscribe, hydrated.get, hydrated.getServer)
   const [isGenerating, setIsGenerating] = useState(false)
   // Difficulty whose puzzle failed to load, if any (TRI-011)
   const [loadError, setLoadError] = useState<Difficulty | null>(null)
-  // Puzzles in progress today, read once on load for the welcome screen (TRI-033)
-  const [progressToday, setProgressToday] = useState<Partial<Record<Difficulty, PuzzleInProgress>>>({})
   // Today's Easy puzzle, shown as a preview on the welcome screen (TRI-026)
   const [previewPuzzle, setPreviewPuzzle] = useState<string | null>(null)
+  // The last undo, for the board flash and the Undo button's label (TRI-052)
+  const [undoFeedback, setUndoFeedback] = useState<UndoFeedback | null>(null)
+  const undoCount = useRef(0)
 
-  // Keep a ref to the latest game state so callbacks always have current data
+  // The latest game state. Every change goes through `update`, which keeps this current
+  // so event handlers never read a stale state, and saves progress when cells change.
   const gameStateRef = useRef(gameState)
-  useEffect(() => { gameStateRef.current = gameState }, [gameState])
-  const statsRef = useRef(stats)
-  useEffect(() => { statsRef.current = stats }, [stats])
+  const update = useCallback((fn: (prev: GameState) => GameState): GameState => {
+    const prev = gameStateRef.current
+    const next = fn(prev)
+    if (next === prev) return prev
+    gameStateRef.current = next
+    setGameState(next)
+    if (next.cells !== prev.cells && next.hasStarted && !next.isComplete && !next.isViewMode) saveGameProgress(next)
+    return next
+  }, [])
 
   // TRI-017: when the page is hidden with an unfinished puzzle, record where the player
   // stopped. Sent at most once per page load.
@@ -230,20 +284,12 @@ export function useTridoku() {
     return () => document.removeEventListener("visibilitychange", onHide)
   }, [])
 
-  // Load stats and today's in-progress puzzles on mount (client-side only)
-  useEffect(() => {
-    const loadedStats = getStoredStats()
-    setStats(loadedStats)
-    setProgressToday(getTodaysProgress())
-    setIsLoading(false)
-  }, [])
-
   // A tab left open past midnight: re-derive "completed today" and in-progress badges (TRI-086)
   useEffect(
     () =>
       watchDateChange((today) => {
-        setStats((prev) => normalizeStats(prev, today))
-        setProgressToday(getTodaysProgress())
+        statsStore.set(normalizeStats(statsStore.get(), today))
+        progressStore.refresh()
       }),
     [],
   )
@@ -258,42 +304,31 @@ export function useTridoku() {
   // Timer
   useEffect(() => {
     if (!gameState.hasStarted || gameState.isComplete || gameState.isPaused) return
-
     const interval = setInterval(() => {
-      setGameState(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }))
+      update(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }))
     }, 1000)
-
     return () => clearInterval(interval)
-  }, [gameState.hasStarted, gameState.isComplete, gameState.isPaused])
+  }, [gameState.hasStarted, gameState.isComplete, gameState.isPaused, update])
 
-  // Save game progress to localStorage on each cell change
-  useEffect(() => {
-    if (!gameState.hasStarted || gameState.isComplete || !gameState.difficulty) return
-    saveGameProgress(gameState)
-  }, [gameState.cells, gameState.hasStarted, gameState.isComplete, gameState.difficulty])
+  // Record a win: called by the action that solved the puzzle (TRI-080)
+  const recordCompletion = useCallback((g: GameState) => {
+    if (!g.difficulty) return
+    const difficulty = g.difficulty
+    const puzzleDate = g.puzzleDate ?? todayKey()
 
-  // Handle puzzle completion
-  useEffect(() => {
-    if (!gameState.isComplete || !gameState.difficulty) return
-    
-    // Enter view mode immediately
-    if (!gameState.isViewMode) {
-      setGameState(prev => ({ ...prev, isViewMode: true, selectedCellId: null }))
-    }
-    
-    // Clear in-progress save for this difficulty
-    clearGameProgress(gameState.difficulty)
-    setProgressToday(getTodaysProgress())
-    
+    // Clear the in-progress save for this difficulty
+    clearGameProgress(difficulty)
+    progressStore.refresh()
+
     // Record the win against the puzzle's own date (TRI-006). recordWin returns null
-    // if this puzzle was already counted, e.g. when reopening it in view mode.
-    const difficulty = gameState.difficulty
-    const counters = getCounters(difficulty, gameState.puzzleDate ?? todayKey())
-    const newDiffStats = recordWin(stats[difficulty], {
-      puzzleDate: gameState.puzzleDate ?? todayKey(),
+    // if this puzzle was already counted.
+    const counters = getCounters(difficulty, puzzleDate)
+    const all = statsStore.get()
+    const newDiffStats = recordWin(all[difficulty], {
+      puzzleDate,
       today: todayKey(),
-      time: gameState.elapsedTime,
-      solvedBoard: boardToString(gameState.cells),
+      time: g.elapsedTime,
+      solvedBoard: boardToString(g.cells),
       regionErrors: counters.regionErrors,
     })
     if (!newDiffStats) return
@@ -301,53 +336,54 @@ export function useTridoku() {
     // Track puzzle completion (e.g. easy_completed, medium_completed, hard_completed)
     trackEvent(`${difficulty}_completed`, {
       difficulty,
-      time: gameState.elapsedTime,
+      time: g.elapsedTime,
       errors: counters.errors,
       pencil_marks: counters.notes,
       resets: counters.resets,
       quick_clears: counters.quickClears,
+      undos: counters.undos,
+      undo_reentries: counters.undoReentries,
     })
+    setStats({ ...all, [difficulty]: newDiffStats })
+  }, [])
 
-    const newStats = { ...stats, [difficulty]: newDiffStats }
-    setStats(newStats)
-    saveStats(newStats)
-  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.cells, gameState.puzzleDate, stats])
+  // Change one cell, record the step for Undo, and finish the puzzle if that solved it
+  const changeCell = useCallback((cellId: CellId, next: CellSnapshot) => {
+    const prev = gameStateRef.current
+    const [row, col] = parseCellId(cellId)
+    const step = { cellId, before: snapshot(prev.cells[row][col]), after: next }
+    const result = update(p => ({ ...withCell(p, cellId, next), undoHistory: pushStep(p.undoHistory, step) }))
+    setUndoFeedback(f => (f ? null : f))
+    if (result.isComplete && !prev.isComplete) recordCompletion(result)
+  }, [update, recordCompletion])
 
   // Select a cell by CellId
   const selectCell = useCallback((cellId: CellId | null) => {
-    if (gameState.isViewMode) return
-    setGameState(prev => {
-      // If clicking on the already selected cell, check if it has a value
+    update(prev => {
+      if (prev.isViewMode) return prev
+      // Tapping the selected cell again toggles highlighting of its digit across the board
       if (cellId && cellId === prev.selectedCellId) {
-        const [rowStr, colStr] = cellId.split("-")
-        const row = parseInt(rowStr)
-        const col = parseInt(colStr)
+        const [row, col] = parseCellId(cellId)
         const cell = prev.cells[row]?.[col]
-        
         if (cell?.value != null) {
-          // Toggle highlight: if already highlighting this value, turn it off; otherwise turn it on
-          const newHighlightedValue = prev.highlightedValue === cell.value ? null : cell.value
-          return { ...prev, highlightedValue: newHighlightedValue }
+          return { ...prev, highlightedValue: prev.highlightedValue === cell.value ? null : cell.value }
         }
       }
-      
       // Clear highlight when selecting a different cell
       return { ...prev, selectedCellId: cellId, highlightedValue: null }
     })
-  }, [gameState.isViewMode])
+  }, [update])
 
   // Count the puzzle as played on its first entry (TRI-007) and record the start (TRI-016)
   const markStarted = useCallback(() => {
     const { difficulty, puzzleDate, isViewMode, selectedCellId, cells } = gameStateRef.current
     if (!difficulty || !puzzleDate || isViewMode || !selectedCellId) return
-    const [row, col] = selectedCellId.split("-").map(Number)
+    const [row, col] = parseCellId(selectedCellId)
     if (cells[row]?.[col]?.isGiven) return
-    const next = recordStart(statsRef.current[difficulty], puzzleDate)
+    const all = statsStore.get()
+    const next = recordStart(all[difficulty], puzzleDate)
     if (!next) return
-    const all = { ...statsRef.current, [difficulty]: next }
-    statsRef.current = all
-    setStats(all)
-    saveStats(all)
+    setStats({ ...all, [difficulty]: next })
     trackEvent("puzzle_started", {
       difficulty,
       ms_since_load: Math.round(performance.now()),
@@ -359,7 +395,7 @@ export function useTridoku() {
   const countEntry = useCallback((value: number) => {
     const { difficulty, puzzleDate, selectedCellId, cells, inputMode, isViewMode } = gameStateRef.current
     if (!difficulty || !puzzleDate || !selectedCellId || isViewMode) return
-    const [row, col] = selectedCellId.split("-").map(Number)
+    const [row, col] = parseCellId(selectedCellId)
     const cell = cells[row]?.[col]
     if (!cell || cell.hidden || cell.isGiven) return
     if (inputMode === "pencil") {
@@ -378,146 +414,137 @@ export function useTridoku() {
     const last = lastEntry.current
     lastEntry.current = null
     if (!difficulty || !puzzleDate || !selectedCellId || inputMode !== "pen" || !last) return
-    const [row, col] = selectedCellId.split("-").map(Number)
+    const [row, col] = parseCellId(selectedCellId)
     if (last.id === selectedCellId && cells[row]?.[col]?.value != null && Date.now() - last.at < 2000) {
       bumpCounter(difficulty, puzzleDate, "quickClears")
     }
   }, [])
 
+  // TRI-052: the digit an undo just removed. Entering it again in the same cell suggests
+  // the undo was a mistake, which is the case a Redo button would cover.
+  const lastUndone = useRef<{ id: CellId; value: number } | null>(null)
+
+  /** The selected cell if the player can change it right now. */
+  const editableSelection = () => {
+    const g = gameStateRef.current
+    if (g.isViewMode || g.isComplete || g.isPaused || !g.selectedCellId) return null
+    const [row, col] = parseCellId(g.selectedCellId)
+    const cell = g.cells[row]?.[col]
+    if (!cell || cell.hidden || cell.isGiven) return null
+    return { g, id: g.selectedCellId, cell }
+  }
+
   // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
   const setValue = useCallback((value: number) => {
-    if (gameState.isViewMode) return
+    const sel = editableSelection()
+    if (!sel) return
+    const { g, id, cell } = sel
     markStarted()
     countEntry(value)
-    const g = gameStateRef.current
-    if (g.inputMode === "pen" && g.selectedCellId) lastEntry.current = { id: g.selectedCellId, at: Date.now() }
-    setGameState(prev => {
-      if (!prev.selectedCellId) return prev
-      const [rowStr, colStr] = prev.selectedCellId.split("-")
-      const row = parseInt(rowStr)
-      const col = parseInt(colStr)
-      const cell = prev.cells[row][col]
-      if (cell.hidden || cell.isGiven) return prev
+    const undone = lastUndone.current
+    lastUndone.current = null
 
-      if (prev.inputMode === 'pencil') {
-        // Pencil mode: toggle the pencil mark
-        const currentMarks = cell.pencilMarks || []
-        let newMarks: number[]
-        
-        if (currentMarks.includes(value)) {
-          // Remove the mark if it exists
-          newMarks = currentMarks.filter(m => m !== value)
-        } else {
-          // Add the mark if we have room (max 3)
-          if (currentMarks.length >= 6) {
-            // Already at max, don't add
-            return prev
-          }
-          newMarks = [...currentMarks, value].sort((a, b) => a - b)
-        }
-        
-        const updatedCells = prev.cells.map((r, ri) =>
-          ri === row
-            ? r.map((c, ci) => (ci === col ? { ...c, pencilMarks: newMarks } : c))
-            : r
-        )
-        
-        return { ...prev, cells: updatedCells }
-      } else {
-        // Pen mode: set the value and clear pencil marks (they're hidden but preserved)
-        const updatedCells = prev.cells.map((r, ri) =>
-          ri === row
-            ? r.map((c, ci) => (ci === col ? { ...c, value } : c))
-            : r
-        )
-        const validatedCells = validateBoard(updatedCells)
-        const isComplete = isPuzzleComplete(validatedCells)
-        
-        return { ...prev, cells: validatedCells, isComplete }
+    if (g.inputMode === "pencil") {
+      const marks = cell.pencilMarks || []
+      if (marks.includes(value)) {
+        changeCell(id, { value: cell.value, pencilMarks: marks.filter(m => m !== value) })
+      } else if (marks.length < 6) {
+        changeCell(id, { value: cell.value, pencilMarks: [...marks, value].sort((a, b) => a - b) })
       }
-    })
-  }, [gameState.isViewMode, markStarted, countEntry])
+      return
+    }
 
-  // Clear the selected cell (pen mode clears value, pencil mode does nothing - user must toggle marks individually)
+    // Pen mode: set the value. Pencil marks are kept (hidden) under it.
+    if (cell.value === value) return
+    lastEntry.current = { id, at: Date.now() }
+    if (undone && undone.id === id && undone.value === value && g.difficulty && g.puzzleDate) {
+      bumpCounter(g.difficulty, g.puzzleDate, "undoReentries")
+    }
+    changeCell(id, { value, pencilMarks: cell.pencilMarks || [] })
+  }, [markStarted, countEntry, changeCell])
+
+  // Clear the selected cell: its digit in pen mode, all its pencil marks in pencil mode
   const clearCell = useCallback(() => {
-    if (gameState.isViewMode) return
+    const sel = editableSelection()
+    if (!sel) return
+    const { g, id, cell } = sel
     noteQuickClear()
-    setGameState(prev => {
-      if (!prev.selectedCellId) return prev
-      const [rowStr, colStr] = prev.selectedCellId.split("-")
-      const row = parseInt(rowStr)
-      const col = parseInt(colStr)
-      const cell = prev.cells[row][col]
-      if (cell.hidden || cell.isGiven) return prev
+    lastUndone.current = null
+    if (g.inputMode === "pencil") {
+      if (cell.pencilMarks?.length) changeCell(id, { value: cell.value, pencilMarks: [] })
+      return
+    }
+    if (cell.value != null) changeCell(id, { value: null, pencilMarks: cell.pencilMarks || [] })
+  }, [noteQuickClear, changeCell])
 
-      // In pencil mode, clear all pencil marks
-      if (prev.inputMode === 'pencil') {
-        const updatedCells = prev.cells.map((r, ri) =>
-          ri === row
-            ? r.map((c, ci) => (ci === col ? { ...c, pencilMarks: [] } : c))
-            : r
-        )
-        return { ...prev, cells: updatedCells }
-      }
-
-      const updatedCells = prev.cells.map((r, ri) =>
-        ri === row
-          ? r.map((c, ci) => (ci === col ? { ...c, value: null } : c))
-          : r
-      )
-      return { ...prev, cells: validateBoard(updatedCells) }
-    })
-  }, [gameState.isViewMode, noteQuickClear])
+  // Undo the last entry, clear or pencil-mark change (TRI-052)
+  const undo = useCallback(() => {
+    const g = gameStateRef.current
+    const step = g.undoHistory[g.undoHistory.length - 1]
+    if (!step || g.isViewMode || g.isComplete || g.isPaused) return
+    const result = update(prev => ({
+      ...withCell(prev, step.cellId, step.before),
+      undoHistory: prev.undoHistory.slice(0, -1),
+      selectedCellId: step.cellId,
+      highlightedValue: null,
+    }))
+    lastEntry.current = null
+    lastUndone.current =
+      step.after.value != null && step.after.value !== step.before.value ? { id: step.cellId, value: step.after.value } : null
+    undoCount.current += 1
+    setUndoFeedback({ cellId: step.cellId, label: describeUndo(step), key: undoCount.current })
+    if (g.difficulty && g.puzzleDate) bumpCounter(g.difficulty, g.puzzleDate, "undos")
+    if (result.isComplete) {
+      // Undoing back to an earlier full board can solve it
+      update(prev => ({ ...prev, selectedCellId: null }))
+      recordCompletion(result)
+    }
+  }, [update, recordCompletion])
 
   // Toggle input mode between pen and pencil
   const setInputMode = useCallback((mode: InputMode) => {
-    setGameState(prev => ({ ...prev, inputMode: mode }))
-  }, [])
+    update(prev => (prev.inputMode === mode ? prev : { ...prev, inputMode: mode }))
+  }, [update])
 
   // Toggle error highlighting
   const toggleErrors = useCallback(() => {
-    setGameState(prev => {
-      const enabled = !prev.showErrors
-      trackEvent("error_check_toggled", {
-        enabled,
-        difficulty: prev.difficulty ?? "unknown",
-      })
-      return { ...prev, showErrors: enabled }
-    })
-  }, [])
+    const prev = gameStateRef.current
+    const enabled = !prev.showErrors
+    trackEvent("error_check_toggled", { enabled, difficulty: prev.difficulty ?? "unknown" })
+    update(p => ({ ...p, showErrors: enabled }))
+  }, [update])
 
   // Toggle pause
   const togglePause = useCallback(() => {
-    setGameState(prev => ({ ...prev, isPaused: !prev.isPaused }))
-  }, [])
+    update(prev => ({ ...prev, isPaused: !prev.isPaused }))
+  }, [update])
 
   // Load today's puzzle for a difficulty: the solved board in view mode if it's already
   // done today (unless `showSolved` is false), otherwise the puzzle plus any saved progress.
   // On a download failure, keep the current screen and show an error with Retry (TRI-011).
+  // Every way of opening a puzzle (welcome screen, tabs, Reset, resume) comes through here.
   const loadDifficulty = useCallback(async (difficulty: Difficulty, { showSolved = true } = {}) => {
     setIsGenerating(true)
     setLoadError(null)
+    setUndoFeedback(null)
+    lastEntry.current = null
+    lastUndone.current = null
     try {
-      const diffStats = stats[difficulty]
+      const diffStats = statsStore.get()[difficulty]
       // Compare dates rather than completedToday so a tab left open past midnight
       // doesn't reopen yesterday's board.
       if (showSolved && diffStats.lastPlayedDate === todayKey() && diffStats.todaysPuzzle && diffStats.todaysTime !== undefined) {
-        setGameState({
-          cells: loadPuzzle(diffStats.todaysPuzzle),
-          selectedCellId: null,
+        update(() => ({
+          ...INITIAL_STATE,
+          cells: loadPuzzle(diffStats.todaysPuzzle!),
           isComplete: true,
-          isPaused: false,
-          elapsedTime: diffStats.todaysTime,
-          showErrors: false,
+          elapsedTime: diffStats.todaysTime!,
           difficulty,
           hasStarted: true,
           isViewMode: true,
-          inputMode: 'pen',
-          puzzleHash: diffStats.todaysPuzzle,
+          puzzleHash: diffStats.todaysPuzzle!,
           puzzleDate: diffStats.lastPlayedDate,
-          fallback: null,
-          highlightedValue: null,
-        })
+        }))
         return
       }
 
@@ -539,22 +566,18 @@ export function useTridoku() {
         }
       }
 
-      setGameState({
+      update(() => ({
+        ...INITIAL_STATE,
         cells: savedProgress ? validateBoard(puzzleCells) : puzzleCells,
-        selectedCellId: null,
-        isComplete: false,
-        isPaused: false,
         elapsedTime: savedProgress?.elapsedTime ?? 0,
-        showErrors: false,
         difficulty,
         hasStarted: true,
-        isViewMode: false,
         inputMode: savedProgress?.inputMode ?? 'pen',
         puzzleHash,
         puzzleDate: dailyPuzzle.date,
         fallback: dailyPuzzle.fallback ?? null,
-        highlightedValue: null,
-      })
+        undoHistory: savedProgress ? parseUndoHistory(savedProgress.undo, puzzleCells) : [],
+      }))
     } catch (error) {
       console.error('Failed to fetch puzzle:', error)
       setLoadError(difficulty)
@@ -565,7 +588,7 @@ export function useTridoku() {
     } finally {
       setIsGenerating(false)
     }
-  }, [stats])
+  }, [update])
 
   // Switch to a difficulty (from the welcome screen or the difficulty tabs)
   const changeDifficulty = useCallback(async (difficulty: Difficulty) => {
@@ -575,7 +598,7 @@ export function useTridoku() {
     const current = gameStateRef.current
     if (current.hasStarted && !current.isComplete && current.difficulty) {
       saveGameProgress(current)
-      setProgressToday(getTodaysProgress()) // keep the tab badges current
+      progressStore.refresh() // keep the tab badges current
       // Leaving an in-progress puzzle to switch difficulty counts as abandoning it
       if (!current.isViewMode && current.difficulty !== difficulty) {
         trackEvent(`${current.difficulty}_abandoned`, {
@@ -597,10 +620,10 @@ export function useTridoku() {
   useEffect(() => {
     if (isLoading || resumed.current) return
     resumed.current = true
-    const latest = (Object.entries(progressToday) as [Difficulty, PuzzleInProgress][])
+    const latest = (Object.entries(progressStore.get()) as [Difficulty, PuzzleInProgress][])
       .sort((a, b) => b[1].savedAt - a[1].savedAt)[0]
     if (latest) changeDifficulty(latest[0])
-  }, [isLoading, progressToday, changeDifficulty])
+  }, [isLoading, changeDifficulty])
 
   // Reload a difficulty's puzzle, ignoring a solved board (used by Reset and dev tools)
   const generateNewPuzzle = useCallback(async (difficulty?: Difficulty) => {
@@ -612,11 +635,6 @@ export function useTridoku() {
   const retryLoad = useCallback(() => {
     if (loadError) loadDifficulty(loadError)
   }, [loadError, loadDifficulty])
-
-  // Check if there's an active game in progress
-  const isGameActive = useCallback(() => {
-    return gameState.hasStarted && !gameState.isComplete && !gameState.isViewMode && gameState.elapsedTime > 0
-  }, [gameState.hasStarted, gameState.isComplete, gameState.isViewMode, gameState.elapsedTime])
 
   // Share text: result, spoiler-free region grid and an attributed link (lib/share.ts)
   const getShareText = useCallback(() => {
@@ -633,22 +651,22 @@ export function useTridoku() {
 
   // Reset puzzle
   const resetPuzzle = useCallback(() => {
-    if (gameState.difficulty) {
-      // Resetting an in-progress, incomplete puzzle counts as abandoning it
-      const current = gameStateRef.current
-      if (current.hasStarted && !current.isComplete && !current.isViewMode) {
-        trackEvent(`${gameState.difficulty}_abandoned`, {
-          difficulty: gameState.difficulty,
-          reason: "reset",
-          time: current.elapsedTime,
-          pct_filled: percentFilled(current.cells),
-        })
-        if (current.puzzleDate) bumpCounter(gameState.difficulty, current.puzzleDate, "resets")
-      }
-      clearGameProgress(gameState.difficulty)
-      generateNewPuzzle(gameState.difficulty)
+    const current = gameStateRef.current
+    if (!current.difficulty) return
+    // Resetting an in-progress, incomplete puzzle counts as abandoning it
+    if (current.hasStarted && !current.isComplete && !current.isViewMode) {
+      trackEvent(`${current.difficulty}_abandoned`, {
+        difficulty: current.difficulty,
+        reason: "reset",
+        time: current.elapsedTime,
+        pct_filled: percentFilled(current.cells),
+      })
+      if (current.puzzleDate) bumpCounter(current.difficulty, current.puzzleDate, "resets")
     }
-  }, [gameState.difficulty, generateNewPuzzle])
+    clearGameProgress(current.difficulty)
+    progressStore.refresh()
+    generateNewPuzzle(current.difficulty)
+  }, [generateNewPuzzle])
 
   return {
     cells: gameState.cells,
@@ -664,6 +682,8 @@ export function useTridoku() {
     highlightedValue: gameState.highlightedValue,
     puzzleDate: gameState.puzzleDate,
     fallback: gameState.fallback,
+    canUndo: gameState.undoHistory.length > 0,
+    undoFeedback,
     progressToday,
     previewPuzzle,
     loadError,
@@ -675,13 +695,13 @@ export function useTridoku() {
     selectCell,
     setValue,
     clearCell,
+    undo,
     toggleErrors,
     togglePause,
     resetPuzzle,
     getShareText,
     generateNewPuzzle,
     changeDifficulty,
-    isGameActive,
     setInputMode,
   }
 }

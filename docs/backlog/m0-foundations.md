@@ -277,7 +277,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Done when**
 - [x] `rules_step {n}` and `rules_completed` events.
 - [x] `kofi_opened` and `feedback_opened` events.
-- [x] Completion events include `errors`, `pencil_marks`, `resets` (and `undos` once TRI-052 ships).
+- [x] Completion events include `errors`, `pencil_marks`, `resets` (and `undos` since TRI-052).
 
 <a id="tri-020"></a>
 ## TRI-020 · Metrics definitions and dashboard

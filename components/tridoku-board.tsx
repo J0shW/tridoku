@@ -175,6 +175,8 @@ interface TridokuBoardProps {
   onCellClick: (cellId: CellId) => void
   isPaused: boolean
   highlightedValue?: number | null
+  /** The cell the last undo changed; it flashes briefly (TRI-052). */
+  flash?: { cellId: CellId; key: number } | null
   showErrors?: boolean
   /** Shown as a Resume button while paused. */
   onResume?: () => void
@@ -184,7 +186,7 @@ const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
 
 const VIEWBOX_RATIO = `${SVG_WIDTH + STROKE_MARGIN * 2} / ${SVG_HEIGHT + STROKE_MARGIN * 2}`
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, highlightedValue, showErrors = false, onResume }: TridokuBoardProps) {
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, highlightedValue, showErrors = false, onResume, flash }: TridokuBoardProps) {
   if (isPaused) {
     // Same size as the board, so nothing around it moves (TRI-087)
     return (
@@ -241,6 +243,17 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
             .selected-cell {
               stroke-dasharray: 0.4 0.2;
               animation: dash-animation 1s linear infinite;
+            }
+            @keyframes undo-flash {
+              from { opacity: 0.5; }
+              to { opacity: 0; }
+            }
+            .undo-flash {
+              opacity: 0;
+              animation: undo-flash 900ms ease-out;
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .undo-flash { animation: none; }
             }
           `}
         </style>
@@ -343,6 +356,18 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
             strokeLinecap="round"
           />
         ))}
+        {/* Flash the cell the last undo changed. Keyed so each undo restarts it. */}
+        {flash && (() => {
+          const cell = TRIDOKU_BOARD.flat().find(c => c.id === flash.cellId && !c.hidden)
+          return cell ? (
+            <polygon
+              key={flash.key}
+              points={getTrianglePoints(cell.row, cell.col, cell.direction)}
+              className="undo-flash fill-primary"
+              style={{ pointerEvents: "none" }}
+            />
+          ) : null
+        })()}
         {/* Draw selected cell border on top of everything */}
         {selectedCellId && (() => {
           const selectedCell = TRIDOKU_BOARD.flat().find(cell => cell.id === selectedCellId && !cell.hidden)

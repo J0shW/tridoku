@@ -105,8 +105,12 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** There's no undo; the only escape from a mistake chain is Reset.
 
 **Done when**
-- [ ] An Undo button beside the Pen/Pencil switch and Ctrl/Cmd-Z undo the last entry, clear or note change, multiple steps back. *Placement chosen in the Proposed C prototype (9 Nov); Reset now lives in the ⋯ menu (TRI-087).*
-- [ ] Undo history survives a reload for the current puzzle.
+- [x] An Undo button under the timer and Ctrl/Cmd-Z undo the last entry, clear or note change, multiple steps back. *Placement changed from "beside Pen/Pencil" after the Proposed D prototype (9 Nov): next to the pad it invited accidental taps. Reset lives in the ⋯ menu (TRI-087).*
+- [x] Each undo selects and briefly flashes the cell it changed; the button says what it put back for 2 seconds ("Removed 7", "Back to 3", "Pencil 4 off"). On boards narrower than about 350 px the corner only fits "Undo", so the flash alone shows what changed.
+- [x] Undo history survives a reload for the current puzzle (saved with the progress, up to 200 steps).
+- [ ] Owner check on a phone in the preview.
+
+*Redo: not built. The completion event counts `undo_reentries` (a digit entered again in the same cell straight after an undo removed it). If that is common, an accidental undo is common and Redo is worth adding.*
 
 <a id="tri-053"></a>
 ## TRI-053 · Remove placed digits from notes automatically
@@ -184,8 +188,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** `hooks/use-tridoku.ts` sets state inside effects (loading stats on mount, recording a win) and duplicates puzzle-loading logic between `changeDifficulty` and `generateNewPuzzle`. The React Compiler lint rules flag these; they are warnings for this file only (`eslint.config.mjs`).
 
 **Done when**
-- [ ] Stats load through a lazy initializer or external store instead of an effect.
-- [ ] Winning is recorded in the action that completes the puzzle, not in an effect.
-- [ ] Puzzle loading lives in one function.
-- [ ] The lint overrides for this file are removed and `pnpm lint` has no warnings for it.
-- [ ] Do this together with Undo (TRI-052), which needs the same state reshaping.
+- [x] Stats load through a lazy initializer or external store instead of an effect. *External stores (`lib/local-store.ts`) for stats and today's in-progress puzzles.*
+- [x] Winning is recorded in the action that completes the puzzle, not in an effect.
+- [x] Puzzle loading lives in one function. *`loadDifficulty`, used by the tabs, Reset, Retry and resume.*
+- [x] The lint overrides for this file are removed and `pnpm lint` has no warnings for it.
+- [x] Do this together with Undo (TRI-052), which needs the same state reshaping.
