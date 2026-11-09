@@ -1,6 +1,7 @@
 // Per-puzzle counters sent with completion and abandonment events (TRI-019):
 // wrong entries, notes added, resets, and quick clears (a digit cleared within 2 s of
-// being entered: a likely mis-tap, TRI-059). Wrong entries are also counted per region
+// being entered: a likely mis-tap, TRI-059), undos, and digits re-entered right after
+// an undo removed them (TRI-052). Wrong entries are also counted per region
 // for the share grid (TRI-036). Kept in localStorage so they survive a reload or a
 // reset of the same puzzle; only today's puzzles are kept.
 
@@ -16,14 +17,18 @@ export interface PlayCounters {
   resets: number
   /** Digits cleared within 2 seconds of being entered in the same cell. */
   quickClears: number
+  /** Times Undo was used. */
+  undos: number
+  /** Digits entered again in the same cell straight after an undo removed them. */
+  undoReentries: number
   /** Wrong entries in each of the 9 bolded regions (index = boldedRegion). */
   regionErrors: number[]
 }
 
-type CountField = "errors" | "notes" | "resets" | "quickClears"
+type CountField = "errors" | "notes" | "resets" | "quickClears" | "undos" | "undoReentries"
 type Store = Record<string, Partial<PlayCounters>>
 
-const empty = (): PlayCounters => ({ errors: 0, notes: 0, resets: 0, quickClears: 0, regionErrors: Array(REGION_COUNT).fill(0) })
+const empty = (): PlayCounters => ({ errors: 0, notes: 0, resets: 0, quickClears: 0, undos: 0, undoReentries: 0, regionErrors: Array(REGION_COUNT).fill(0) })
 const id = (difficulty: Difficulty, date: DateKey) => `${date}:${difficulty}`
 
 function read(): Store {

@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**87 items** · 33 todo · 2 in progress · 3 in review · 47 done · 2 won't do · plus 13 [research items](research.md)
+**87 items** · 31 todo · 2 in progress · 5 in review · 47 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -81,13 +81,13 @@ Make every label honest and every puzzle fair, and give stuck players a way forw
 | [TRI-049](m2-puzzle-quality.md#tri-049) | Weekly difficulty rhythm | Medium | M | S | TRI-047 | Todo |
 | [TRI-050](m2-puzzle-quality.md#tri-050) | Grade puzzles in the daily Action | Medium | M | S | TRI-046 | Todo |
 | [TRI-051](m2-puzzle-quality.md#tri-051) | Serve one puzzle file per day | Medium | M | M | TRI-010 | Todo |
-| [TRI-052](m2-puzzle-quality.md#tri-052) | Undo | High | H | S | — | Todo |
+| [TRI-052](m2-puzzle-quality.md#tri-052) | Undo | High | H | S | — | In review |
 | [TRI-053](m2-puzzle-quality.md#tri-053) | Remove placed digits from notes automatically | High | H | S | — | Todo |
 | [TRI-054](m2-puzzle-quality.md#tri-054) | Hint: show a cell that can be solved now | Medium | H | M | TRI-046 | Todo |
 | [TRI-055](m2-puzzle-quality.md#tri-055) | Tell players when a full board is wrong | Medium | M | S | — | Todo |
 | [TRI-056](m2-puzzle-quality.md#tri-056) | Dim digits that are fully placed | Low | M | S | — | Todo |
 | [TRI-057](m2-puzzle-quality.md#tri-057) | Make highlight-a-digit discoverable | Low | L | S | — | Todo |
-| [TRI-080](m2-puzzle-quality.md#tri-080) | Restructure the game-state hook | Medium | M | M | TRI-052 | Todo |
+| [TRI-080](m2-puzzle-quality.md#tri-080) | Restructure the game-state hook | Medium | M | M | TRI-052 | In review |
 
 ## [M3 · Mobile and accessibility](m3-mobile-accessibility.md)
 

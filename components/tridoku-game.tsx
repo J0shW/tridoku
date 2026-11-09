@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useTridoku } from "@/hooks/use-tridoku"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { NumberPad } from "@/components/number-pad"
-import { GameControls, TimerButton } from "@/components/game-controls"
+import { GameControls, TimerButton, UndoButton } from "@/components/game-controls"
 import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal, POWER_CELLS_TIP_INDEX, type RulesTab } from "@/components/rules-modal"
@@ -69,6 +69,9 @@ export function TridokuGame() {
     selectCell,
     setValue,
     clearCell,
+    undo,
+    canUndo,
+    undoFeedback,
     toggleErrors,
     togglePause,
     resetPuzzle,
@@ -174,6 +177,13 @@ export function TridokuGame() {
     if (isComplete || isPaused) return
 
     const key = e.key.toLowerCase()
+
+    // Ctrl/Cmd-Z: undo (TRI-052)
+    if (key === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
+      e.preventDefault()
+      undo()
+      return
+    }
     
     // Toggle pen/pencil mode with 'p' key or spacebar
     if (key === "p" || key === " ") {
@@ -208,7 +218,7 @@ export function TridokuGame() {
       if (target) selectCell(target)
       return
     }
-  }, [isComplete, isPaused, setValue, clearCell, selectCell, selectedCellId, inputMode, setInputMode])
+  }, [isComplete, isPaused, setValue, clearCell, undo, selectCell, selectedCellId, inputMode, setInputMode])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
@@ -316,13 +326,17 @@ export function TridokuGame() {
                 className="@container relative w-full max-w-md"
                 style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
               >
-                <div className="absolute left-0 top-0 z-10">
+                <div className="absolute left-0 top-0 z-10 flex flex-col items-start gap-2">
                   <TimerButton
                     seconds={elapsedTime}
                     isPaused={isPaused}
                     onTogglePause={togglePause}
                     disabled={isComplete || isViewMode}
                   />
+                  {/* Undo sits under the timer, away from the number pad (TRI-052) */}
+                  {!isPaused && !isComplete && !isViewMode && (
+                    <UndoButton canUndo={canUndo} onUndo={undo} feedback={undoFeedback} />
+                  )}
                 </div>
                 {/* Check and More don't apply while the board is hidden */}
                 {!isPaused && (
@@ -343,6 +357,7 @@ export function TridokuGame() {
                   highlightedValue={highlightedValue}
                   showErrors={showErrors}
                   onResume={togglePause}
+                  flash={undoFeedback}
                 />
               </div>
             </div>

@@ -1,11 +1,11 @@
 "use client"
 
 // The controls that sit in the empty top corners beside the board (TRI-087):
-// the timer, which pauses when tapped, on the left; Check and a "More" menu
-// holding Reset on the right.
+// the timer, which pauses when tapped, and Undo under it on the left (TRI-052);
+// Check and a "More" menu holding Reset on the right.
 
 import { useEffect, useRef, useState } from "react"
-import { Check, Clock, MoreHorizontal, Pause, Play, RotateCcw } from "lucide-react"
+import { Check, Clock, MoreHorizontal, Pause, Play, RotateCcw, Undo2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatTime } from "@/lib/tridoku"
 import {
@@ -58,6 +58,54 @@ export function TimerButton({ seconds, isPaused, onTogglePause, disabled }: Time
   )
 }
 
+/** How long the Undo button shows what it put back before reading "Undo" again. */
+const UNDO_LABEL_MS = 2000
+
+interface UndoButtonProps {
+  canUndo: boolean
+  onUndo: () => void
+  /** The last undo; while recent, the button says what it put back (e.g. "Removed 7"). */
+  feedback: { label: string; key: number } | null
+}
+
+/** Undo, under the timer. Kept away from the number pad so it's hard to hit by accident. */
+export function UndoButton({ canUndo, onUndo, feedback }: UndoButtonProps) {
+  // The key of the undo whose label has timed out
+  const [expiredKey, setExpiredKey] = useState<number | null>(null)
+  useEffect(() => {
+    if (!feedback) return
+    const t = setTimeout(() => setExpiredKey(feedback.key), UNDO_LABEL_MS)
+    return () => clearTimeout(t)
+  }, [feedback])
+  const note = feedback && feedback.key !== expiredKey ? feedback.label : null
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={onUndo}
+        disabled={!canUndo && !note}
+        aria-label="Undo"
+        aria-keyshortcuts="Control+Z Meta+Z"
+        title="Undo (Ctrl/⌘ Z)"
+        className={cn(
+          PILL,
+          "gap-1.5 whitespace-nowrap pl-2.5 pr-3 text-sm font-semibold",
+          note && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+        )}
+      >
+        <Undo2 className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
+        {/* A narrow board's corner only has room for "Undo"; the cell flash still shows what changed */}
+        <span aria-hidden="true" className={note ? "@max-[350px]:hidden" : undefined}>{note ?? "Undo"}</span>
+        {note && <span aria-hidden="true" className="hidden @max-[350px]:inline">Undo</span>}
+      </button>
+      <span className="sr-only" role="status">
+        {note ? `Undone: ${note}` : ""}
+      </span>
+    </>
+  )
+}
+
 interface GameControlsProps {
   showErrors: boolean
   onToggleErrors: () => void
@@ -90,7 +138,8 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
   }, [menuOpen])
 
   return (
-    <div className="flex items-center gap-1.5">
+    // Check, with the More menu under it to mirror the timer and Undo on the left
+    <div className="flex flex-col items-end gap-2">
       <button
         type="button"
         onClick={onToggleErrors}
@@ -100,13 +149,12 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
         title={showErrors ? "Error checking on" : "Error checking off"}
         className={cn(
           PILL,
-          "gap-1.5 pl-2.5 pr-3 text-sm font-semibold @max-[325px]:w-9 @max-[325px]:justify-center @max-[325px]:px-0",
+          "gap-1.5 pl-2.5 pr-3 text-sm font-semibold",
           showErrors && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
         )}
       >
         <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
-        {/* On a narrow board the corner is too small for the label */}
-        <span className="@max-[325px]:sr-only">Check</span>
+        <span>Check</span>
       </button>
 
       <div ref={menuRef} className="relative">

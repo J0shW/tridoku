@@ -13,9 +13,9 @@ const config = [
     rules: { "@typescript-eslint/no-require-imports": "off" },
   },
   {
-    // Existing code that predates the React Compiler rules. Kept as warnings until
-    // it is restructured: the game hook in TRI-080, vendored shadcn components as needed.
-    files: ["hooks/use-tridoku.ts", "components/ui/**"],
+    // Vendored shadcn components that predate the React Compiler rules. Kept as
+    // warnings until they are restructured as needed.
+    files: ["components/ui/**"],
     rules: {
       "react-hooks/set-state-in-effect": "warn",
       "react-hooks/preserve-manual-memoization": "warn",
