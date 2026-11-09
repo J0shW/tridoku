@@ -108,7 +108,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] An Undo button under the timer and Ctrl/Cmd-Z undo the last entry, clear or note change, multiple steps back. *Placement changed from "beside Pen/Pencil" after the Proposed D prototype (9 Nov): next to the pad it invited accidental taps. Reset lives in the ⋯ menu (TRI-087).*
 - [x] Each undo selects and briefly flashes the cell it changed; the button says what it put back for 2 seconds ("Removed 7", "Back to 3", "Pencil 4 off"). On boards narrower than about 350 px the corner only fits "Undo", so the flash alone shows what changed.
 - [x] Undo history survives a reload for the current puzzle (saved with the progress, up to 200 steps).
-- [ ] Owner check on a phone in the preview.
+- [x] Owner check on a phone in the preview. *Approved 9 Nov, with ⋯ moved under Check.*
 
 *Redo: not built. The completion event counts `undo_reentries` (a digit entered again in the same cell straight after an undo removed it). If that is common, an accidental undo is common and Redo is worth adding.*
 
