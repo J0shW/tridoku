@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**87 items** · 33 todo · 2 in progress · 5 in review · 45 done · 2 won't do · plus 13 [research items](research.md)
+**87 items** · 33 todo · 2 in progress · 3 in review · 47 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -95,9 +95,9 @@ Make the game comfortable on small phones and playable without a mouse, a touchs
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-058](m3-mobile-accessibility.md#tri-058) | Board and number pad fit small phones | High | H | M | — | In review |
+| [TRI-058](m3-mobile-accessibility.md#tri-058) | Board and number pad fit small phones | High | H | M | — | Done |
 | [TRI-059](m3-mobile-accessibility.md#tri-059) | Larger, more forgiving tap targets | High | H | S | — | In review |
-| [TRI-087](m3-mobile-accessibility.md#tri-087) | Clearer game controls | Medium | M | S | — | In review |
+| [TRI-087](m3-mobile-accessibility.md#tri-087) | Clearer game controls | Medium | M | S | — | Done |
 | [TRI-060](m3-mobile-accessibility.md#tri-060) | Readable pencil marks | Medium | M | S | — | Todo |
 | [TRI-061](m3-mobile-accessibility.md#tri-061) | Player entries look different from givens | Medium | M | S | — | Todo |
 | [TRI-062](m3-mobile-accessibility.md#tri-062) | Keyboard-playable board | Critical | M | M | — | Todo |

@@ -36,7 +36,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 **Done when**
 - [x] Taps select the cell whose centroid is nearest the touch point, using the SVG coordinate system. *`nearestCellId` in `lib/tridoku.ts`; taps on lines, corners and just outside the edge count.*
-- [ ] Clear-right-after-entry rate (from TRI-019 events) drops after release. *Now measured: completions carry `quick_clears` (a digit cleared within 2 s of being entered in the same cell). There's no before figure, so compare early weeks against later ones and against touch vs mouse.*
+- [ ] Clear-right-after-entry rate (from TRI-019 events) drops after release. *Waiting on data (TRI-059 stays In review). Now measured: completions carry `quick_clears` (a digit cleared within 2 s of being entered in the same cell). There's no before figure, so compare early weeks against later ones and against touch vs mouse.*
 
 <a id="tri-087"></a>
 ## TRI-087 · Clearer game controls
@@ -53,6 +53,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] Reset moves into a "⋯" menu, keeping its confirmation.
 - [x] Both sit in the empty top corners beside the triangle.
 - [x] The rules modal's tip describes Check.
+
+Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolbars showing; pause screen lines up.
 
 **Check it in a preview.** On a phone: tap the timer to pause and resume, turn Check on with a wrong digit entered, and open ⋯ → Reset puzzle → Cancel.
 
