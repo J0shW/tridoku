@@ -33,7 +33,43 @@ pnpm check-book
 
 For every file this checks the row lengths and level, that the givens don't break a rule, that there is exactly one solution, and the tier from our current grader (`scripts/eval/lib.ts`: 1 = singles only, 2 = + power-cell eliminations, 3 = + pairs and triples, 4 = needs more). A typing mistake almost always shows up as a clash, no solution or several solutions.
 
-## Findings
+## Conclusion
+
+35 puzzles across all four levels: 8 at level 1, 7 at level 2, 10 at level 3 and 10 at level 4. Reproduce with `pnpm compare-book`.
+
+| Book level | Puzzles | Givens | Singles only | Moves available per step | Steps with only 1–2 moves | Need naked singles |
+|---|---|---|---|---|---|---|
+| 1 | 8 | 30 | 8 of 8 | 8.0 | 3.6 | 0 of 8 |
+| 2 | 7 | 30 | 7 of 7 | 6.5 | 3.3 | 0 of 7 |
+| 3 | 10 | 27–30 | 10 of 10 | 4.7 | 7.8 | 2 of 10 |
+| 4 | 10 | 27–30 | 10 of 10 | 3.8 | 13.6 | 5 of 10 |
+| Our Easy | 30 | ~44 | 28 of 30 | 8.3 | 3.0 | 2 of 30 |
+| Our Medium | 30 | ~38 | **12 of 30** | 6.8\* | 3.4\* | — |
+| Our Hard | 30 | ~34 | **8 of 30** | 5.7\* | 5.4\* | — |
+
+\* Over the singles-solvable puzzles only.
+
+**How the book grades difficulty.**
+- Every puzzle, even at level 4, is solvable with singles alone: naked singles and hidden singles in regions and edges, with touching cells counted. The book never needs power-cell eliminations, pairs or anything harder.
+- Givens barely change: 30 at levels 1–2, 27–30 at levels 3–4.
+- Difficulty comes from **scarcity**. Each level offers fewer placements at a time (8.0, then 6.5, 4.7, 3.8), has more steps where only one or two moves exist (3.6 up to 13.6), and from level 3 increasingly needs naked singles: cells where only one digit fits once every region, edge and touching cell is checked.
+
+**What this means for us.**
+- Our Easy is close to book level 1, just with about 14 more givens.
+- Most of our Medium and Hard puzzles need techniques beyond singles, which the book never asks for, even at level 4. That is the likely reason no player has finished a Hard puzzle (`docs/metrics.md`).
+
+**Recommendation for TRI-046 and TRI-047.**
+- Require every daily puzzle to be solvable with singles (tier 1).
+- Grade within singles by scarcity, using the book's levels as anchors. Easy ≈ level 1–2 (6.5 or more moves per step). Medium ≈ level 3 (about 4.5–5.5). Hard ≈ level 4 (about 4 or fewer, with 10 or more tight steps).
+- Keep puzzles that need power cells or pairs for a possible Expert level (TRI-076), not Hard.
+- Thresholds should be confirmed against player solve times once TRI-020 data exists.
+
+**Caveats.**
+- The step measures come from one solving order (hidden singles first). Another order gives somewhat different numbers, though the same trend.
+- Samples are 7–10 puzzles per level.
+- The book's own explanation of its levels hasn't been read.
+
+## Findings by level
 
 **Level 1 (8 puzzles, pages 31–37 and 46).** Every one has exactly 30 givens and is tier 1 (singles solve it). The book appears to use a fixed number of givens and to vary which techniques are needed.
 
@@ -103,3 +139,13 @@ So book level 1 is about as hard to *spot* as our Easy, with a similar number of
 | 123 | 3 | 27 | 1 |
 | 124 | 3 | 30 | 1 |
 | 125 | 3 | 30 | 1 |
+| 150 | 4 | 27 | 1 |
+| 151 | 4 | 27 | 1 |
+| 152 | 4 | 27 | 1 |
+| 153 | 4 | 27 | 1 |
+| 154 | 4 | 27 | 1 |
+| 155 | 4 | 27 | 1 |
+| 156 | 4 | 27 | 1 |
+| 157 | 4 | 30 | 1 |
+| 158 | 4 | 30 | 1 |
+| 159 | 4 | 30 | 1 |
