@@ -324,6 +324,8 @@ export function TridokuGame() {
                     disabled={isComplete || isViewMode}
                   />
                 </div>
+                {/* Check and More don't apply while the board is hidden */}
+                {!isPaused && (
                 <div className="absolute right-0 top-0 z-10">
                   <GameControls
                     showErrors={showErrors}
@@ -332,6 +334,7 @@ export function TridokuGame() {
                     disabled={isGenerating || isComplete || isViewMode}
                   />
                 </div>
+                )}
                 <TridokuBoard
                   cells={cells}
                   selectedCellId={selectedCellId}

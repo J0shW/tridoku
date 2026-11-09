@@ -188,7 +188,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
   if (isPaused) {
     // Same size as the board, so nothing around it moves (TRI-087)
     return (
-      <div className="w-full p-2">
+      <div className="w-full">
         <div
           className="flex w-full flex-col items-center justify-center gap-3 rounded-xl bg-secondary/50"
           style={{ aspectRatio: VIEWBOX_RATIO }}
@@ -228,7 +228,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
     <div className="w-full">
       <svg
         viewBox={`${-STROKE_MARGIN} ${-STROKE_MARGIN} ${SVG_WIDTH + STROKE_MARGIN * 2} ${SVG_HEIGHT + STROKE_MARGIN * 2}`}
-        className="w-full h-auto p-2"
+        className="w-full h-auto"
         onClick={pickAt}
       >
         <style>
