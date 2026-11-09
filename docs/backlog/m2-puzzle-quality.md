@@ -17,6 +17,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 |---|---|---|---|---|---|
 | Critical | H | M | Completion rate by difficulty, solve-time spread | [TRI-013](m0-foundations.md#tri-013), [R-13](research.md) | 3.1, 3.a |
 
+**On hold (9 Nov 2026).** R-13 found that the inventor's book grades by scarcity within singles, never by harder techniques ([findings](../research/r13-book/README.md)). Wait for the owner's decision on its recommendation before building this.
+
 **Problem.** Difficulty is set only by the number of givens. 17% of Hard puzzles need only singles; 7% of Medium and 22% of Hard need more than pairs, possibly guessing.
 
 **Done when**
@@ -30,6 +32,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
 | Critical | H | S | Completion rate by difficulty | [TRI-046](m2-puzzle-quality.md#tri-046) | 3.1, 3.a, 3.2 |
+
+**On hold (9 Nov 2026).** R-13 found that the inventor's book grades by scarcity within singles, never by harder techniques ([findings](../research/r13-book/README.md)). Wait for the owner's decision on its recommendation before building this.
 
 **Problem.** The generator accepts results up to 6 givens above target and never checks difficulty.
 
