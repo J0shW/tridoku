@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Eye } from "lucide-react"
+import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Check } from "lucide-react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
 import { ROW_H, triPts, centroid, ExampleBox, RegionExample, OuterEdgesExample, InnerTriangleExample, NoTouchingExample, PowerCellExample } from "@/components/rule-diagrams"
 import { Button } from "@/components/ui/button"
@@ -183,15 +183,15 @@ function ShowErrorsStep() {
   return (
     <div>
       <p className="text-muted-foreground leading-relaxed text-center text-pretty">
-        Stuck or want to double-check your work? Toggle the{" "}
-        <strong className="text-foreground">Show Errors</strong> button to flag any digits that break a
-        rule.
+        Stuck or want to double-check your work? Turn on <strong className="text-foreground">Check</strong>,
+        above the board on the right, to flag any digits that break a rule.
       </p>
       <div className="mt-4 flex flex-col items-center gap-2">
-        <span className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center">
-          <Eye className="w-5 h-5" />
+        <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-primary bg-primary pl-2.5 pr-3 text-sm font-semibold text-primary-foreground">
+          <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
+          Check
         </span>
-        <span className="text-xs text-muted-foreground">Show Errors toggle</span>
+        <span className="text-xs text-muted-foreground">Check, turned on</span>
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed mt-4 text-center text-pretty">
         Conflicting cells turn red so you can quickly track down mistakes.
@@ -273,7 +273,7 @@ const TIP_STEPS: Step[] = [
   { title: "Selecting a Cell", subtitle: "Click, tap, or use the arrow keys", content: <SelectCellStep /> },
   { title: "Pen & Pencil", subtitle: "Final answers vs. candidate notes", content: <PenPencilStep /> },
   { title: "Highlight a Digit", subtitle: "Double-tap to see matching cells", content: <HighlightStep /> },
-  { title: "Show Errors", subtitle: "Flag rule-breaking digits", content: <ShowErrorsStep /> },
+  { title: "Check", subtitle: "Flag rule-breaking digits", content: <ShowErrorsStep /> },
   { title: "Power Cells", subtitle: "Eliminate candidates fast", content: <PowerCellsStep /> },
 ]
 

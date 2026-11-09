@@ -66,7 +66,7 @@ Every event also carries `days_since_first` (whole days since this browser's fir
 |---|---|---|
 | `{difficulty}_loaded` | A difficulty is chosen | — |
 | `puzzle_started` | First digit or note in a puzzle (once per puzzle) | `difficulty`, `ms_since_load`, `rules_seen` |
-| `{difficulty}_completed` | Puzzle solved (once per puzzle) | `difficulty`, `time` (s), `errors` (entries that broke a rule), `pencil_marks` (notes added), `resets` |
+| `{difficulty}_completed` | Puzzle solved (once per puzzle) | `difficulty`, `time` (s), `errors` (entries that broke a rule), `pencil_marks` (notes added), `resets`, `quick_clears` (digits cleared within 2 s of being entered in the same cell: likely mis-taps, TRI-059) |
 | `{difficulty}_abandoned` | Reset, or switching difficulty mid-puzzle | `difficulty`, `reason` (`reset` / `switch_difficulty`), `time`, `pct_filled` |
 | `session_end` | Page hidden with an unfinished, started puzzle (once per page load) | `difficulty`, `pct_filled`, `time` |
 | `result_shared` | Share button | `difficulty`, `method` (`native_share` / `clipboard`), `outcome` (`shared` / `cancelled` / `copied` / `failed`) |

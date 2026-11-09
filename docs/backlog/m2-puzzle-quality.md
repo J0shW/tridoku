@@ -105,7 +105,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** There's no undo; the only escape from a mistake chain is Reset.
 
 **Done when**
-- [ ] An Undo button next to Reset and Ctrl/Cmd-Z undo the last entry, clear or note change, multiple steps back.
+- [ ] An Undo button beside the Pen/Pencil switch and Ctrl/Cmd-Z undo the last entry, clear or note change, multiple steps back. *Placement chosen in the Proposed C prototype (9 Nov); Reset now lives in the ⋯ menu (TRI-087).*
 - [ ] Undo history survives a reload for the current puzzle.
 
 <a id="tri-053"></a>

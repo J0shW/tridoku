@@ -204,6 +204,8 @@ Every numbered finding and recommendation in the [baseline review](../reviews/20
 | Found in M0 (analytics tool review) | Umami free plan fits poorly; Vercel Hobby is non-commercial | [TRI-082](m1-first-impression.md#tri-082), [R-11](research.md) |
 | Found in M0 review | Daily Action missing dependencies; footer margin; Node 20 actions; stale checkmarks after midnight | [TRI-083](m0-foundations.md#tri-083), [TRI-084](m1-first-impression.md#tri-084), [TRI-085](m1-first-impression.md#tri-085), [TRI-086](m1-first-impression.md#tri-086) |
 | Found in M1 (TRI-032 review) | Touching-cell shading may make Medium and Hard too easy | [R-12](research.md) |
+| Owner idea (8 Nov) | How does the inventor's book grade difficulty? | [R-13](research.md) |
+| Found in M3 prototyping (9 Nov) | Timer and pause are separate; eye icon unclear for error checking; Reset has equal weight | [TRI-087](m3-mobile-accessibility.md#tri-087) |
 
 ## Review roadmap
 

@@ -1,9 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+// The controls that sit in the empty top corners beside the board (TRI-087):
+// the timer, which pauses when tapped, on the left; Check and a "More" menu
+// holding Reset on the right.
+
+import { useEffect, useRef, useState } from "react"
+import { Check, Clock, MoreHorizontal, Pause, Play, RotateCcw } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Pause, Play, RotateCcw, Eye, EyeOff } from "lucide-react"
+import { formatTime } from "@/lib/tridoku"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,91 +19,129 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-interface GameControlsProps {
+const PILL =
+  "inline-flex h-9 items-center rounded-full border border-border bg-secondary text-foreground transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+
+interface TimerButtonProps {
+  seconds: number
   isPaused: boolean
-  showErrors: boolean
   onTogglePause: () => void
-  onToggleErrors: () => void
-  onReset: () => void
-  onGenerateNew?: () => void
-  isComplete: boolean
-  isViewMode?: boolean
-  isGenerating?: boolean
+  /** Finished or viewing a solved puzzle: show the time without a pause control. */
+  disabled?: boolean
 }
 
-export function GameControls({
-  isPaused,
-  showErrors,
-  onTogglePause,
-  onToggleErrors,
-  onReset,
-  isComplete,
-  isViewMode = false,
-  isGenerating = false,
-}: GameControlsProps) {
+/** The running time; tapping it pauses and resumes the game. */
+export function TimerButton({ seconds, isPaused, onTogglePause, disabled }: TimerButtonProps) {
+  const time = formatTime(seconds)
+  if (disabled) {
+    return (
+      <div className={cn(PILL, "gap-1.5 pl-2.5 pr-3 hover:bg-secondary")} role="timer" aria-label={`Time: ${time}`}>
+        <Clock className="h-4 w-4" aria-hidden="true" />
+        <span className="font-mono text-[17px] tabular-nums">{time}</span>
+      </div>
+    )
+  }
+  return (
+    <button
+      type="button"
+      onClick={onTogglePause}
+      className={cn(PILL, "gap-1.5 pl-2.5 pr-3")}
+      aria-label={isPaused ? `Resume, time ${time}` : `Pause, time ${time}`}
+    >
+      {isPaused ? (
+        <Play className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+      ) : (
+        <Pause className="h-3.5 w-3.5 fill-current" aria-hidden="true" />
+      )}
+      <span className={cn("font-mono text-[17px] tabular-nums", isPaused && "text-muted-foreground")}>{time}</span>
+    </button>
+  )
+}
+
+interface GameControlsProps {
+  showErrors: boolean
+  onToggleErrors: () => void
+  onReset: () => void
+  /** Finished, viewing a solved puzzle, or loading: Check and Reset don't apply. */
+  disabled?: boolean
+}
+
+/** Check (error checking on/off) and a More menu with Reset. */
+export function GameControls({ showErrors, onToggleErrors, onReset, disabled = false }: GameControlsProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
-  const handleResetClick = () => {
-    setShowResetConfirm(true)
-  }
-
-  const confirmReset = () => {
-    onReset()
-    setShowResetConfirm(false)
-  }
-
-  const cancelReset = () => {
-    setShowResetConfirm(false)
-  }
+  // Close the menu on a tap outside it or on Escape
+  useEffect(() => {
+    if (!menuOpen) return
+    const onPointer = (e: PointerEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false)
+    }
+    document.addEventListener("pointerdown", onPointer)
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.removeEventListener("pointerdown", onPointer)
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [menuOpen])
 
   return (
-    <div className="flex items-center justify-center gap-3">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onTogglePause}
-        disabled={isComplete || isGenerating}
-        className={cn(
-          "h-12 w-12 rounded-full transition-all duration-150",
-          "hover:bg-secondary hover:scale-110"
-        )}
-        aria-label={isPaused ? "Resume game" : "Pause game"}
-      >
-        {isPaused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
+    <div className="flex items-center gap-1.5">
+      <button
+        type="button"
         onClick={onToggleErrors}
-        disabled={isGenerating || isComplete || isViewMode}
-        className={cn(
-          "h-12 w-12 rounded-full transition-all duration-150",
-          showErrors && "bg-accent text-accent-foreground",
-          "hover:bg-secondary hover:scale-110"
-        )}
-        aria-label={showErrors ? "Turn off error checking" : "Turn on error checking"}
+        disabled={disabled}
+        aria-pressed={showErrors}
+        aria-label={showErrors ? "Check: turn off error checking" : "Check: turn on error checking"}
         title={showErrors ? "Error checking on" : "Error checking off"}
-      >
-        {showErrors ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleResetClick}
-        disabled={isGenerating || isComplete || isViewMode}
         className={cn(
-          "h-12 w-12 rounded-full transition-all duration-150",
-          "hover:bg-secondary hover:scale-110"
+          PILL,
+          "gap-1.5 pl-2.5 pr-3 text-sm font-semibold @max-[325px]:w-9 @max-[325px]:justify-center @max-[325px]:px-0",
+          showErrors && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
         )}
-        aria-label="Reset puzzle"
       >
-        <RotateCcw className="h-5 w-5" />
-      </Button>
+        <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
+        {/* On a narrow board the corner is too small for the label */}
+        <span className="@max-[325px]:sr-only">Check</span>
+      </button>
 
+      <div ref={menuRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setMenuOpen((o) => !o)}
+          disabled={disabled}
+          aria-label="More"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          className={cn(PILL, "w-9 justify-center")}
+        >
+          <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden="true" />
+        </button>
+        {menuOpen && (
+          <div
+            role="menu"
+            className="absolute right-0 top-11 z-30 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg"
+          >
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setMenuOpen(false)
+                setShowResetConfirm(true)
+              }}
+              className="flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-sm font-medium hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none"
+            >
+              <RotateCcw className="h-[18px] w-[18px]" aria-hidden="true" />
+              Reset puzzle
+            </button>
+          </div>
+        )}
+      </div>
 
-      {/* Reset Confirmation Dialog */}
       <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -109,8 +151,15 @@ export function GameControls({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelReset}>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmReset}>Reset Puzzle</AlertDialogAction>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                onReset()
+                setShowResetConfirm(false)
+              }}
+            >
+              Reset Puzzle
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

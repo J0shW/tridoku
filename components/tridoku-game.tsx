@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { useTridoku } from "@/hooks/use-tridoku"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { NumberPad } from "@/components/number-pad"
-import { GameControls } from "@/components/game-controls"
-import { TimerDisplay } from "@/components/timer-display"
+import { GameControls, TimerButton } from "@/components/game-controls"
 import { StatsModal } from "@/components/stats-modal"
 import { WinModal } from "@/components/win-modal"
 import { RulesModal, POWER_CELLS_TIP_INDEX, type RulesTab } from "@/components/rules-modal"
@@ -232,13 +231,13 @@ export function TridokuGame() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b border-border">
-        <div className="container max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="container max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Triangle className="h-6 w-6 text-primary fill-primary/20" />
-            <div>
-              <h1 className="text-xl font-bold text-foreground">Daily Tridoku</h1>
-              <p className="text-xs text-muted-foreground">Puzzle #{puzzleNumber}</p>
-            </div>
+            <Triangle className="h-5 w-5 text-primary fill-primary/20" />
+            <h1 className="whitespace-nowrap text-[17px] font-bold text-foreground">Daily Tridoku</h1>
+            <p className="whitespace-nowrap text-xs text-muted-foreground">
+              <span className="max-[359px]:sr-only">Puzzle </span>#{puzzleNumber}
+            </p>
           </div>
 
           <div className="flex items-center gap-1">
@@ -272,7 +271,8 @@ export function TridokuGame() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 container max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
+      {/* The game view is kept compact so the board and number pad fit a phone screen (TRI-058) */}
+      <main className={`flex-1 container max-w-2xl mx-auto px-4 flex flex-col ${hasStarted ? "pt-4 pb-4 gap-2" : "py-6 gap-6"}`}>
         {!hasStarted ? (
           <WelcomeScreen
             stats={stats}
@@ -287,7 +287,7 @@ export function TridokuGame() {
           /* Game view - active puzzle */
           <>
             {/* Difficulty selector */}
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-3">
               <DifficultySelector
                 currentDifficulty={difficulty!}
                 inProgress={progressToday}
@@ -308,24 +308,33 @@ export function TridokuGame() {
               </p>
             )}
 
-            {/* Timer and controls row */}
-            <div className="flex items-center justify-between">
-              <TimerDisplay seconds={elapsedTime} isPaused={isPaused} />
-              <GameControls
-                isPaused={isPaused}
-                showErrors={showErrors}
-                onTogglePause={togglePause}
-                onToggleErrors={toggleErrors}
-                onReset={resetPuzzle}
-                isComplete={isComplete}
-                isViewMode={isViewMode}
-                isGenerating={isGenerating}
-              />
-            </div>
-
-            {/* Game board */}
-            <div className="flex items-center justify-center py-4">
-              <div className="w-full max-w-md">
+            {/* Game board, with the timer and controls in the empty corners beside the
+                triangle (TRI-087). On short screens the board shrinks so the number pad
+                stays on screen (TRI-058). */}
+            <div className="flex justify-center">
+              <div
+                className="@container relative w-full max-w-md"
+                style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
+              >
+                <div className="absolute left-0 top-0 z-10">
+                  <TimerButton
+                    seconds={elapsedTime}
+                    isPaused={isPaused}
+                    onTogglePause={togglePause}
+                    disabled={isComplete || isViewMode}
+                  />
+                </div>
+                {/* Check and More don't apply while the board is hidden */}
+                {!isPaused && (
+                <div className="absolute right-0 top-0 z-10">
+                  <GameControls
+                    showErrors={showErrors}
+                    onToggleErrors={toggleErrors}
+                    onReset={resetPuzzle}
+                    disabled={isGenerating || isComplete || isViewMode}
+                  />
+                </div>
+                )}
                 <TridokuBoard
                   cells={cells}
                   selectedCellId={selectedCellId}
@@ -333,6 +342,7 @@ export function TridokuGame() {
                   isPaused={isPaused}
                   highlightedValue={highlightedValue}
                   showErrors={showErrors}
+                  onResume={togglePause}
                 />
               </div>
             </div>
@@ -354,7 +364,7 @@ export function TridokuGame() {
             )}
             {/* Input mode toggle and number pad */}
             {!isViewMode && (
-              <div className="pb-4 space-y-4">
+              <div className="pb-4 space-y-2">
                 <div className="flex justify-center">
                   <InputModeToggle
                     mode={inputMode}

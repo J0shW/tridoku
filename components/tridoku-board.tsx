@@ -1,6 +1,7 @@
 "use client"
 
-import { Cell, CellId, Board, TRIDOKU_BOARD } from "@/lib/tridoku"
+import { Play } from "lucide-react"
+import { Cell, CellId, Board, TRIDOKU_BOARD, nearestCellId } from "@/lib/tridoku"
 
 const ROW_HEIGHT = Math.sqrt(3)
 const SVG_WIDTH = 18
@@ -175,20 +176,46 @@ interface TridokuBoardProps {
   isPaused: boolean
   highlightedValue?: number | null
   showErrors?: boolean
+  /** Shown as a Resume button while paused. */
+  onResume?: () => void
 }
 
 const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
 
-export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, highlightedValue, showErrors = false }: TridokuBoardProps) {
+const VIEWBOX_RATIO = `${SVG_WIDTH + STROKE_MARGIN * 2} / ${SVG_HEIGHT + STROKE_MARGIN * 2}`
+
+export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, highlightedValue, showErrors = false, onResume }: TridokuBoardProps) {
   if (isPaused) {
+    // Same size as the board, so nothing around it moves (TRI-087)
     return (
-      <div className="w-full flex items-center justify-center bg-secondary/50 rounded-xl py-20">
-        <div className="text-center">
-          <p className="text-2xl mb-2">Paused</p>
-          <p className="text-muted-foreground">Click resume to continue</p>
+      <div className="w-full">
+        <div
+          className="flex w-full flex-col items-center justify-center gap-3 rounded-xl bg-secondary/50"
+          style={{ aspectRatio: VIEWBOX_RATIO }}
+        >
+          <p className="text-2xl font-bold">Paused</p>
+          {onResume && (
+            <button
+              type="button"
+              onClick={onResume}
+              className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-[15px] font-semibold text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <Play className="h-4 w-4 fill-current" aria-hidden="true" />
+              Resume
+            </button>
+          )}
         </div>
       </div>
     )
+  }
+
+  // TRI-059: a tap selects the cell whose centre is nearest, wherever it lands on the board
+  const pickAt = (e: React.MouseEvent<SVGSVGElement>) => {
+    const matrix = e.currentTarget.getScreenCTM()
+    if (!matrix) return
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(matrix.inverse())
+    const id = nearestCellId(p.x, p.y)
+    if (id) onCellClick(id)
   }
 
   // TRI-032: lightly shade the cells touching the selected one, since the
@@ -201,7 +228,8 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
     <div className="w-full">
       <svg
         viewBox={`${-STROKE_MARGIN} ${-STROKE_MARGIN} ${SVG_WIDTH + STROKE_MARGIN * 2} ${SVG_HEIGHT + STROKE_MARGIN * 2}`}
-        className="w-full h-auto p-2"
+        className="w-full h-auto"
+        onClick={pickAt}
       >
         <style>
           {`
@@ -224,7 +252,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
               const isSelected = cell.id === selectedCellId
               const centroid = getTriangleCentroid(cell.row, cell.col, cell.direction)
               return (
-                <g key={cell.id} className="cursor-pointer" onClick={() => onCellClick(cell.id)}>
+                <g key={cell.id} className="cursor-pointer">
                   <polygon
                     points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                     fill={CELL_FILLS[cell.color]}

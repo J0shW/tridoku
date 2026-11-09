@@ -171,6 +171,33 @@ export function createEmptyBoard(): Board {
 
 export const TRIDOKU_BOARD: Board = createEmptyBoard()
 
+// Board coordinates: a cell is 2 units wide and sqrt(3) tall; row r spans y = r*sqrt(3) .. (r+1)*sqrt(3).
+const CELL_CENTRES = TRIDOKU_BOARD.flat()
+  .filter((c) => !c.hidden)
+  .map((c) => ({
+    id: c.id,
+    x: c.col + 1,
+    y: c.row * Math.sqrt(3) + (c.direction === 'up' ? (2 * Math.sqrt(3)) / 3 : Math.sqrt(3) / 3),
+  }))
+
+/**
+ * The cell whose centre is nearest a point in board coordinates (TRI-059), so a tap on a
+ * line, a corner or just outside the board still selects the obvious cell. Null when the
+ * point is well outside the board. Every point inside a cell is within 1.16 of its centre.
+ */
+export function nearestCellId(x: number, y: number, maxDistance = 1.3): CellId | null {
+  let best: CellId | null = null
+  let bestDistance = Infinity
+  for (const c of CELL_CENTRES) {
+    const d = Math.hypot(c.x - x, c.y - y)
+    if (d < bestDistance) {
+      bestDistance = d
+      best = c.id
+    }
+  }
+  return bestDistance <= maxDistance ? best : null
+}
+
 // A puzzle is a string of 81 characters, one per non-hidden cell (row-major, left to right).
 // '1'-'9' = given value, '0' = empty.
 export function loadPuzzle(data: string): Board {
