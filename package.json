@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "grade-puzzles": "node --experimental-strip-types scripts/eval/grade-puzzles.ts"
+    "grade-puzzles": "node --experimental-strip-types scripts/eval/grade-puzzles.ts",
+    "check-book": "node --experimental-strip-types --no-warnings scripts/eval/check-book.ts"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "1.1.15",
