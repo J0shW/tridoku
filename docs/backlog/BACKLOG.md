@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**86 items** · 35 todo · 2 in progress · 3 in review · 44 done · 2 won't do · plus 13 [research items](research.md)
+**86 items** · 35 todo · 2 in progress · 2 in review · 45 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -66,7 +66,7 @@ Help first-time players understand the game in seconds, and give winners somethi
 | [TRI-045](m1-first-impression.md#tri-045) | Launch post using the Behind the Scenes story | Low | M | S | TRI-005, TRI-008, TRI-029, TRI-036 | Todo |
 | [TRI-082](m1-first-impression.md#tri-082) | Evaluate PostHog as the analytics tool | Medium | H | S | TRI-081 | Todo |
 | [TRI-084](m1-first-impression.md#tri-084) | Footer has side margins on phones | Low | L | S | — | Done |
-| [TRI-085](m1-first-impression.md#tri-085) | Update GitHub Actions to Node 24 versions | Low | L | S | — | In review |
+| [TRI-085](m1-first-impression.md#tri-085) | Update GitHub Actions to Node 24 versions | Low | L | S | — | Done |
 | [TRI-086](m1-first-impression.md#tri-086) | Completed checkmarks refresh after midnight in an open tab | Low | M | S | — | Done |
 
 ## [M2 · Puzzle quality and gameplay](m2-puzzle-quality.md)

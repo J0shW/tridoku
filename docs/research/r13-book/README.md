@@ -33,6 +33,8 @@ pnpm check-book
 
 For every file this checks the row lengths and level, that the givens don't break a rule, that there is exactly one solution, and the tier from our current grader (`scripts/eval/lib.ts`: 1 = singles only, 2 = + power-cell eliminations, 3 = + pairs and triples, 4 = needs more). A typing mistake almost always shows up as a clash, no solution or several solutions.
 
+> **Status (9 Nov 2026): findings complete, decision paused.** Josh is thinking about the recommendation below before we change how puzzles are graded. TRI-046 and TRI-047 are on hold until then. See [Open questions](#open-questions) for what to decide.
+
 ## Conclusion
 
 35 puzzles across all four levels: 8 at level 1, 7 at level 2, 10 at level 3 and 10 at level 4. Reproduce with `pnpm compare-book`.
@@ -149,3 +151,27 @@ So book level 1 is about as hard to *spot* as our Easy, with a similar number of
 | 157 | 4 | 30 | 1 |
 | 158 | 4 | 30 | 1 |
 | 159 | 4 | 30 | 1 |
+
+## Open questions
+
+Questions to settle before TRI-046 and TRI-047 are built:
+
+1. **Should every difficulty be singles-only, like the book?** That would make our Medium and Hard easier on technique but scarcer on moves. Puzzles that need power cells or pairs would be dropped, or saved for an Expert level (TRI-076).
+2. **Givens.** Keep about 44 for Easy, or move toward the book's 27–30? Fewer givens means a longer solve at the same technique level.
+3. **Which scarcity measure, and what thresholds?** Moves per step and tight steps depend on the order moves are taken in. A grader could instead use the hardest moment (fewest options at any step), an average over several solving orders, or a count of naked singles needed. The thresholds suggested above are anchors from 7–10 puzzles per level.
+4. **Is the book what our players want?** Check against real solve times and completion by difficulty once TRI-020 has data, and against playtests (R-06) and difficulty ratings (TRI-042, `difficulty_rated`).
+5. **How does the author describe the levels?** The book's introduction hasn't been read. A photo of it would confirm or correct this reading.
+
+## How the puzzles were transcribed
+
+For whoever adds more puzzles:
+
+- **Photos to text, row by row.** Row *r* (from the top) has 2*r*+1 cells, alternating up and down triangles, starting with up. Each digit's position was read from the bold region lines and the coloured cells, which give fixed reference points:
+  - Outer-edge cells are the book's main colour.
+  - Inner-triangle cells are its second colour.
+  - Cells on both are a third, darker colour.
+  - On the bottom row, every up triangle is an outer-edge cell.
+- **Up or down.** In an up triangle the digit sits low in the row; in a down triangle it sits high.
+- **Angled photos.** Pages that curve or were shot at an angle shift digits sideways, mostly on the right. Mapping positions straight-line from the triangle's corners worked for flat photos but drifted on curved ones; reading by hand against the reference cells was reliable.
+- **Checking.** `pnpm check-book` confirms each file has exactly one solution. A misplaced or misread digit almost always causes a clash, no solution or several solutions. Page 32 was the one error found: three right-side digits were one cell too far left, and the checker caught it.
+
