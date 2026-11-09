@@ -20,8 +20,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** At 360×640 the number pad starts below the fold; ~70 px is wasted between timer and board.
 
 **Done when**
-- [ ] Under 700 px tall, the header collapses, timer and controls sit on the tab row and board padding is removed.
-- [ ] Board and pad fit within 640 px of height at 360 px wide.
+- [x] Under 700 px tall, the header collapses, timer and controls sit on the tab row and board padding is removed. *Done differently, chosen in a prototype (Proposed C): a 56 px one-line header, tighter spacing, and the timer and controls in the empty top corners beside the board (TRI-087), which frees the whole row. Applies at every size.*
+- [x] Board and pad fit within 640 px of height at 360 px wide. *Pad ends at 594 px at 360×640, 620 px on an iPhone 13 (664 visible in Safari on load), 547 px on a 320×568 iPhone SE, where the board shrinks to fit. The play-through check now passes.*
 
 **Check it in a preview.** Open the preview on the smallest phone available, or in browser dev tools at 360×640.
 
@@ -35,8 +35,26 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Triangles are ~38×33 px at 390 px wide, with an inscribed circle of ~22 px.
 
 **Done when**
-- [ ] Taps select the cell whose centroid is nearest the touch point, using the SVG coordinate system.
-- [ ] Clear-right-after-entry rate (from TRI-019 events) drops after release.
+- [x] Taps select the cell whose centroid is nearest the touch point, using the SVG coordinate system. *`nearestCellId` in `lib/tridoku.ts`; taps on lines, corners and just outside the edge count.*
+- [ ] Clear-right-after-entry rate (from TRI-019 events) drops after release. *Now measured: completions carry `quick_clears` (a digit cleared within 2 s of being entered in the same cell). There's no before figure, so compare early weeks against later ones and against touch vs mouse.*
+
+<a id="tri-087"></a>
+## TRI-087 · Clearer game controls
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | M | S | Completion rate, mobile completion | none | Found in M3 prototyping (owner, 9 Nov) |
+
+**Problem.** The timer was plain text with a separate pause button; error checking was an eye icon, which reads as show/hide rather than "check my work"; Reset, which wipes progress, sat beside them with equal weight. They also took a row of their own on phones.
+
+**Done when**
+- [x] The timer is a pill that pauses and resumes when tapped; paused, the board area keeps its size and shows Resume.
+- [x] Error checking is a labelled "Check" toggle with a clear on state (icon only on very narrow boards).
+- [x] Reset moves into a "⋯" menu, keeping its confirmation.
+- [x] Both sit in the empty top corners beside the triangle.
+- [x] The rules modal's tip describes Check.
+
+**Check it in a preview.** On a phone: tap the timer to pause and resume, turn Check on with a wrong digit entered, and open ⋯ → Reset puzzle → Cancel.
 
 <a id="tri-060"></a>
 ## TRI-060 · Readable pencil marks

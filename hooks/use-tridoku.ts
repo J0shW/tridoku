@@ -305,6 +305,7 @@ export function useTridoku() {
       errors: counters.errors,
       pencil_marks: counters.notes,
       resets: counters.resets,
+      quick_clears: counters.quickClears,
     })
 
     const newStats = { ...stats, [difficulty]: newDiffStats }
@@ -370,11 +371,26 @@ export function useTridoku() {
     if (after[row][col].hasError) bumpCounter(difficulty, puzzleDate, "errors", cell.boldedRegion)
   }, [])
 
+  // TRI-059: a digit cleared within 2 s of being entered in the same cell is a likely mis-tap
+  const lastEntry = useRef<{ id: CellId; at: number } | null>(null)
+  const noteQuickClear = useCallback(() => {
+    const { difficulty, puzzleDate, selectedCellId, inputMode, cells } = gameStateRef.current
+    const last = lastEntry.current
+    lastEntry.current = null
+    if (!difficulty || !puzzleDate || !selectedCellId || inputMode !== "pen" || !last) return
+    const [row, col] = selectedCellId.split("-").map(Number)
+    if (last.id === selectedCellId && cells[row]?.[col]?.value != null && Date.now() - last.at < 2000) {
+      bumpCounter(difficulty, puzzleDate, "quickClears")
+    }
+  }, [])
+
   // Set value on the selected cell (pen mode) or toggle pencil mark (pencil mode)
   const setValue = useCallback((value: number) => {
     if (gameState.isViewMode) return
     markStarted()
     countEntry(value)
+    const g = gameStateRef.current
+    if (g.inputMode === "pen" && g.selectedCellId) lastEntry.current = { id: g.selectedCellId, at: Date.now() }
     setGameState(prev => {
       if (!prev.selectedCellId) return prev
       const [rowStr, colStr] = prev.selectedCellId.split("-")
@@ -425,6 +441,7 @@ export function useTridoku() {
   // Clear the selected cell (pen mode clears value, pencil mode does nothing - user must toggle marks individually)
   const clearCell = useCallback(() => {
     if (gameState.isViewMode) return
+    noteQuickClear()
     setGameState(prev => {
       if (!prev.selectedCellId) return prev
       const [rowStr, colStr] = prev.selectedCellId.split("-")
@@ -450,7 +467,7 @@ export function useTridoku() {
       )
       return { ...prev, cells: validateBoard(updatedCells) }
     })
-  }, [gameState.isViewMode])
+  }, [gameState.isViewMode, noteQuickClear])
 
   // Toggle input mode between pen and pencil
   const setInputMode = useCallback((mode: InputMode) => {
