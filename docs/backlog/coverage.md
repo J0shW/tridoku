@@ -2,7 +2,7 @@
 
 Every numbered finding and recommendation in the [baseline review](../reviews/2026-11-06-baseline.md) and the backlog or research items that cover it. A finding with no item here would mean the backlog is incomplete.
 
-**126 findings, all covered.**
+**126 findings, all covered.** The [UI audit](../reviews/2026-11-09-ui-audit.md) (9 Nov) adds 42 findings, also all covered; see [UI audit](#ui-audit-9-nov).
 
 ## §1 Value proposition
 
@@ -206,6 +206,55 @@ Every numbered finding and recommendation in the [baseline review](../reviews/20
 | Found in M1 (TRI-032 review) | Touching-cell shading may make Medium and Hard too easy | [R-12](research.md) |
 | Owner idea (8 Nov) | How does the inventor's book grade difficulty? | [R-13](research.md) |
 | Found in M3 prototyping (9 Nov) | Timer and pause are separate; eye icon unclear for error checking; Reset has equal weight | [TRI-087](m3-mobile-accessibility.md#tri-087) |
+
+## UI audit (9 Nov)
+
+Findings from the [UI audit](../reviews/2026-11-09-ui-audit.md). New evidence for existing items (TRI-058, 059, 060, 061, 062, 065, 066, 068, 070, 078) is in the audit's §5.
+
+| Ref | Finding | Covered by |
+|---|---|---|
+| UI-01 | Tips and notices push the number pad off screen | [TRI-090](m5-design-system.md#tri-090) |
+| UI-02 | Difficulty colour means three things; Easy borrows the outer-rule blue | [TRI-092](m5-design-system.md#tri-092) |
+| UI-03 | Seven button styles | [TRI-089](m5-design-system.md#tri-089), [TRI-093](m5-design-system.md#tri-093) |
+| UI-04 | Ghost and outline hovers are green | [TRI-091](m5-design-system.md#tri-091) |
+| UI-05 | Contrast failures outside the board | [TRI-091](m5-design-system.md#tri-091) |
+| UI-06 | Hard-coded colours in components; unused tokens | [TRI-088](m5-design-system.md#tri-088), [TRI-097](m5-design-system.md#tri-097) |
+| UI-07 | Copy-pasted notices; pencil tip overlap and keyboard copy | [TRI-089](m5-design-system.md#tri-089), [TRI-090](m5-design-system.md#tri-090), [TRI-098](m5-design-system.md#tri-098) |
+| UI-08 | Game opens scrolled on 320 px and landscape | [TRI-093](m5-design-system.md#tri-093), [TRI-096](m5-design-system.md#tri-096) |
+| UI-09 | Desktop and tablet don't use the space | [TRI-096](m5-design-system.md#tri-096) |
+| UI-10 | Dialogs inconsistent; focus not returned; teal Reset | [TRI-094](m5-design-system.md#tri-094) |
+| UI-11 | Hand-rolled ⋯ menu | [TRI-093](m5-design-system.md#tri-093) |
+| UI-12 | No type scale; tabular digits missing | [TRI-088](m5-design-system.md#tri-088) |
+| UI-13 | Unbranded 404, no error page | [TRI-095](m5-design-system.md#tri-095) |
+| UI-14 | 16 controls under 44 px | [TRI-093](m5-design-system.md#tri-093), [TRI-059](m3-mobile-accessibility.md#tri-059) |
+| UI-15 | Three tab styles; difficulty tabs lack a selected state | [TRI-089](m5-design-system.md#tri-089), [TRI-092](m5-design-system.md#tri-092) |
+| UI-16 | Copy drift: case, names, rule count | [TRI-098](m5-design-system.md#tri-098) |
+| UI-17 | Off-palette opaque blue highlight | [TRI-091](m5-design-system.md#tri-091) |
+| UI-18 | Check on and Undo note look the same | [TRI-093](m5-design-system.md#tri-093) |
+| UI-19 | Pad looks disabled on first view | [TRI-093](m5-design-system.md#tri-093) |
+| UI-20 | Clear key outline and red hover | [TRI-093](m5-design-system.md#tri-093) |
+| UI-21 | Pad hover looks like note on | [TRI-093](m5-design-system.md#tri-093) |
+| UI-22 | Icon sizes and strokes vary | [TRI-089](m5-design-system.md#tri-089), [TRI-078](m4-depth-revenue.md#tri-078) |
+| UI-23 | Nine radii, six shadows, ad-hoc z-index | [TRI-088](m5-design-system.md#tri-088) |
+| UI-24 | No spacing rhythm | [TRI-088](m5-design-system.md#tri-088) |
+| UI-25 | Tips describe the wrong platform | [TRI-098](m5-design-system.md#tri-098) |
+| UI-26 | Motion: transition-all, scale, rotate | [TRI-088](m5-design-system.md#tri-088), [TRI-066](m3-mobile-accessibility.md#tri-066) |
+| UI-27 | Five teals; OG image font and colours | [TRI-091](m5-design-system.md#tri-091), [TRI-095](m5-design-system.md#tri-095), [TRI-078](m4-depth-revenue.md#tri-078) |
+| UI-28 | /bts separate style and no metadata | [TRI-095](m5-design-system.md#tri-095) |
+| UI-29 | Loading state without header; JS-off spinner | [TRI-095](m5-design-system.md#tri-095) |
+| UI-30 | View-mode banner bright in dark mode | [TRI-093](m5-design-system.md#tri-093) |
+| UI-31 | Ko-fi offset and white; footer buttons | [TRI-094](m5-design-system.md#tri-094) |
+| UI-32 | Statistics modal layout and case | [TRI-094](m5-design-system.md#tri-094) |
+| UI-33 | Win modal crowded | [TRI-094](m5-design-system.md#tri-094) |
+| UI-34 | Dark board lines and selection | [TRI-091](m5-design-system.md#tri-091), [TRI-068](m3-mobile-accessibility.md#tri-068) |
+| UI-35 | Footer padding; safe areas | [TRI-093](m5-design-system.md#tri-093), [TRI-070](m4-depth-revenue.md#tri-070) |
+| UI-36 | Three focus styles | [TRI-089](m5-design-system.md#tri-089) |
+| UI-37 | Rules modal dots and credit | [TRI-094](m5-design-system.md#tri-094) |
+| UI-38 | Header wordmark size | [TRI-093](m5-design-system.md#tri-093) |
+| UI-39 | Two difficulty card layouts share no component | [TRI-092](m5-design-system.md#tri-092) |
+| UI-40 | Two primaries on the load error | [TRI-093](m5-design-system.md#tri-093) |
+| UI-41 | Timer pill in view mode | [TRI-093](m5-design-system.md#tri-093) |
+| UI-42 | Spinner announced twice | [TRI-095](m5-design-system.md#tri-095) |
 
 ## Review roadmap
 

@@ -1,0 +1,22 @@
+1. Easy
+2. Medium
+3. Hard
+4. Pause, time 00:00
+5. Check: turn on error checking
+6. More
+7. Pen
+8. Pencil
+9. Support me on Ko-fi
+10. Open feedback form
+11. How to play
+12. Behind the Scenes
+13. ((a,b,c,d,e,f,g,h)=>{let i=doc
+14. Toggle theme
+15. How to play
+16. Statistics
+17. Easy
+18. Medium
+19. Hard
+20. Pause, time 00:02
+21. Check: turn on error checking
+22. More

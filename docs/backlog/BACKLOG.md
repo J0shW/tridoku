@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**87 items** · 31 todo · 2 in progress · 5 in review · 47 done · 2 won't do · plus 13 [research items](research.md)
+**98 items** · 42 todo · 2 in progress · 5 in review · 47 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -125,3 +125,21 @@ Give committed players more to do and test whether they will pay for it.
 | [TRI-077](m4-depth-revenue.md#tri-077) | Special and themed puzzles | Low | L | M | TRI-046 | Todo |
 | [TRI-078](m4-depth-revenue.md#tri-078) | Logo and favicon | Low | M | S | — | Todo |
 | [TRI-079](m4-depth-revenue.md#tri-079) | No ads | — | — | — | — | Won't do |
+
+## [M5 · Design system](m5-design-system.md)
+
+One look and one way of building every screen, from the [UI audit](../reviews/2026-11-09-ui-audit.md). Starts after Josh picks a direction on the [design canvas](https://claude.ai/artifact/KCC9s4riFkSrmGv9bWic9M).
+
+| ID | Item | Severity | Impact | Effort | Depends on | Status |
+|---|---|---|---|---|---|---|
+| [TRI-090](m5-design-system.md#tri-090) | Notices never push the number pad off screen | High | H | S | — | Todo |
+| [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | Todo |
+| [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | Todo |
+| [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | Todo |
+| [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | Todo |
+| [TRI-092](m5-design-system.md#tri-092) | One difficulty identity | High | M | S | TRI-089 | Todo |
+| [TRI-094](m5-design-system.md#tri-094) | Dialogs and menus on the system | Medium | M | M | TRI-089 | Todo |
+| [TRI-095](m5-design-system.md#tri-095) | System and secondary pages | Medium | M | S | TRI-089 | Todo |
+| [TRI-098](m5-design-system.md#tri-098) | Content pass | Medium | M | S | — | Todo |
+| [TRI-096](m5-design-system.md#tri-096) | Desktop, tablet and landscape layouts | Medium | M | M | TRI-093 | Todo |
+| [TRI-097](m5-design-system.md#tri-097) | Drift guard in CI | Medium | M | S | TRI-093, TRI-094, TRI-095 | Todo |

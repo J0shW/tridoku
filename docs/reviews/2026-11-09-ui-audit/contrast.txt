@@ -1,0 +1,57 @@
+PASS 12.61:1 (need 4.5) light: body text on background
+PASS  5.55:1 (need 4.5) light: muted text on background
+FAIL  2.49:1 (need 4.5) light: footer text (muted/60) on background
+FAIL  4.28:1 (need 4.5) light: primary-foreground on primary (Check on, Share)
+PASS  4.03:1 (need 3) light: primary as text on background (win time, Best Time)
+FAIL  1.16:1 (need 3) light: pill fill (secondary) vs background
+FAIL  1.41:1 (need 3) light: border token vs background
+FAIL  2.69:1 (need 4.5) light: disabled pad digit (50% opacity)
+PASS  6.00:1 (need 4.5) light: ghost hover (accent green) under fg
+PASS 14.30:1 (need 4.5) dark: body text on background
+PASS  5.16:1 (need 4.5) dark: muted text on background
+FAIL  2.65:1 (need 4.5) dark: footer text (muted/60) on background
+PASS  7.04:1 (need 4.5) dark: primary-foreground on primary (Check on, Share)
+PASS  6.78:1 (need 3) dark: primary as text on background (win time, Best Time)
+FAIL  1.33:1 (need 3) dark: pill fill (secondary) vs background
+FAIL  1.54:1 (need 3) dark: border token vs background
+FAIL  3.88:1 (need 4.5) dark: disabled pad digit (50% opacity)
+PASS  5.60:1 (need 4.5) dark: ghost hover (accent green) under fg
+FAIL  3.96:1 (need 4.5) light: destructive (Clear hover) white text
+PASS 14.66:1 (need 4.5) digit #000 on outer cell
+PASS 11.10:1 (need 4.5) note #222 on outer cell
+FAIL  2.39:1 (need 4.5) error digit #DC2626 on outer+error tint
+FAIL  2.83:1 (need 3) dark region line #7e7e7e vs outer cell
+FAIL  2.54:1 (need 3) selection stroke rgb(134) light vs outer
+PASS  9.88:1 (need 3) selection stroke rgb(43) dark vs outer
+PASS  1.25:1 (need 1.0) touching tint vs plain outer
+PASS 14.49:1 (need 4.5) digit #000 on inner cell
+PASS 10.98:1 (need 4.5) note #222 on inner cell
+FAIL  2.44:1 (need 4.5) error digit #DC2626 on inner+error tint
+FAIL  2.80:1 (need 3) dark region line #7e7e7e vs inner cell
+FAIL  2.51:1 (need 3) selection stroke rgb(134) light vs inner
+PASS  9.77:1 (need 3) selection stroke rgb(43) dark vs inner
+PASS  1.25:1 (need 1.0) touching tint vs plain inner
+PASS  8.61:1 (need 4.5) digit #000 on overlap cell
+PASS  6.52:1 (need 4.5) note #222 on overlap cell
+FAIL  1.60:1 (need 4.5) error digit #DC2626 on overlap+error tint
+FAIL  1.66:1 (need 3) dark region line #7e7e7e vs overlap cell
+FAIL  1.49:1 (need 3) selection stroke rgb(134) light vs overlap
+PASS  5.80:1 (need 3) selection stroke rgb(43) dark vs overlap
+PASS  1.22:1 (need 1.0) touching tint vs plain overlap
+PASS 16.23:1 (need 4.5) digit #000 on none cell
+PASS 12.29:1 (need 4.5) note #222 on none cell
+FAIL  2.63:1 (need 4.5) error digit #DC2626 on none+error tint
+PASS  3.14:1 (need 3) dark region line #7e7e7e vs none cell
+FAIL  2.81:1 (need 3) selection stroke rgb(134) light vs none
+PASS 10.94:1 (need 3) selection stroke rgb(43) dark vs none
+PASS  1.26:1 (need 1.0) touching tint vs plain none
+PASS  5.71:1 (need 4.5) highlight: #000 digit on #3b82f6
+PASS  8.26:1 (need 4.5) highlight dark: #000 digit on #60a5fa
+PASS  6.21:1 (need 4.5) view banner text #2d5a3a on #bfdde2@60% over light bg
+PASS  4.57:1 (need 4.5) view banner text #2d5a3a on #bfdde2@90% over dark bg
+FAIL  3.02:1 (need 4.5) stats "Easy Level" green-600 on light card
+FAIL  2.69:1 (need 4.5) stats "Medium Level" yellow-600 on light card
+FAIL  3.76:1 (need 4.5) stats "Hard Level" red-600 on dark card
+FAIL  2.23:1 (need 3) inactive tab underline Easy #98ac8b vs light bg
+PASS 12.67:1 (need 3) inactive tab underline Easy #bfdde2 vs dark bg
+FAIL  2.79:1 (need 4.5) BTS label red-500/80 on light bg
