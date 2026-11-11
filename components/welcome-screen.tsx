@@ -6,7 +6,7 @@
 
 import { useMemo } from "react"
 import { HelpCircle, Play } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/legacy-button"
 import { Spinner } from "@/components/ui/spinner"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { formatTime, loadPuzzle, type Difficulty } from "@/lib/tridoku"

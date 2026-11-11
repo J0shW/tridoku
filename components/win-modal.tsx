@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/legacy-button"
 import { KofiDialog } from "@/components/kofi-widget"
 import { trackEvent } from "@/lib/analytics"
 import { msUntilNextDay, todayKey, type DateKey } from "@/lib/dates"

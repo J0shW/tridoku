@@ -2,8 +2,8 @@
 
 import { Difficulty, formatTime } from "@/lib/tridoku"
 import type { DifficultyStats, PuzzleInProgress } from "@/hooks/use-tridoku"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/legacy-button"
+import { Badge } from "@/components/ui/legacy-badge"
 import { Check } from "lucide-react"
 
 interface DifficultySelectorProps {

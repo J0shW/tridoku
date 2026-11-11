@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/legacy-button"
 import { cn } from "@/lib/utils"
 import { Delete } from "lucide-react"
 
