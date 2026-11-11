@@ -78,13 +78,13 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 Also, every ghost or outline hover turns green, and the digit highlight is an opaque off-palette blue.
 
 **Done when**
-- [ ] Primary buttons and "on" states are dark ink (`--action`, 14:1 with paper text). Teal is gone from the app, including the logo and links. *Josh chose ink, 11 Nov.*
-- [ ] The selection is a solid ink outline and doesn't animate. Completes [TRI-066](m3-mobile-accessibility.md#tri-066).
-- [ ] Region lines are `#2b2420` in both themes (6.3:1 or better). Completes [TRI-068](m3-mobile-accessibility.md#tri-068).
-- [ ] Muted text is never drawn with opacity. Stats labels use text colours.
-- [ ] Hover is a neutral overlay on pointer devices only. The green `accent` is retired.
-- [ ] The digit highlight is drawn on top (inverse ink, to be prototyped), not as an opaque blue.
-- [ ] `docs/reviews/2026-11-09-ui-audit/contrast.txt` is re-run, and every UI pair passes.
+- [x] Primary buttons and "on" states are dark ink (`--action`, 14.7:1 with paper text; light ink in dark mode, 14.3:1). Teal is gone from the app, including the header logo, the favicons and links. *Josh chose ink, 11 Nov. The OG image still uses teal; it's redrawn in TRI-095.*
+- [x] The selection is a solid ink outline and doesn't animate (6.3:1 or better on every fill). Completes [TRI-066](m3-mobile-accessibility.md#tri-066): the play-through's reduced-motion check now reads "none".
+- [x] Region lines are `#2b2420` in both themes (6.3:1 or better). Completes [TRI-068](m3-mobile-accessibility.md#tri-068).
+- [x] Muted text is never drawn with opacity (footer 2.5:1 → 5.6:1). Stats labels use the text colour, and "Completed today" uses the success token (5.1:1).
+- [x] Hover is a neutral overlay. Tailwind v4's `hover:` only applies on devices that hover. The green `accent` token is removed.
+- [x] The digit highlight is drawn on top: an ink cell with a paper digit (14.7:1), not an opaque blue. *Not prototyped before; Josh to judge it in the preview.*
+- [x] Contrast is re-run for every changed pair: all pass. See [`2026-11-11-tri-091/contrast.txt`](../reviews/2026-11-11-tri-091/contrast.txt). Red error digits are unchanged (TRI-065).
 
 **Check it in a preview.** On your phone, the Share, Continue and Check-on buttons are dark ink with no teal anywhere. Select a cell: the outline is clearly visible. Switch to dark mode: the board's region lines are as bold as in light mode.
 
@@ -170,6 +170,8 @@ The difficulty tabs also have no selected state for screen readers.
 - [ ] The rules modal, the rule diagrams and `/how-to-play` describe "the lightest, middle and deepest shades" instead of blue, yellow and green, and draw with the current palette.
 - [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
 - [ ] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
+- [ ] Each palette has a `tone` and `on-tone` (design system §2.3). Toggles use them when on, instead of ink: the Pencil button, number keys with a note, and Check if the prototype agrees. *Josh, 11 Nov: ink or white doesn't read clearly as on/off for a toggle.* Prototype first; also decide whether Share and Play take the tone or stay ink.
+- [ ] The palette test also checks `tone` against the off keys (3:1 or better in both themes) and `on-tone` text on `tone` (4.5:1 or better).
 
 **Check it in a preview.** On your phone, play a few moves on each difficulty. You can tell outer, inner and both cells apart on all three boards. Select a cell: one outline goes round it and its 12 neighbours, and digits inside stay clear. Open How to play: the rule cards describe shades and match the board.
 

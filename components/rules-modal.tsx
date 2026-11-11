@@ -145,13 +145,13 @@ function PenPencilStep() {
       </div>
       <ul className="mt-4 space-y-2 text-muted-foreground">
         <li className="flex items-start gap-2">
-          <span className="text-accent">•</span>
+          <span className="text-muted-foreground">•</span>
           <span>
             <strong className="text-foreground">Pen:</strong> Place your final answer in a cell.
           </span>
         </li>
         <li className="flex items-start gap-2">
-          <span className="text-accent">•</span>
+          <span className="text-muted-foreground">•</span>
           <span>
             <strong className="text-foreground">Pencil:</strong> Jot down small candidate notes when
             you&apos;re not sure yet.

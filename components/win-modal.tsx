@@ -57,7 +57,7 @@ function BestLine({ comparison, difficulty }: { comparison: BestComparison; diff
     case "new_best":
       return (
         <span className="inline-flex items-center gap-1 font-semibold text-foreground">
-          <Trophy className="h-4 w-4 text-amber-500" aria-hidden="true" />
+          <Trophy className="h-4 w-4 text-warning" aria-hidden="true" />
           New {label} best, {formatTime(comparison.by)} faster
         </span>
       )
@@ -188,7 +188,7 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
             Share
           </Button>
           <Button onClick={handleCopy} variant="outline" className="h-12 w-12" aria-label="Copy results">
-            {copied ? <Check className="h-5 w-5 text-accent" /> : <Copy className="h-5 w-5" />}
+            {copied ? <Check className="h-5 w-5 text-success" /> : <Copy className="h-5 w-5" />}
           </Button>
         </div>
 

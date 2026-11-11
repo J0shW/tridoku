@@ -6,9 +6,9 @@
 /*
   Design tokens (docs/design-system.md §2).
 
-  TRI-088 introduces the names with today's values, so nothing looks different yet.
-  TRI-091 changes the UI values (ink actions, contrast fixes) and TRI-099 replaces the
-  board colours with tonal palettes. Feature code uses these tokens, never raw colours.
+  TRI-088 introduced the names; TRI-091 set the action colour to ink (no teal) and fixed
+  contrast. TRI-099 replaces the board fills with tonal palettes. Feature code uses these
+  tokens, never raw colours.
 
   The shadcn names further down (--background, --primary, …) point at these tokens so
   components/ui keeps working while it's migrated.
@@ -23,13 +23,14 @@
   --fg-muted: oklch(0.5 0.03 50);
   --border: oklch(0.86 0.02 65);
   --border-strong: oklch(0.9 0.015 65);
-  --action: oklch(0.55 0.12 190);
-  --on-action: oklch(0.99 0 0);
+  /* Ink, not teal (Josh, 11 Nov): 14.7:1 with paper text */
+  --action: #2b2420;
+  --on-action: #fffaf6;
   --danger: oklch(0.62 0.18 30);
   --on-danger: oklch(0.98 0.01 30);
-  --success: #16a34a;
-  --warning: #d97706;
-  --focus: oklch(0.55 0.12 190);
+  --success: #2f7a4b;
+  --warning: #9a6200;
+  --focus: #2b2420;
   --hover: rgb(59 41 33 / 0.06);
   --press: rgb(59 41 33 / 0.12);
   --overlay: rgb(0 0 0 / 0.5);
@@ -45,7 +46,8 @@
   --board-cell-inner: #eed496;
   --board-cell-overlap: #98ac8b;
   --board-cell-none: #e4e3d3;
-  --board-region-line: #000000;
+  /* Near-black in both themes: 6.3:1 or better on every fill (TRI-068) */
+  --board-region-line: #2b2420;
   --board-cell-line: #000000;
   --board-digit-given: #000000;
   --board-digit-entry: #000000;
@@ -54,9 +56,12 @@
   --board-error-tint: rgba(239, 68, 68, 0.3);
   /* Cells touching the selected cell (TRI-032) */
   --board-touching: rgba(40, 30, 20, 0.12);
-  --board-selection-fill: rgba(134, 134, 134, 0.07);
-  --board-selection-stroke: rgb(134, 134, 134);
-  --board-highlight: rgb(59, 130, 246);
+  /* A solid ink outline, not an animated grey dash (TRI-066): 5.6:1 or better on every fill */
+  --board-selection-fill: rgba(255, 255, 255, 0.25);
+  --board-selection-stroke: #2b2420;
+  /* Double-tap highlight: an ink cell with a paper digit, so it's never mistaken for a shade */
+  --board-highlight: #2b2420;
+  --board-highlight-digit: #fffaf6;
 
   /* Layers */
   --z-corner: 10;
@@ -84,9 +89,6 @@
   --secondary-foreground: var(--fg);
   --muted: var(--surface-sunken);
   --muted-foreground: var(--fg-muted);
-  /* Green, used only by the shadcn ghost/outline hover today. TRI-091 retires it. */
-  --accent: oklch(0.73 0.12 140);
-  --accent-foreground: oklch(0.25 0.04 140);
   --destructive: var(--danger);
   --destructive-foreground: var(--on-danger);
   --input: var(--border-strong);
@@ -104,25 +106,18 @@
   --fg-muted: oklch(0.63 0.025 60);
   --border: oklch(0.34 0.02 60);
   --border-strong: oklch(0.3 0.02 60);
-  --action: oklch(0.68 0.13 200);
-  --on-action: oklch(0.18 0.02 60);
+  --action: #ece3da;
+  --on-action: #1d140d;
   --danger: oklch(0.58 0.16 30);
   --on-danger: oklch(0.93 0.04 30);
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --focus: oklch(0.68 0.13 200);
+  --success: #7cc79a;
+  --warning: #e3b25c;
+  --focus: #ece3da;
   --hover: rgb(236 227 218 / 0.07);
   --press: rgb(236 227 218 / 0.14);
   --overlay: rgb(0 0 0 / 0.5);
 
-  /* Board: the fills stay light; only the strokes change */
-  --board-region-line: #7e7e7e;
-  --board-selection-fill: rgba(43, 43, 43, 0.07);
-  --board-selection-stroke: rgb(43, 43, 43);
-  --board-highlight: rgb(96, 165, 250);
-
-  --accent: oklch(0.68 0.12 140);
-  --accent-foreground: oklch(0.18 0.04 140);
+  /* The board is light in both themes, so its marks are the same as in light mode */
 }
 
 @theme inline {
@@ -165,8 +160,6 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);

@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**100 items** · 42 todo · 2 in progress · 6 in review · 48 done · 2 won't do · plus 13 [research items](research.md)
+**100 items** · 39 todo · 2 in progress · 8 in review · 49 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -104,9 +104,9 @@ Make the game comfortable on small phones and playable without a mouse, a touchs
 | [TRI-063](m3-mobile-accessibility.md#tri-063) | Screen-reader labels for the board | High | M | M | TRI-062 | Todo |
 | [TRI-064](m3-mobile-accessibility.md#tri-064) | Spoken announcements | Medium | M | S | TRI-063 | Todo |
 | [TRI-065](m3-mobile-accessibility.md#tri-065) | Errors visible without color | High | H | S | — | Todo |
-| [TRI-066](m3-mobile-accessibility.md#tri-066) | Respect reduced motion | Medium | L | S | — | Todo |
+| [TRI-066](m3-mobile-accessibility.md#tri-066) | Respect reduced motion | Medium | L | S | — | In review |
 | [TRI-067](m3-mobile-accessibility.md#tri-067) | Readable welcome card text | Medium | M | S | — | Done |
-| [TRI-068](m3-mobile-accessibility.md#tri-068) | Region lines visible in dark mode | High | M | S | — | Todo |
+| [TRI-068](m3-mobile-accessibility.md#tri-068) | Region lines visible in dark mode | High | M | S | — | In review |
 
 ## [M4 · Depth and revenue](m4-depth-revenue.md)
 
@@ -133,8 +133,8 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
 | [TRI-090](m5-design-system.md#tri-090) | Messages never move the board or the number pad | High | H | S | — | Done |
-| [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | In review |
-| [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | Todo |
+| [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | Done |
+| [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | In review |
 | [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | Todo |
 | [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | Todo |
 | [TRI-099](m5-design-system.md#tri-099) | Tonal board palettes | High | H | M | TRI-088 | Todo |
