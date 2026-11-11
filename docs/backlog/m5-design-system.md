@@ -98,11 +98,11 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 **Problem.** There are seven button styles, three tab styles and four copies of notice markup, and focus styles differ.
 
 **Done when**
-- [ ] `components/ui/` has the design system's Button (variants, sizes, `shape="pill"`), IconButton, SegmentedControl (group and tablist), Notice (four tones, with action and dismiss), Badge and StatTile.
-- [ ] Each has hover (pointer only), pressed, focus-visible and disabled states, 44 px hit areas, and unit tests for its ARIA attributes.
-- [ ] One focus style: a 2 px ink outline with a 2 px offset.
-- [ ] The Pill's "on" state is ink. Board-corner pills are paper at 80 %, so they read on all three folder colours.
-- [ ] Nothing in the app uses them yet, or only where the look doesn't change, so this PR is safe to merge on its own.
+- [x] `components/ui/` has the design system's Button (variants, sizes, `shape="pill"`, loading), IconButton, Pill, SegmentedControl (group and tablist, with arrow-key navigation), Notice (four tones, with action and dismiss), Badge and StatTile. *The shadcn Button and Badge move to `legacy-button.tsx` and `legacy-badge.tsx` until TRI-092/093/094 move every screen over.*
+- [x] Each has hover (pointer only), pressed, focus-visible and disabled states, 44 px hit areas, and unit tests for its ARIA attributes. *13 tests. Hit areas measured in Chromium: small buttons and segments are 36 px with 4 px extensions, pills 40 + 2 + 2, the dismiss × 32 + 6 + 6.*
+- [x] One focus style: a 2 px ink outline with a 2 px offset.
+- [x] The Pill's "on" state is ink for now (the palette tone comes with TRI-099). *Paper pills on the folder come with TRI-092, when there's a folder.*
+- [x] Nothing in the app uses them yet, so this PR is safe to merge on its own. *The game compared pixel by pixel against main: 40/40 match. A preview-only sheet at `/test/components` shows every component in light and dark.*
 
 **Check it in a preview.** No visible change. Review the screenshots of each component in light and dark in the PR.
 

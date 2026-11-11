@@ -18,7 +18,9 @@ Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are m
 - board tokens (`--board-*`, renamed from `--tridoku-*`);
 - type scale, radii, elevation, layers and motion.
 
-**TRI-091 (11 Nov)** made the action colour ink (teal gone, favicons included), made the selection a static ink outline, set region lines to `#2b2420` in both themes, made the highlight an ink cell with a paper digit, and set success and warning to the table's values. The surface, border and muted values in the tables are still targets. TRI-099 replaces the board fills with tonal palettes. The shadcn names (`--background`, `--primary`, …) now point at these tokens.
+**TRI-091 (11 Nov)** made the action colour ink (teal gone, favicons included), made the selection a static ink outline, set region lines to `#2b2420` in both themes, made the highlight an ink cell with a paper digit, and set success and warning to the table's values. The surface, border and muted values in the tables are still targets. TRI-099 replaces the board fills with tonal palettes.
+
+**TRI-089 (11 Nov)** added the §3 components in `components/ui/`: Button, IconButton and Pill (`button.tsx`), SegmentedControl, Notice, Badge and StatTile. See them at `/test/components` in any preview. The old shadcn Button and Badge live on as `legacy-button.tsx` and `legacy-badge.tsx` until the screens move over. `cn()` in `lib/utils.ts` knows the named text sizes; add any new size there too, or tailwind-merge will drop colour classes next to it. Destructive buttons use `--danger-solid` (#b42318, white text 6.8:1). The shadcn names (`--background`, `--primary`, …) now point at these tokens.
 
 ---
 

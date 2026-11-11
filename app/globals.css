@@ -28,6 +28,9 @@
   --on-action: #fffaf6;
   --danger: oklch(0.62 0.18 30);
   --on-danger: oklch(0.98 0.01 30);
+  /* Destructive buttons (Reset puzzle): white text at 6.8:1 in both themes */
+  --danger-solid: #b42318;
+  --on-danger-solid: #ffffff;
   --success: #2f7a4b;
   --warning: #9a6200;
   --focus: #2b2420;
@@ -136,6 +139,8 @@
   --color-on-action: var(--on-action);
   --color-danger: var(--danger);
   --color-on-danger: var(--on-danger);
+  --color-danger-solid: var(--danger-solid);
+  --color-on-danger-solid: var(--on-danger-solid);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-focus: var(--focus);
