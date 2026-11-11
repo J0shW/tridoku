@@ -1,17 +1,28 @@
 # Daily Tridoku design system
 
-**Status: proposal (10 Nov 2026).** Nothing here is in the app yet. It comes from the [UI audit](reviews/2026-11-09-ui-audit.md). The visual prototype is the [design canvas](https://claude.ai/artifact/KCC9s4riFkSrmGv9bWic9M). The rollout is milestone [M5](backlog/m5-design-system.md).
+**Status: direction chosen (11 Nov 2026).** Nothing here is in the app yet. It comes from the [UI audit](reviews/2026-11-09-ui-audit.md). The rollout is milestone [M5](backlog/m5-design-system.md).
 
-The aim is one look and one way of building every screen. We keep what already works: the warm paper palette, the board's rule colours, Geist and the teal accent. The work is to unify them, not replace them.
+- **Chosen direction:** [difficulty folders canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK). Josh picked it on 11 Nov.
+- **Reference only:** the [first design-system canvas](https://claude.ai/artifact/KCC9s4riFkSrmGv9bWic9M), which has the component sheet and foundations, and the [difficulty colour exploration](https://claude.ai/artifact/DRMFTVx9vUYH5UXzmi2odS). Neither is the direction. Their boards don't show digits (a canvas rendering bug), so don't judge legibility from them.
 
-Choices still open are marked **[Decision]**. Each one has a Tweak on the canvas.
+The aim is one look and one way of building every screen. We keep the warm paper page, Geist and Josh's three difficulty colours. Three things change:
+- **Difficulty colour** becomes the main identity of a screen: the selected tab is a folder, and the board sits on it.
+- **The board** is drawn from a swappable tonal palette, so rules read as shades of one colour family. That also enables theme days.
+- **Buttons** are dark ink. Teal is retired.
+
+Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are marked **[Decision]**.
 
 ---
 
 ## 1. Principles
 
 1. **The board is the hero.** Chrome is quiet, neutral and warm. Colour on screen should mean something about the puzzle.
-2. **A colour has one meaning.** The rule fills mean the rules and nothing else. Teal means "act" or "on". Red means "wrong" or "destructive".
+2. **A colour has one meaning.**
+   - Difficulty colours mean Easy, Medium or Hard.
+   - The board's shades mean the rules: lightest is an outer side, middle is the inner triangle, deepest is both.
+   - Ink means "act" or "on".
+   - Red means "wrong" or "destructive".
+   - Nothing changes a cell's shade except the rules, so selection, touching cells and highlights are drawn on top as outlines or ink, never as a darker tint.
 3. **One component per pattern.** No more hand-rolled buttons in feature code.
 4. **Phone first, but desktop is designed.** A 360×640 phone fits the game with no scrolling, and 1440 px doesn't look like a phone layout floating in space.
 5. **Accessible by default.** Pairs meet AA, targets are 44 px, focus is visible, and motion respects the system setting.
@@ -34,62 +45,89 @@ All tokens live in `app/globals.css`. Raw values go under `:root` and `.dark`. T
 | `--text-muted` | #725f54 (5.6:1) | #a39486 (6.0:1) | Secondary text. **Never add opacity to it.** | `--muted-foreground`, `text-muted-foreground/60` |
 | `--border` | #e2d6cb | #3a3029 | Dividers, card edges | `--border` |
 | `--border-strong` | #cdbcae | #54483e | Control outlines | `--input`, `border-border` on controls |
-| `--accent` | `oklch(0.50 0.11 190)` #007671 | `oklch(0.68 0.13 200)` #00afb8 **[Decision]** | Primary buttons, "on" states, links, focus | `--primary` (light value one step darker) |
-| `--on-accent` | #ffffff (5.5:1) | #180f09 (7.0:1) | Text and icons on accent | `--primary-foreground` |
-| `--accent-tint` | accent at 16 % | accent at 20 % | Logo fill, info notices | `fill-primary/20`, `bg-primary/10` |
+| `--action` | #2b2420 | #ece3da | Primary buttons, "on" states (Check), Pencil marks set on the pad, logo **[Decided: ink, no teal]** | `--primary` (teal) |
+| `--on-action` | #fffaf6 (14.7:1) | #1d140d (14.3:1) | Text and icons on action | `--primary-foreground` |
+| `--info-tint` | text at 5 % | text at 8 % | Tip notices | `bg-primary/10`, `bg-muted/60` |
 | `--hover` | text at 6 % | text at 7 % | Hover overlay, pointer devices only | the green `hover:bg-accent` |
 | `--press` | text at 12 % | text at 14 % | Pressed overlay | — |
 | `--success` | #2f7a4b | #7cc79a | Completed badges and lines | `green-600`, `bg-green-600` |
 | `--warning` | #9a6200 | #e3b25c | Fallback notice, best-time trophy | `amber-500/600`, `yellow-600` |
 | `--danger` | #b42318 | #f08a7e | Error text, Reset, destructive buttons (solid #b42318 with white text: 6.8:1) | `--destructive`, `red-600`, `text-white` |
-| `--focus` | = accent | = accent | 2 px outline with a 2 px offset | `ring-ring/50` 3 px, `ring-2 ring-ring` and `outline-ring/50` (three styles today) |
+| `--focus` | = action | = action | 2 px outline with a 2 px offset | `ring-ring/50` 3 px, `ring-2 ring-ring` and `outline-ring/50` (three styles today) |
 | `--overlay` | rgba(29,20,13,0.45) | rgba(0,0,0,0.6) | Dialog backdrop | `bg-black/50` |
 
 Each status colour also gets a `-tint` (8–10 %) and a `-border` (30–35 %) for notices.
 
-**Retire:** `--accent` (green) as a UI colour, `--chart-*`, `--sidebar-*`, `--cell-*` and `--region-*` (all unused), and the Tailwind `accent` hover in `components/ui/button.tsx`.
+**Retire:** teal everywhere (`--primary`, `--ring`, the teal logo and icons), `--accent` (green) as a UI colour, `--chart-*`, `--sidebar-*`, `--cell-*` and `--region-*` (all unused), and the Tailwind `accent` hover in `components/ui/button.tsx`.
 
-**[Decision] Accent.** The options are:
-- *deeper teal* (recommended), which passes AA with white;
-- *today's teal* #008781, which fails AA at 4.28:1 for 14–16 px text;
-- *ink*, which uses the text colour for buttons and keeps teal for numbers and links.
+**Links** are text colour with an underline. The win time and Best time, teal today, are text colour.
 
-### 2.2 Colour: board
+### 2.2 Colour: difficulty **[Decided]**
 
-The board stays paper-coloured in both themes, as today. Only its lines and marks change.
+Josh's three colours, unchanged. They're the only bright colours in the chrome, and they mean difficulty and nothing else.
 
-| Token | Value | Meaning | Today |
+| Token | Value | Text on it | Use |
 |---|---|---|---|
-| `--board-cell-outer` | #bfdde2 | On an outer side (blue) | same, `--tridoku-cell-outer` |
-| `--board-cell-inner` | #eed496 | On the inner triangle (yellow) | same |
-| `--board-cell-overlap` | #98ac8b | Both (green) | same |
-| `--board-cell-none` | #e4e3d3 | Neither | same |
-| `--board-region-line` | #2b2420, both themes | Bold region borders: 6.3–11.8:1 against the fills | #000 light, #7e7e7e dark (1.7–3.1:1, TRI-068) |
-| `--board-cell-line` | rgba(43,36,32,0.32) | Hairlines | `"#000"` at 0.01 width |
-| `--board-digit-given` | #2b2420, weight 700 | Givens | `#000` bold |
-| `--board-digit-entry` | #1e3a5f, weight 500 **[Decision]** | Player entries: 4.7:1 even on green | `#000` regular (TRI-061) |
-| `--board-digit-note` | #4a3a30 | Pencil marks | `#222` |
-| `--board-selection` | #2b2420 solid stroke, 0.17 units | Selected cell: 5.6:1 on green | grey 134 dashed and animated (1.5–2.8:1) |
-| `--board-touching` | rgba(40,30,20,0.12) | Cells touching the selection | same |
-| `--board-error-tint` | rgba(220,38,38,0.22) | Conflicting cell | rgba(239,68,68,0.3) |
-| `--board-error-digit` | #991b1b, plus a short underline | Conflicting digit: 4.5:1 on three fills; the underline covers the fourth (TRI-065) | `#DC2626` (1.6–2.6:1) |
-| `--board-highlight` | accent at 30 % **[Decision]** | Same digit as the double-tapped cell: 4.9:1 or better | opaque #3b82f6 |
-| `--board-flash` | accent at 45 %, fading over 900 ms | Undo flash | `fill-primary` |
+| `--difficulty-easy` | #bfdde2 | ink #2b2420, 10.7:1 | Easy folder tab and card, welcome file, stats, win card |
+| `--difficulty-medium` | #ecbd6c | ink, 8.8:1 | Medium |
+| `--difficulty-hard` | #e26495 | ink, 4.7:1 | Hard |
 
-> **The rule fills are semantic and need Josh's sign-off to change.** This proposal doesn't change them. **[Decision] "Dimmed" board in dark mode** multiplies them by 0.82 (#9db5b9, #c3ae7b, #7d8d72, #bbbaad) so the board glows less at night. Digits still reach 5.7:1. Default: keep paper.
+- The same colours in light and dark mode.
+- No emoji, dots or extra marks next to the difficulty in the UI.
+- The share text keeps its emoji (🟢🟡🔴 and the 🟩/🟨 grid). Josh tuned it on real devices; it changes only after testing with him.
+- The stats modal's green, yellow and red labels go; stats use the difficulty colours as folder tabs too.
 
-**Teal can't be the entry colour.** TRI-061 asks for teal entries with at least 4.5:1 on every fill, but no teal light enough to read as teal gets there on the green overlap cell (#0f6f6c is 2.45:1). Navy #1e3a5f is the closest colour that passes. See the audit, §5 (TRI-061).
+### 2.3 Colour: board palettes **[Decided: tonal, always]**
 
-### 2.3 Difficulty identity
+The board is drawn from a **palette**. A palette is a small set of values, so a difficulty or a theme day only has to supply one:
 
-**[Decision]** Today Easy, Medium and Hard each have three different colour codings:
-- the tabs and cards use blue, amber and pink, where the blue is the exact outer-rule fill;
-- the stats modal uses green-600, yellow-600 and red-600 text;
-- the share text and win modal use 🟢🟡🔴.
+| Palette key | Meaning | Rule it shows |
+|---|---|---|
+| `none` | Lightest | Neither rule |
+| `outer` | Light | On an outer side |
+| `inner` | Middle | On the inner triangle |
+| `both` | Deepest | On both |
+| `line` | Region lines and givens | |
+| `entry` | Player digits | |
+| `note` | Pencil marks | |
 
-Proposal: show difficulty with **pips** (●○○, ●●○, ●●●) on neutral controls in the app UI. The colour stays free to mean rules. The share text keeps its emoji: Josh tuned it on real devices, so it changes only after testing it with him.
+**The shade order never changes:** none < outer < inner < both, from light to deep, on every difficulty and every theme. That order *is* the rule, so the rules modal and `/how-to-play` describe "the lightest, middle and deepest shades" instead of "blue, yellow, green". This replaces TRI-031's "same colours on every difficulty" with "same shade order on every difficulty". Josh signed off on 11 Nov.
 
-Alternative: keep coloured tabs and cards, but use hues that aren't on the board. The canvas "colour" Tweak shows today's version for comparison.
+**Daily palettes**, one per difficulty, each a family of its folder colour. The board sits a step lighter than its folder, so it reads as paper on a card.
+
+| Difficulty | none | outer | inner | both | Digits (min contrast) |
+|---|---|---|---|---|---|
+| Easy | #f6fafb | #e2eff1 | #c9e2e6 | #9cc6cd | givens 8.3, entries 6.2, notes 5.9 |
+| Medium | #fdf8ee | #f8e8c8 | #f2d49c | #e2b25e | 7.8, 5.9, 5.6 |
+| Hard | #fdf4f7 | #f8dde7 | #f1bfd2 | #e293b3 | 6.6, 5.0, 4.7 |
+
+Shared inks on daily boards: `line` and givens #2b2420 (weight 700), entries #1e3a5f (weight 500), notes #4a3a30.
+
+**Marks drawn on top** (the same on every palette; on a dark theme board they flip to the palette's light ink):
+
+| Token | Visual | Notes | Today |
+|---|---|---|---|
+| `--board-cell-line` | `line` at 26 %, 0.012 units | Hairlines | `#000` |
+| `--board-region-line` | `line`, 0.11 units | Bold region borders | #000 light, #7e7e7e dark (TRI-068) |
+| `--board-selection` | `line`, solid 0.17 stroke + 25 % paper wash | Static, so reduced motion is honoured | grey dashed, animated |
+| `--board-touching` | **one continuous outline** around the selected cell and the 12 cells touching it: `line` 0.075 over a paper halo 0.22 | Never a fill: darkening a cell would make it look like the next rule shade (measured on every palette) | 12 % dark fill |
+| `--board-error-tint` | rgba(220,38,38,0.22), plus `#991b1b` digit and an underline | The red hue keeps it apart from the shades. The digit alone is 3.0–3.4:1, so the underline is required (TRI-065) | red tint, #DC2626 |
+| `--board-highlight` | **inverse:** ink fill, paper digit (14:1) **[Decision: not yet prototyped]** | A tint would read as a deeper shade | opaque #3b82f6 |
+| `--board-flash` | `line` at 35 %, fading over 900 ms | Undo flash; brief enough not to be read as a shade | teal |
+
+**Dark mode.** The page goes dark; the folders and the board keep their colours.
+
+### 2.3a Theme days
+
+A theme day is a dated palette plus three folder colours, with an optional page background and a header line ("Halloween · No. 304"). The puzzle, timer and share text don't change.
+
+- **Drafted:** Halloween (pumpkin board on a night page; candy-corn, pumpkin and witch-purple folders) and Christmas (frost, berry and pine; holly-red and pine folders). Josh likes both (11 Nov). See the canvas.
+- **The calendar:** Claude suggests a full list at that build step (TRI-100); Josh picks.
+- **Every palette passes a check before it ships:**
+  - shades strictly in order, light to deep;
+  - givens, entries and notes at least 4.5:1 on all four shades;
+  - folder text at least 4.5:1.
+  - The Halloween and Christmas drafts fail on entry digits (3.9:1 and 4.3:1) and get darker inks when they're built.
 
 ### 2.4 Typography
 
@@ -137,7 +175,7 @@ This takes 11 sizes in use (including `text-[15px]` and `text-[17px]`) down to 9
 | `rounded-control` | 10 **[Decision: 14 on "round"]** | Buttons, segmented controls, menu items |
 | `rounded-card` | 14 (20) | Notices, cards, pad keys, stat tiles, paused panel |
 | `rounded-dialog` | 20 (28) | Dialogs and sheets |
-| `rounded-full` | 9999 | Pills, icon buttons, pips |
+| `rounded-full` | 9999 | Pills, icon buttons |
 
 - **Borders:** 1 px. 2 px only for focus and the selected difficulty card.
 - **Elevation:** 0 is flat. 1 is the segmented thumb: `0 1px 2px` at 14 %. 2 is a menu or popover: `0 12px 28px -8px` at 30 %. 3 is a dialog: `0 24px 48px -12px` at 35 %. That replaces six ad-hoc shadows.
@@ -174,11 +212,11 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
 
 - **Anatomy:** optional leading icon, label, optional trailing icon.
 - **Variants:**
-  - `primary`: accent fill with on-accent text;
+  - `primary`: ink (`--action`) fill with paper text;
   - `secondary`: control fill with strong border;
   - `ghost`: transparent;
   - `destructive`: solid danger with white text;
-  - `link`: accent text, underlined.
+  - `link`: text colour, underlined.
 - **Sizes:** `sm` 36, `md` 44 and `lg` 52. Radius `rounded-control`; `shape="pill"` gives `rounded-full`.
 - **States:**
   - hover adds the `--hover` overlay, on pointer devices only;
@@ -187,6 +225,7 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
   - disabled is 45 % opacity with no pointer events;
   - loading shows a spinner in place of the leading icon and keeps the label.
 - **Do:** one primary per view. **Don't:** use primary for destructive confirmations (today "Reset Puzzle" is teal).
+- **On a folder:** buttons inside a difficulty-coloured card stay ink. "Next up: Medium" on the win card is the one button that wears a difficulty colour (the next one's).
 - **Replaces:**
   - shadcn `Button` variants with green hover;
   - the hand-rolled Resume button in `tridoku-board.tsx`;
@@ -203,12 +242,11 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
 
 ### 3.3 Pill (Button `shape="pill"`, board corners)
 
-- 40 px tall, `rounded-full`, control fill with strong border, 15/600 label and 16 px icon.
+- 40 px tall, `rounded-full`, 15/600 label and 16 px icon. The pills sit on the folder, so they're paper at 80 % with a 14 % ink border; that reads on all three colours.
 - **Variants:**
   - `default`;
-  - `on` (accent, for toggles like Check, with `aria-pressed`);
-  - `inverse` (text-colour fill, for transient notes like "Removed 7").
-- Today Undo's note and Check's on state are both solid teal, so "on" and "just happened" look the same.
+  - `on` (ink fill, paper text, for toggles like Check, with `aria-pressed`).
+- Undo's 2-second note ("Removed 7") changes only the label; the cell flash on the board shows what changed. Today the note and Check's on state are both solid teal, so "on" and "just happened" look the same.
 - The timer is a pill with `tabular-nums` and an `aria-label` that includes the time.
 - Replaces `PILL` in `game-controls.tsx`.
 
@@ -222,15 +260,17 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
 - Disabled: the whole control at 45 %.
 - Replaces `InputModeToggle`, the Rules/Tips toggle and `components/ui/tabs.tsx` styling (`h-9`, `p-[3px]`).
 
-### 3.5 Tabs: difficulty
+### 3.5 Difficulty folder tabs **[Decided]**
 
-- A SegmentedControl in `tablist` mode across the full width. Each tab shows label + pips + status.
-- **Status:**
-  - done: a success check badge;
-  - in progress: a neutral badge with the time.
-- `aria-selected` marks the current tab. Today the tabs have no selected state for screen readers (audit UI-15).
-- The label stays "Easy" and so on, and the pips are `aria-hidden`.
-- The difficulty colours are gone (see §2.3).
+- Three tabs across the full width, each always filled with its difficulty colour and labelled in ink.
+- The selected tab is taller (46 vs 36 px) and runs straight into the **board folder** below it: a card in the same colour (`rounded-card` 20, square at the corner under an end tab, 12 px padding) that holds the board and the four corner pills.
+- Unselected tabs sit "behind": shorter, with a soft inner shadow at their base.
+- **Status:** a check after the label when solved today; the time when in progress ("Medium · 04:12" in `aria-label`).
+- `role="tablist"` with `aria-selected`. Today the tabs have no selected state for screen readers (audit UI-15).
+- **Elsewhere:**
+  - The **welcome screen** shows today's three puzzles as a stacked file: three folders whose tabs are staggered left to right, each with its description and status.
+  - The **win card** is the same folder: the difficulty tab on top, then "Solved" and the time in large type on the colour, then a paper section with stats, Share result (ink) and "Next up".
+  - **Statistics** uses the folder tabs for Easy, Medium and Hard.
 
 ### 3.6 Notice and the message slot
 
@@ -271,7 +311,7 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
 - 56×56 on phones and 64 on desktop, `rounded-card`, control fill, 22/600 tabular.
 - **States:**
   - pressed: `--press` + scale 0.96;
-  - `aria-pressed` note on: accent fill, Pencil mode only;
+  - `aria-pressed` note on: ink fill, Pencil mode only;
   - no cell selected: muted text, still tappable, shows the hint "Pick a cell first". Today the whole pad is at 50 % opacity on first view (audit UI-19).
 - Hover is a pointer-only overlay. Today hover paints the key with the same teal as "note on" (audit UI-21).
 - Clear: outline key with a 24 px icon and `aria-label="Clear cell"`. It no longer turns red on hover.
@@ -279,7 +319,7 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
 ### 3.10 Badge
 
 - 22 px tall, `rounded-full`, 12/600.
-- Tones: `success` (done ✓), `neutral` (in progress, with time) and `accent`.
+- Tones: `success` (done ✓) and `neutral` (in progress, with time).
 - Replaces `bg-green-600`, `bg-amber-600` and the white-stroked SVG.
 
 ### 3.11 Stat tile
@@ -296,11 +336,11 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
 | Entry | `digit-entry` 500 | TRI-061 |
 | Notes | up to 3 at the corners, 0.5 units, `digit-note` | TRI-060 decides more than 3 |
 | Selected | solid `selection` stroke + 18 % white wash | static, so reduced motion is honoured (TRI-066) |
-| Touching | `touching` overlay | TRI-032 |
+| Touching | one continuous `touching` outline around the selection and its 12 neighbours | TRI-032. Whether to show it on Medium and Hard is still open (R-12) |
 | Error (Check on) | `error-tint` + `error-digit` + underline, also on the selected cell | TRI-065 |
-| Highlighted | `highlight` overlay | |
+| Highlighted | inverse: ink fill, paper digit | not yet prototyped |
 | Flash | `flash` fading | TRI-052 |
-| Paused | `surface-sunken` panel, same size, "Paused" `text-heading` + Resume `primary` pill | |
+| Paused | paper panel on the folder, same size, "Paused" `text-heading` + Resume `primary` pill | |
 
 Region lines: `board-region-line`, 0.11 units. Board focus (once TRI-062 lands): the focus ring around the whole board, plus the selection on the active cell.
 
@@ -334,6 +374,7 @@ Region lines: `board-region-line`, 0.11 units. Board focus (once TRI-062 lands):
 | Undo | |
 | Highlight a digit | double-tap highlight |
 | Region | bold-outlined region, box |
+| Lightest / middle / deepest shade | blue, yellow, green (for the rule cells) |
 | Outer sides / inner triangle | edges, outer edges |
 | Day streak / best streak | Current Streak, Max Streak |
 | Solved | Games Won, won |
@@ -350,6 +391,8 @@ Region lines: `board-region-line`, 0.11 units. Board focus (once TRI-062 lands):
 
 - [ ] Uses `components/ui` components. No new button, notice or tab markup in feature files.
 - [ ] Uses tokens only: no hex, `rgb()`, `oklch()`, Tailwind palette colours or arbitrary `[...]` values outside the allowlist.
+- [ ] Nothing changes a board cell's fill except its rule shade (and the error tint). New board states are drawn on top.
+- [ ] A new palette or theme day passes the palette check (§2.3a).
 - [ ] Light and dark checked in a real browser at 360×640, 390×664 and 1440×900.
 - [ ] Text 4.5:1 and UI parts 3:1. Targets 44 px. Focus visible. Keyboard reachable. `aria-*` correct.
 - [ ] Reduced motion honoured. Hover only on pointer devices.
@@ -359,7 +402,7 @@ Region lines: `board-region-line`, 0.11 units. Board focus (once TRI-062 lands):
 ### Drift guard (TRI-097)
 
 `pnpm lint:design` runs in CI next to `pnpm lint`. It's a small Node script over `app/` and `components/`. It fails on:
-1. `#[0-9a-f]{3,8}`, `rgb(`, `rgba(`, `hsl(` and `oklch(` outside `app/globals.css`, `app/og/route.tsx` and `components/rule-diagrams.tsx` (until migrated);
+1. `#[0-9a-f]{3,8}`, `rgb(`, `rgba(`, `hsl(` and `oklch(` outside `app/globals.css`, the palette file (`lib/palettes.ts`), `app/og/route.tsx` and `components/rule-diagrams.tsx` (until migrated);
 2. Tailwind palette colours (`(bg|text|border|fill|stroke|ring)-(red|green|blue|amber|yellow|pink|gray|zinc|…)-\d`);
 3. arbitrary values `-[` except an allowlist: `max-w-[calc(...)]`, `data-[...]`, `has-[...]`, `aria-[...]`, `max-[359px]`, `@max-[350px]` and `grid-cols-[...]`;
 4. `<button` in `components/*.tsx` outside `components/ui/`, unless the line carries `// design-ok: <reason>`.

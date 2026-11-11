@@ -1,8 +1,15 @@
 # M5 · Design system
 
-**Goal.** One look and one way of building every screen. Tokens instead of hard-coded colours, one component per pattern, AA contrast and 44 px targets everywhere, and copy that uses the same names throughout. Built from the [UI audit](../reviews/2026-11-09-ui-audit.md) (9 Nov) and specified in the [design system](../design-system.md). See the [design canvas](https://claude.ai/artifact/KCC9s4riFkSrmGv9bWic9M) for the visual comparison.
+**Goal.** One look and one way of building every screen. Tokens instead of hard-coded colours, one component per pattern, AA contrast and 44 px targets everywhere, and copy that uses the same names throughout. Built from the [UI audit](../reviews/2026-11-09-ui-audit.md) (9 Nov) and specified in the [design system](../design-system.md).
 
-**Starts only after Josh picks a direction on the canvas.** The open choices are listed in the design system as **[Decision]**.
+**Direction chosen (11 Nov):** the [difficulty folders canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK).
+- Josh's three difficulty colours as folder tabs, with the board on the selected folder.
+- Tonal board palettes, always.
+- Dark ink buttons; teal retired.
+- Touching cells shown with one continuous outline.
+- Theme days, built on the palettes.
+
+Choices still open are marked **[Decision]** in the design system.
 
 **Done when**
 - No hex values, `rgb()` or `oklch()` colours, Tailwind palette colours or unlisted arbitrary values in `app/` or `components/` (the drift guard passes in CI).
@@ -71,15 +78,15 @@ Can ship before the rest of M5; it uses today's styling if TRI-089 isn't done ye
 Also, every ghost or outline hover turns green, and the digit highlight is an opaque off-palette blue.
 
 **Done when**
-- [ ] Accent `#007671` in light mode (white text 5.47:1). Dark accent unchanged. *Per Josh's accent choice.*
-- [ ] The selection is a solid ink outline (5.6:1 or better on every fill) and doesn't animate. Completes [TRI-066](m3-mobile-accessibility.md#tri-066).
+- [ ] Primary buttons and "on" states are dark ink (`--action`, 14:1 with paper text). Teal is gone from the app, including the logo and links. *Josh chose ink, 11 Nov.*
+- [ ] The selection is a solid ink outline and doesn't animate. Completes [TRI-066](m3-mobile-accessibility.md#tri-066).
 - [ ] Region lines are `#2b2420` in both themes (6.3:1 or better). Completes [TRI-068](m3-mobile-accessibility.md#tri-068).
 - [ ] Muted text is never drawn with opacity. Stats labels use text colours.
 - [ ] Hover is a neutral overlay on pointer devices only. The green `accent` is retired.
-- [ ] The digit highlight follows Josh's choice (teal tint recommended).
+- [ ] The digit highlight is drawn on top (inverse ink, to be prototyped), not as an opaque blue.
 - [ ] `docs/reviews/2026-11-09-ui-audit/contrast.txt` is re-run, and every UI pair passes.
 
-**Check it in a preview.** On your phone in light mode, select a green cell: the outline is clearly visible. Turn Check on: the white text on the teal pill is crisp. Switch to dark mode: the board's region lines are as bold as in light mode.
+**Check it in a preview.** On your phone, the Share, Continue and Check-on buttons are dark ink with no teal anywhere. Select a cell: the outline is clearly visible. Switch to dark mode: the board's region lines are as bold as in light mode.
 
 <a id="tri-089"></a>
 ## TRI-089 · Core components
@@ -93,7 +100,8 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 **Done when**
 - [ ] `components/ui/` has the design system's Button (variants, sizes, `shape="pill"`), IconButton, SegmentedControl (group and tablist), Notice (four tones, with action and dismiss), Badge and StatTile.
 - [ ] Each has hover (pointer only), pressed, focus-visible and disabled states, 44 px hit areas, and unit tests for its ARIA attributes.
-- [ ] One focus style: a 2 px accent outline with a 2 px offset.
+- [ ] One focus style: a 2 px ink outline with a 2 px offset.
+- [ ] The Pill's "on" state is ink. Board-corner pills are paper at 80 %, so they read on all three folder colours.
 - [ ] Nothing in the app uses them yet, or only where the look doesn't change, so this PR is safe to merge on its own.
 
 **Check it in a preview.** No visible change. Review the screenshots of each component in light and dark in the PR.
@@ -109,7 +117,7 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 
 **Done when**
 - [ ] Header icons, corner pills, Pen/Pencil, pad keys and notices use the TRI-089 components, with 44 px hit areas.
-- [ ] Undo's note uses the `inverse` pill, so it no longer looks like Check on.
+- [ ] Undo's note changes only its label, so it no longer looks like Check on.
 - [ ] The pad looks tappable before a cell is selected; tapping a key then says "Pick a cell first".
 - [ ] The view-mode banner is a `success` Notice.
 - [ ] The ⋯ menu is a Radix DropdownMenu with keyboard navigation, and Reset is in danger text.
@@ -120,11 +128,11 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 **Check it in a preview.** Play a few moves on your phone. Try Undo, Check, ⋯ → Reset puzzle → Cancel, Pencil with its tip, and pause. Then finish and look at the solved view. Repeat in dark mode.
 
 <a id="tri-092"></a>
-## TRI-092 · One difficulty identity
+## TRI-092 · Difficulty folders
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
-| High | M | S | Rule comprehension | [TRI-089](#tri-089), Josh's decision | UI-02, UI-15, UI-39 |
+| High | H | M | Rule comprehension, consistency | [TRI-089](#tri-089), [TRI-099](#tri-099) | UI-02, UI-15, UI-39 |
 
 **Problem.** Difficulty colour means three different things:
 - the tabs and cards use blue, amber and pink, where Easy's blue is the board's outer-edge blue;
@@ -133,13 +141,57 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 
 The difficulty tabs also have no selected state for screen readers.
 
-**Done when**
-- [ ] Difficulty shows the way Josh chose on the canvas (recommended: pips on neutral controls) everywhere in the app: tabs, welcome cards, the returning list, stats and win modal.
-- [ ] No rule-fill colour is used outside the board and the rule diagrams.
-- [ ] The difficulty tabs are a tablist with `aria-selected`. Done and in-progress use the Badge.
+**Done when** (design system §2.2 and §3.5; [canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK))
+- [ ] The difficulty tabs are folder tabs in Josh's colours (#bfdde2, #ecbd6c, #e26495). The selected tab runs into a card of its colour that holds the board and the corner pills.
+- [ ] The welcome screen shows today's three puzzles as a stacked file of folders with their status.
+- [ ] The win card is the same folder: tab, "Solved" and the time on the colour, then stats, Share result and "Next up" in the next difficulty's colour.
+- [ ] Statistics uses the folder tabs. No green, yellow or red labels remain.
+- [ ] The difficulty colours are used for nothing else, and no rule shade is used outside the board and the rule diagrams.
+- [ ] The tabs are a tablist with `aria-selected`.
+- [ ] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks).
 - [ ] The share text is unchanged, unless Josh tests a change on iMessage, Notes, WhatsApp and Discord.
 
-**Check it in a preview.** Look at the welcome screen, the tabs above the board and Statistics. Each difficulty looks the same in all three, and none of them matches a board colour.
+**Check it in a preview.** On your phone, switch between Easy, Medium and Hard: the folder and the board change colour together. Open the welcome screen, finish a puzzle, and open Statistics. All three use the same folders.
+
+<a id="tri-099"></a>
+## TRI-099 · Tonal board palettes
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| High | H | M | Rule comprehension, consistency | [TRI-088](#tri-088) | UI-02, UI-17, UI-34; owner decision 11 Nov |
+
+**Problem.** The board's rule colours (blue, yellow, green) clash with the difficulty folders: Easy's blue *is* the outer-edge blue. Josh chose tonal boards: each difficulty's board is a family of its own colour, and the rules read as shades.
+
+**Done when** (design system §2.3)
+- [ ] The board draws every colour from a palette (`lib/palettes.ts`): four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`.
+- [ ] Easy, Medium and Hard each have the palette in the design system. The shade order (none < outer < inner < both) is the same on every board.
+- [ ] Touching cells get one continuous outline around the selection and its 12 neighbours (`--board-touching`), replacing the dark fill. No board state changes a cell's fill except the error tint.
+- [ ] A unit test checks every palette: shades in order; givens, entries and notes at least 4.5:1 on all four shades.
+- [ ] The rules modal, the rule diagrams and `/how-to-play` describe "the lightest, middle and deepest shades" instead of blue, yellow and green, and draw with the current palette.
+- [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
+- [ ] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
+
+**Check it in a preview.** On your phone, play a few moves on each difficulty. You can tell outer, inner and both cells apart on all three boards. Select a cell: one outline goes round it and its 12 neighbours, and digits inside stay clear. Open How to play: the rule cards describe shades and match the board.
+
+<a id="tri-100"></a>
+## TRI-100 · Theme days
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | M | S | Return visits, shares | [TRI-099](#tri-099), [TRI-092](#tri-092) | Owner idea, 11 Nov |
+
+**Problem.** Palettes make it cheap to dress the game for a date. Josh wants theme days, starting with the Halloween and Christmas drafts on the [canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK).
+
+**Done when**
+- [ ] A theme day is a dated entry: palette, three folder colours, an optional page background and a header line ("Halloween · No. 304"). It's chosen with `lib/dates.ts` for the puzzle's date.
+- [ ] Claude proposes a theme calendar at the start of this item. Josh picks the days.
+- [ ] Halloween and Christmas ship first. Their entry inks are darkened to pass the palette check (the drafts are 3.9:1 and 4.3:1).
+- [ ] Every theme passes the TRI-099 palette test.
+- [ ] Each theme day is checked in light and dark at 390 px, with screenshots in the PR.
+- [ ] A `theme_day` property on `puzzle_started` and `result_shared`, through `trackEvent`, and listed in `docs/metrics.md`.
+- [ ] The puzzle, timer and share text are unchanged.
+
+**Check it in a preview.** Set the date to 31 October with the dev tools: the board, folders and header switch to Halloween. Set it to 25 December for Christmas, then back to today.
 
 <a id="tri-094"></a>
 ## TRI-094 · Dialogs and menus on the system
@@ -205,7 +257,7 @@ The difficulty tabs also have no selected state for screen readers.
 **Problem.** At 1440×900 the board is capped at 448 px with the pad underneath, so the game looks like a phone layout in a big window. Landscape phones open scrolled down, with the board cut off.
 
 **Done when**
-- [ ] On screens 1024 px or wider and at least 700 px tall, the board grows to about 36rem, using the layout Josh picks from the canvas (two columns or centred).
+- [ ] On screens 1024 px or wider and at least 700 px tall, the board folder grows to about 36rem. The layout (two columns or centred) is prototyped with the folders and Josh picks.
 - [ ] Landscape phones (height ≤ 500 px) show the board and pad side by side without scrolling.
 - [ ] Tablet portrait uses the larger board.
 - [ ] The phone layouts are unchanged (play-through pad-fit checks pass).
