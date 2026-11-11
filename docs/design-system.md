@@ -18,7 +18,7 @@ Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are m
 - board tokens (`--board-*`, renamed from `--tridoku-*`);
 - type scale, radii, elevation, layers and motion.
 
-The values in the tables are the targets. TRI-091 moves the UI roles to them, and TRI-099 replaces the board fills with tonal palettes. The shadcn names (`--background`, `--primary`, …) now point at these tokens.
+**TRI-091 (11 Nov)** made the action colour ink (teal gone, favicons included), made the selection a static ink outline, set region lines to `#2b2420` in both themes, made the highlight an ink cell with a paper digit, and set success and warning to the table's values. The surface, border and muted values in the tables are still targets. TRI-099 replaces the board fills with tonal palettes. The shadcn names (`--background`, `--primary`, …) now point at these tokens.
 
 ---
 

@@ -10,9 +10,9 @@ const publicDir = join(__dirname, '..', 'public')
 // stroke: primary color, fill: primary at 20% opacity, stroke-width: 2
 const TRIANGLE_PATH = "M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"
 
-// Colors from globals.css (converted from oklch)
-const LIGHT_PRIMARY = '#008781'
-const DARK_PRIMARY = '#00afb8'
+// The --action colour from globals.css (ink in light mode, light ink in dark mode)
+const LIGHT_PRIMARY = '#2b2420' // ink, not teal (TRI-091)
+const DARK_PRIMARY = '#ece3da'
 const LIGHT_BG = '#faf4ee'
 const DARK_BG = '#1d140d'
 

@@ -1,0 +1,26 @@
+PASS 14.72:1 (need 4.5) light: paper text on ink buttons (Share, Check on, Play, Resume)
+PASS 14.30:1 (need 4.5) dark: ink text on light buttons
+PASS 13.98:1 (need 3) light: ink button against the page (3:1 for UI parts)
+PASS 14.32:1 (need 3) dark: light button against the page
+PASS 13.98:1 (need 3) light: focus ring (ink) against the page
+PASS 14.32:1 (need 3) dark: focus ring against the page
+PASS  5.55:1 (need 4.5) light: muted text, no opacity (footer, captions)
+PASS  5.16:1 (need 4.5) dark: muted text, no opacity
+PASS 13.36:1 (need 4.5) light: stats difficulty label (text colour)
+PASS 13.01:1 (need 4.5) dark: stats difficulty label
+PASS  5.09:1 (need 4.5) light: "Completed today" in success green
+PASS  8.25:1 (need 4.5) dark: "Completed today" in success green
+PASS  4.95:1 (need 3) light: best-time trophy icon (warning)
+PASS  8.48:1 (need 3) dark: best-time trophy icon
+PASS  5.09:1 (need 3) light: copied tick icon (success)
+PASS 10.65:1 (need 3) selection outline (ink) vs outer cell
+PASS 10.65:1 (need 3) region lines (ink, both themes) vs outer cell
+PASS 10.53:1 (need 3) selection outline (ink) vs inner cell
+PASS 10.53:1 (need 3) region lines (ink, both themes) vs inner cell
+PASS  6.26:1 (need 3) selection outline (ink) vs overlap cell
+PASS  6.26:1 (need 3) region lines (ink, both themes) vs overlap cell
+PASS 11.79:1 (need 3) selection outline (ink) vs none cell
+PASS 11.79:1 (need 3) region lines (ink, both themes) vs none cell
+PASS 14.72:1 (need 4.5) highlighted digit: paper on ink cell
+
+Not changed here: red error digits on the error tint are still 1.6-2.6:1. That is TRI-065 (a shape cue), not this item.

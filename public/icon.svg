@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
   <style>
     @media (prefers-color-scheme: light) {
-      .tri { stroke: #008781; fill: rgba(0,135,129,0.2); }
+      .tri { stroke: #2b2420; fill: rgba(43,36,32,0.2); }
     }
     @media (prefers-color-scheme: dark) {
-      .tri { stroke: #00afb8; fill: rgba(0,175,184,0.2); }
+      .tri { stroke: #ece3da; fill: rgba(236,227,218,0.2); }
     }
   </style>
   <path

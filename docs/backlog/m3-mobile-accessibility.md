@@ -149,7 +149,7 @@ Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolba
 **Problem.** The selection outline animates forever even when reduced motion is requested.
 
 **Done when**
-- [ ] The dash animation runs only under `prefers-reduced-motion: no-preference`; otherwise the outline is static.
+- [x] The dash animation runs only under `prefers-reduced-motion: no-preference`; otherwise the outline is static. *Done by [TRI-091](m5-design-system.md#tri-091): the outline is now a solid ink line that never animates.*
 
 <a id="tri-067"></a>
 ## TRI-067 · Readable welcome card text
@@ -175,4 +175,4 @@ Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolba
 **UI audit (9 Nov).** Measured 1.66:1 on overlap, 2.80–2.83:1 on blue and yellow, 3.14:1 on none. [TRI-091](m5-design-system.md#tri-091) sets region lines to `#2b2420` in both themes (6.3:1 or better).
 
 **Done when**
-- [ ] Region lines reach ≥4.5:1 against adjacent cells in dark mode (near-black lines, or darker fills).
+- [x] Region lines reach ≥4.5:1 against adjacent cells in dark mode (near-black lines, or darker fills). *Done by [TRI-091](m5-design-system.md#tri-091): `#2b2420` in both themes, 6.3:1 or better.*

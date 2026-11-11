@@ -19,7 +19,7 @@ const CELL_FILLS: Record<Cell["color"], string> = {
 const SELECTED_FILL = "var(--board-selection-fill)"
 const TOUCHING_FILL = "var(--board-touching)"
 const SELECTED_STROKE = "var(--board-selection-stroke)"
-const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
+const ERROR_FILL = "var(--board-error-tint)"
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
   if (direction === "up") {
@@ -235,15 +235,6 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
       >
         <style>
           {`
-            @keyframes dash-animation {
-              to {
-                stroke-dashoffset: -0.6;
-              }
-            }
-            .selected-cell {
-              stroke-dasharray: 0.4 0.2;
-              animation: dash-animation 1s linear infinite;
-            }
             @keyframes undo-flash {
               from { opacity: 0.5; }
               to { opacity: 0; }
@@ -269,7 +260,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                   <polygon
                     points={getTrianglePoints(cell.row, cell.col, cell.direction)}
                     fill={CELL_FILLS[cell.color]}
-                    stroke={isSelected ? "none" : "#000"}
+                    stroke={isSelected ? "none" : "var(--board-cell-line)"}
                     strokeWidth={0.01}
                   />
                   {touching.has(cell.id) && (
@@ -302,7 +293,15 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                       dominantBaseline="middle"
                       fontSize={0.85}
                       fontWeight={gameCell.isGiven ? "bold" : "normal"}
-                      fill={showErrors && gameCell.hasError ? "#DC2626" : "#000"}
+                      fill={
+                        highlightedValue != null && gameCell.value === highlightedValue
+                          ? "var(--board-highlight-digit)"
+                          : showErrors && gameCell.hasError
+                            ? "var(--board-digit-error)"
+                            : gameCell.isGiven
+                              ? "var(--board-digit-given)"
+                              : "var(--board-digit-entry)"
+                      }
                       style={{ pointerEvents: "none", userSelect: "none" }}
                     >
                       {gameCell.value}
@@ -329,7 +328,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                                 dominantBaseline="middle"
                                 fontSize={fontSize}
                                 fontWeight="normal"
-                                fill="#222"
+                                fill="var(--board-digit-note)"
                                 style={{ pointerEvents: "none", userSelect: "none" }}
                               >
                                 {mark}
@@ -363,7 +362,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
             <polygon
               key={flash.key}
               points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-              className="undo-flash fill-primary"
+              className="undo-flash fill-board-region-line"
               style={{ pointerEvents: "none" }}
             />
           ) : null
@@ -378,8 +377,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                 fill={SELECTED_FILL}
                 stroke={SELECTED_STROKE}
                 strokeWidth={0.15}
-                strokeLinejoin="miter"
-                strokeLinecap="butt"
+                strokeLinejoin="round"
                 className="selected-cell"
                 style={{ pointerEvents: "none" }}
               />

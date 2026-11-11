@@ -56,20 +56,15 @@ export function StatsModal({ open, onOpenChange, stats }: StatsModalProps) {
 function DifficultyStats({ stats, difficulty }: { stats: DifficultyStatsData; difficulty: Difficulty }) {
   const winPercent = winRate(stats)
     
-  const difficultyColors = {
-    easy: 'text-green-600',
-    medium: 'text-yellow-600',
-    hard: 'text-red-600',
-  }
 
   return (
     <div>
       <div className="flex items-center justify-center gap-2 mb-4">
-        <span className={`text-lg font-semibold ${difficultyColors[difficulty]}`}>
+        <span className="text-lg font-semibold text-foreground">
           {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Level
         </span>
         {stats.completedToday && (
-          <div className="flex items-center gap-1 text-green-600 text-sm">
+          <div className="flex items-center gap-1 text-success text-sm">
             <Check className="h-4 w-4" />
             <span>Completed Today</span>
           </div>
