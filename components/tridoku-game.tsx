@@ -164,6 +164,23 @@ export function TridokuGame() {
   }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
 
+  // TRI-090: every game-view notice shows in one slot above the board, and the board
+  // shrinks by the slot's height, so a tip never pushes the number pad off screen.
+  const [slotHeight, setSlotHeight] = useState(0)
+  const slotObserver = useRef<ResizeObserver | null>(null)
+  // A callback ref, so measuring starts whenever the slot mounts (the game view can appear after loading)
+  const slotRef = useCallback((el: HTMLDivElement | null) => {
+    slotObserver.current?.disconnect()
+    slotObserver.current = null
+    if (!el) {
+      setSlotHeight(0)
+      return
+    }
+    const observer = new ResizeObserver(() => setSlotHeight(el.offsetHeight))
+    observer.observe(el)
+    slotObserver.current = observer
+  }, [])
+
   // Show win modal when complete
   useEffect(() => {
     if (isComplete) {
@@ -224,6 +241,61 @@ export function TridokuGame() {
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [handleKeyDown])
+
+  const powerTip = (
+    <div role="status" className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 pr-8 text-center text-sm text-muted-foreground">
+      <button
+        onClick={() => setShowPowerTip(false)}
+        className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
+        aria-label="Dismiss tip"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+      Stuck? A digit just outside a region rules out every cell it touches inside that region.
+      That often leaves only one place for it.{" "}
+      <button
+        className="font-medium text-foreground underline underline-offset-2"
+        onClick={() => {
+          setShowPowerTip(false)
+          openRulesAt("tips", POWER_CELLS_TIP_INDEX)
+        }}
+      >
+        Show me
+      </button>
+    </div>
+  )
+
+  const pencilTip = (
+    // pr-8 keeps the text clear of the dismiss button (audit UI-07)
+    <div role="status" className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 pr-8 text-center text-sm text-muted-foreground">
+      <button
+        onClick={dismissPencilTip}
+        className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
+        aria-label="Dismiss tip"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+      Tap a number to toggle a pencil mark. Tap again to remove it. Press backspace to clear all marks. Press space or &apos;p&apos; to swap modes.
+    </div>
+  )
+
+  const fallbackNotice = fallback ? (
+    <p role="status" className="rounded-lg border border-border bg-muted/60 px-4 py-2.5 text-center text-sm text-muted-foreground">
+      Today&apos;s puzzle isn&apos;t ready yet, so here&apos;s{" "}
+      {fallback.sourceDate
+        ? <>the puzzle from {format(fromDateKey(fallback.sourceDate), "d MMMM")}</>
+        : <>a backup puzzle</>}
+      . It still counts toward your streak.
+    </p>
+  ) : null
+
+  // One notice at a time, most important first: load error, fallback puzzle, then tips.
+  const slotNotice =
+    loadError && !isGenerating ? <LoadErrorNotice onRetry={retryLoad} />
+    : fallback && !isViewMode ? fallbackNotice
+    : showPowerTip && !isComplete && !isViewMode ? powerTip
+    : inputMode === "pencil" && !pencilTipDismissed && !isViewMode ? pencilTip
+    : null
 
   if (isLoading) {
     return (
@@ -307,16 +379,10 @@ export function TridokuGame() {
               />
             </div>
             
-            {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
-            {fallback && !isViewMode && (
-              <p role="status" className="rounded-lg border border-border bg-muted/60 px-4 py-2.5 text-center text-sm text-muted-foreground">
-                Today&apos;s puzzle isn&apos;t ready yet, so here&apos;s{" "}
-                {fallback.sourceDate
-                  ? <>the puzzle from {format(fromDateKey(fallback.sourceDate), "d MMMM")}</>
-                  : <>a backup puzzle</>}
-                . It still counts toward your streak.
-              </p>
-            )}
+            {/* The message slot: at most one notice, most important first (TRI-090) */}
+            <div ref={slotRef} className={slotNotice ? undefined : "hidden"}>
+              {slotNotice}
+            </div>
 
             {/* Game board, with the timer and controls in the empty corners beside the
                 triangle (TRI-087). On short screens the board shrinks so the number pad
@@ -324,7 +390,8 @@ export function TridokuGame() {
             <div className="flex justify-center">
               <div
                 className="@container relative w-full max-w-md"
-                style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
+                // The 8 px is the gap below the slot when it shows
+                style={{ maxWidth: `min(28rem, max(15rem, calc((100dvh - ${330 + (slotHeight ? slotHeight + 8 : 0)}px) * 1.15)))` }}
               >
                 <div className="absolute left-0 top-0 z-10 flex flex-col items-start gap-2">
                   <TimerButton
@@ -387,40 +454,6 @@ export function TridokuGame() {
                     disabled={isPaused || isComplete}
                   />
                 </div>
-                {showPowerTip && !isComplete && (
-                  <div role="status" className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 pr-8 text-center text-sm text-muted-foreground">
-                    <button
-                      onClick={() => setShowPowerTip(false)}
-                      className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
-                      aria-label="Dismiss tip"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                    Stuck? A digit just outside a region rules out every cell it touches inside that region.
-                    That often leaves only one place for it.{" "}
-                    <button
-                      className="font-medium text-foreground underline underline-offset-2"
-                      onClick={() => {
-                        setShowPowerTip(false)
-                        openRulesAt("tips", POWER_CELLS_TIP_INDEX)
-                      }}
-                    >
-                      Show me
-                    </button>
-                  </div>
-                )}
-                {inputMode === 'pencil' && !pencilTipDismissed && (
-                  <div className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 text-center text-sm text-muted-foreground">
-                    <button
-                      onClick={dismissPencilTip}
-                      className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
-                      aria-label="Dismiss tip"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                    Tap a number to toggle a pencil mark. Tap again to remove it. Press backspace to clear all marks. Press space or &apos;p&apos; to swap modes.
-                  </div>
-                )}
                 <NumberPad
                   onNumberClick={setValue}
                   onClear={clearCell}

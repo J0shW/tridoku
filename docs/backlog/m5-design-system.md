@@ -35,10 +35,10 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** On an iPhone 13 (390×664), the pencil tip, the power-cells tip and the fallback notice each push the pad's bottom row (6–9 and Clear) off screen. The pad's bottom moves from 618 px to 708 px. This undoes TRI-058 the first time a player tries Pencil.
 
 **Done when**
-- [ ] Every game-view notice renders in one slot between the difficulty tabs and the board, one at a time (load error > fallback > tip).
-- [ ] The board's size formula subtracts the slot's height (`--slot-h`), so the pad's bottom stays within 640 px at 360×640 and within 664 px at 390×664 with any notice showing.
-- [ ] `play-through.cjs` checks the pad fits with the pencil tip showing.
-- [ ] The pencil tip's dismiss button no longer overlaps its text.
+- [x] Every game-view notice renders in one slot between the difficulty tabs and the board, one at a time (load error > fallback > tip).
+- [x] The board's size formula subtracts the slot's height, so the pad's bottom stays within 640 px at 360×640 and within 664 px at 390×664 with any notice showing. *Measured: 625 px at 360×640 and 641 px at 390×664 with the pencil tip, the power tip or the fallback notice (708 px before). With no notice it's unchanged at 618 px. On a 320×568 SE a tip still overflows (625 px), because the board is already at its 15rem minimum there; a shorter tip on small phones is left for TRI-098.*
+- [x] `play-through.cjs` checks the pad fits with the pencil tip showing. *Three new checks (360×640 with the pencil tip; 390×664 with the pencil tip and with the fallback notice). All failed before the fix and pass after.*
+- [x] The pencil tip's dismiss button no longer overlaps its text.
 
 Can ship before the rest of M5; it uses today's styling if TRI-089 isn't done yet.
 

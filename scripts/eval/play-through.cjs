@@ -179,6 +179,12 @@ const start = async (page, diff) => {
     await page.evaluate(() => window.scrollTo(0, 0)) // measure what a player sees on arrival
     const box = await page.getByRole("button", { name: "Enter 9" }).boundingBox()
     note("Number pad fully visible at 360×640 (expect yes)", box && box.y + box.height <= 640 ? "yes" : `no (bottom at ${Math.round(box.y + box.height)} px)`)
+    // TRI-090: a tip must not push the pad off screen
+    await page.getByRole("button", { name: "Pencil", exact: true }).tap()
+    await page.waitForTimeout(200)
+    const clear = await page.getByRole("button", { name: "Clear cell" }).boundingBox()
+    note("Number pad fully visible at 360×640 with the pencil tip (expect yes)", clear && clear.y + clear.height <= 640 ? "yes" : `no (bottom at ${Math.round(clear.y + clear.height)} px)`)
+    await page.getByRole("button", { name: "Pen", exact: true }).tap()
     await page.locator(CELL).nth(2).locator("polygon").first().tap({ force: true })
     const anim = await page.evaluate(() => { const el = document.querySelector(".selected-cell"); return el ? getComputedStyle(el).animationName : "none" })
     note("Selection animation with reduced motion (expect none)", anim)
@@ -199,6 +205,22 @@ const start = async (page, diff) => {
     await page.getByRole("tab", { name: "Medium" }).click()
     const text = (await page.locator("[role=dialog]").innerText()).replace(/\s+/g, " ")
     note("Stats after starting one Medium puzzle (expect 1 played, 0 win %)", text.match(/(\d+) Played (\d+) Win %/)?.slice(1).join(" played, ") + " win %")
+    await ctx.close()
+  }
+
+  // 8b. iPhone 13 visible area: pad on screen with the pencil tip and with the fallback notice (TRI-090)
+  for (const [label, ahead] of [["pencil tip", 0], ["fallback notice", 30]]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 664 }, hasTouch: true, isMobile: true })
+    const page = await ctx.newPage()
+    if (ahead) await page.clock.install({ time: new Date(Date.now() + ahead * 864e5) })
+    await page.goto(BASE)
+    await start(page, "easy")
+    if (!ahead) await page.getByRole("button", { name: "Pencil", exact: true }).tap()
+    await page.waitForTimeout(200)
+    await page.evaluate(() => window.scrollTo(0, 0))
+    const clear = await page.getByRole("button", { name: "Clear cell" }).boundingBox()
+    note(`Number pad fully visible at 390×664 with the ${label} (expect yes)`, clear && clear.y + clear.height <= 664 ? "yes" : `no (bottom at ${Math.round(clear.y + clear.height)} px)`)
+    await shot(page, `iphone13-${label.replace(" ", "-")}`)
     await ctx.close()
   }
 
