@@ -55,8 +55,8 @@ export function RegionExample() {
             <g key={cell.id}>
               <polygon
                 points={triPts(cell.row, cell.col, cell.direction)}
-                fill="#e4e3d3"
-                stroke="#aaa"
+                fill="var(--board-cell-none)"
+                stroke="var(--board-cell-line)"
                 strokeWidth="0.05"
               />
               <text
@@ -66,7 +66,7 @@ export function RegionExample() {
                 dominantBaseline="middle"
                 fontSize="0.72"
                 fontWeight="700"
-                fill="#2a2a2a"
+                fill="var(--board-digit-given)"
               >
                 {i + 1}
               </text>
@@ -77,7 +77,7 @@ export function RegionExample() {
         <polygon
           points={`9,0 6,${h3} 12,${h3}`}
           fill="none"
-          stroke="#1a1a1a"
+          stroke="var(--board-digit-given)"
           strokeWidth="0.22"
           strokeLinejoin="round"
         />
@@ -94,8 +94,8 @@ export function OuterEdgesExample() {
   const leftEdgeCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden && c.isOuterLeftEdge)
 
   function fill(color: string) {
-    if (color === "outer" || color === "overlap") return "#bfdde2"
-    return "#e4e3d3"
+    if (color === "outer" || color === "overlap") return "var(--board-cell-outer)"
+    return "var(--board-cell-none)"
   }
 
   return (
@@ -110,7 +110,7 @@ export function OuterEdgesExample() {
             key={cell.id}
             points={triPts(cell.row, cell.col, cell.direction)}
             fill={fill(cell.color)}
-            stroke="#aaa"
+            stroke="var(--board-cell-line)"
             strokeWidth="0.04"
           />
         ))}
@@ -125,7 +125,7 @@ export function OuterEdgesExample() {
               dominantBaseline="middle"
               fontSize="0.68"
               fontWeight="700"
-              fill="#1a4a5a"
+              fill="var(--board-digit-given)"
             >
               {i + 1}
             </text>
@@ -144,8 +144,9 @@ export function InnerTriangleExample() {
   const innerTopCells = TRIDOKU_BOARD[4].filter((c) => !c.hidden && c.isInnerTopEdge)
 
   function fill(color: string) {
-    if (color === "inner" || color === "overlap") return "#eed496"
-    return "#e4e3d3"
+    // The inner-triangle cells, in the board's middle shade (TRI-099)
+    if (color === "inner" || color === "overlap") return "var(--board-cell-inner)"
+    return "var(--board-cell-none)"
   }
 
   return (
@@ -160,7 +161,7 @@ export function InnerTriangleExample() {
             key={cell.id}
             points={triPts(cell.row, cell.col, cell.direction)}
             fill={fill(cell.color)}
-            stroke="#aaa"
+            stroke="var(--board-cell-line)"
             strokeWidth="0.04"
           />
         ))}
@@ -175,7 +176,7 @@ export function InnerTriangleExample() {
               dominantBaseline="middle"
               fontSize="0.68"
               fontWeight="700"
-              fill="#5a3a00"
+              fill="var(--board-digit-given)"
             >
               {i + 1}
             </text>
@@ -230,39 +231,39 @@ export function NoTouchingExample() {
         aria-hidden="true"
       >
         {/* ── Row 1: direct edge adjacency (BAD) ── */}
-        <polygon points={r0.up1} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cx1} y={cy1 + dy0} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
-        <polygon points={r0.dn} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cxD} y={cyD + dy0} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
-        <polygon points={r0.up2} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
+        <polygon points={r0.up1} fill="var(--board-error-tint)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cx1} y={cy1 + dy0} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--danger-solid)">4</text>
+        <polygon points={r0.dn} fill="var(--board-error-tint)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cxD} y={cyD + dy0} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--danger-solid)">4</text>
+        <polygon points={r0.up2} fill="var(--board-cell-none)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
         {/* highlight shared edge */}
-        <line x1={s} y1={dy0} x2={2 * s} y2={H + dy0} stroke="#ef4444" strokeWidth="1.4" strokeLinecap="round" />
-        <text x={markerX} y={H * 0.32 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="#dc2626">✗</text>
-        <text x={descX} y={H * 0.70 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">shared</text>
-        <text x={descX} y={H * 0.88 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">edge</text>
+        <line x1={s} y1={dy0} x2={2 * s} y2={H + dy0} stroke="var(--danger-solid)" strokeWidth="1.4" strokeLinecap="round" />
+        <text x={markerX} y={H * 0.32 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="var(--danger-solid)">✗</text>
+        <text x={descX} y={H * 0.70 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="var(--danger-solid)">shared</text>
+        <text x={descX} y={H * 0.88 + dy0} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="var(--danger-solid)">edge</text>
 
         {/* ── Row 2: corner-only adjacency (BAD) ── */}
-        <polygon points={r1.up1} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cx1} y={cy1 + dy1} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
-        <polygon points={r1.dn} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
-        <polygon points={r1.up2} fill="#fca5a5" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cx2} y={cy2 + dy1} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#991b1b">4</text>
+        <polygon points={r1.up1} fill="var(--board-error-tint)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cx1} y={cy1 + dy1} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--danger-solid)">4</text>
+        <polygon points={r1.dn} fill="var(--board-cell-none)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <polygon points={r1.up2} fill="var(--board-error-tint)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cx2} y={cy2 + dy1} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--danger-solid)">4</text>
         {/* highlight shared corner */}
-        <circle cx={2 * s} cy={H + dy1} r="1.4" fill="#ef4444" />
-        <text x={markerX} y={H * 0.32 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="#dc2626">✗</text>
-        <text x={descX} y={H * 0.70 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">shared</text>
-        <text x={descX} y={H * 0.88 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#991b1b">corner</text>
+        <circle cx={2 * s} cy={H + dy1} r="1.4" fill="var(--danger-solid)" />
+        <text x={markerX} y={H * 0.32 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="var(--danger-solid)">✗</text>
+        <text x={descX} y={H * 0.70 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="var(--danger-solid)">shared</text>
+        <text x={descX} y={H * 0.88 + dy1} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="var(--danger-solid)">corner</text>
 
         {/* ── Row 3: all different (GOOD) ── */}
-        <polygon points={r2.up1} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cx1} y={cy1 + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#1a1a1a">4</text>
-        <polygon points={r2.dn} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cxD} y={cyD + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#1a1a1a">7</text>
-        <polygon points={r2.up2} fill="#e4e3d3" stroke="#ccc" strokeWidth="0.3" />
-        <text x={cx2} y={cy2 + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="#1a1a1a">2</text>
-        <text x={markerX} y={H * 0.32 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="#16a34a">✓</text>
-        <text x={descX} y={H * 0.70 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#166534">all</text>
-        <text x={descX} y={H * 0.88 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="#166534">different</text>
+        <polygon points={r2.up1} fill="var(--board-cell-none)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cx1} y={cy1 + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--board-digit-given)">4</text>
+        <polygon points={r2.dn} fill="var(--board-cell-none)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cxD} y={cyD + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--board-digit-given)">7</text>
+        <polygon points={r2.up2} fill="var(--board-cell-none)" stroke="var(--board-cell-line)" strokeWidth="0.3" />
+        <text x={cx2} y={cy2 + dy2} textAnchor="middle" dominantBaseline="middle" fontSize={fs} fontWeight="700" fill="var(--board-digit-given)">2</text>
+        <text x={markerX} y={H * 0.32 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={markerFs} fontWeight="700" fill="var(--success)">✓</text>
+        <text x={descX} y={H * 0.70 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="var(--success)">all</text>
+        <text x={descX} y={H * 0.88 + dy2} textAnchor="start" dominantBaseline="middle" fontSize={descFs} fill="var(--success)">different</text>
       </svg>
     </ExampleBox>
   )
@@ -307,21 +308,21 @@ export function PowerCellExample() {
           const isBlockedEmpty = blockedEmptyIds.has(cell.id)
           const val = given[cell.id]
 
-          let fill = "#e4e3d3"
-          if (isTarget) fill = "#bbf7d0"
-          else if (isBlockedEmpty) fill = "#fee2e2"
-          else if (isRegion0) fill = "#bfdde2"
+          let fill = "var(--board-cell-none)"
+          if (isTarget) fill = "var(--board-good-tint)"
+          else if (isBlockedEmpty) fill = "var(--board-error-tint)"
+          else if (isRegion0) fill = "var(--board-cell-outer)"
 
           return (
             <g key={cell.id}>
               <polygon
                 points={triPts(cell.row, cell.col, cell.direction)}
                 fill={fill}
-                stroke="#aaa"
+                stroke="var(--board-cell-line)"
                 strokeWidth="0.05"
               />
               {isBlockedEmpty && (
-                <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle" fontSize="0.6" fill="#dc2626">
+                <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle" fontSize="0.6" fill="var(--danger-solid)">
                   ✕
                 </text>
               )}
@@ -333,18 +334,18 @@ export function PowerCellExample() {
                   dominantBaseline="middle"
                   fontSize={0.72}
                   fontWeight="700"
-                  fill={isPower ? "#991b1b" : "#1a1a1a"}
+                  fill={isPower ? "var(--danger-solid)" : "var(--board-digit-given)"}
                 >
                   {val}
                 </text>
               )}
               {isTarget && (
-                <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle" fontSize="0.72" fontWeight="700" fill="#166534">
+                <text x={c.x} y={c.y} textAnchor="middle" dominantBaseline="middle" fontSize="0.72" fontWeight="700" fill="var(--success)">
                   7
                 </text>
               )}
               {isPower && (
-                <circle cx={c.x} cy={c.y} r="0.52" fill="none" stroke="#dc2626" strokeWidth="0.12" />
+                <circle cx={c.x} cy={c.y} r="0.52" fill="none" stroke="var(--danger-solid)" strokeWidth="0.12" />
               )}
             </g>
           )
@@ -354,7 +355,7 @@ export function PowerCellExample() {
         <polygon
           points={`9,0 6,${3 * ROW_H} 12,${3 * ROW_H}`}
           fill="none"
-          stroke="#1a1a1a"
+          stroke="var(--board-digit-given)"
           strokeWidth="0.18"
           strokeLinejoin="round"
         />

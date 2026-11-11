@@ -96,15 +96,15 @@ export default function HowToPlayPage() {
           <Rule n={2} title="Each outer side holds 1 to 9" diagram={<OuterEdgesExample />}>
             <p>
               The nine cells along each of the big triangle&apos;s three sides contain 1 to 9 once each. On the
-              board these cells are <strong className="text-foreground">blue</strong>.
+              board these cells are <strong className="text-foreground">lightly shaded</strong>.
             </p>
           </Rule>
 
           <Rule n={3} title="Each side of the inner triangle holds 1 to 9" diagram={<InnerTriangleExample />}>
             <p>
               An upside-down triangle sits in the middle of the board. The nine cells along each of its sides
-              also contain 1 to 9 once each. These cells are <strong className="text-foreground">yellow</strong>.
-              A cell on both an outer side and the inner triangle is <strong className="text-foreground">green</strong>,
+              also contain 1 to 9 once each. These cells are a <strong className="text-foreground">shade deeper</strong>.
+              A cell on both an outer side and the inner triangle has the <strong className="text-foreground">deepest shade</strong>,
               and follows both rules.
             </p>
           </Rule>

@@ -23,6 +23,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
+import { applyPalette, PALETTES } from "@/lib/palettes"
 import dynamic from "next/dynamic"
 import { IS_PRODUCTION } from "@/lib/app-env"
 
@@ -191,6 +192,12 @@ export function TridokuGame() {
     return () => clearInterval(timer)
   }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
+
+  // TRI-099: the board, toggles and dialogs use the current difficulty's palette
+  // (Easy before one is chosen, matching the welcome screen's Easy preview).
+  useEffect(() => {
+    applyPalette(PALETTES[difficulty ?? "easy"])
+  }, [difficulty])
 
   // Show win modal when complete
   useEffect(() => {

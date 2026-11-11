@@ -163,15 +163,17 @@ The difficulty tabs also have no selected state for screen readers.
 **Problem.** The board's rule colours (blue, yellow, green) clash with the difficulty folders: Easy's blue *is* the outer-edge blue. Josh chose tonal boards: each difficulty's board is a family of its own colour, and the rules read as shades.
 
 **Done when** (design system §2.3)
-- [ ] The board draws every colour from a palette (`lib/palettes.ts`): four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`.
-- [ ] Easy, Medium and Hard each have the palette in the design system. The shade order (none < outer < inner < both) is the same on every board.
-- [ ] Touching cells get one continuous outline around the selection and its 12 neighbours (`--board-touching`), replacing the dark fill. No board state changes a cell's fill except the error tint.
-- [ ] A unit test checks every palette: shades in order; givens, entries and notes at least 4.5:1 on all four shades.
-- [ ] The rules modal, the rule diagrams and `/how-to-play` describe "the lightest, middle and deepest shades" instead of blue, yellow and green, and draw with the current palette.
-- [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
-- [ ] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
-- [ ] Each palette has a `tone` and `on-tone` (design system §2.3). Toggles use them when on, instead of ink: the Pencil button, number keys with a note, and Check if the prototype agrees. *Josh, 11 Nov: ink or white doesn't read clearly as on/off for a toggle.* Prototype first; also decide whether Share and Play take the tone or stay ink.
-- [ ] The palette test also checks `tone` against the off keys (3:1 or better in both themes) and `on-tone` text on `tone` (4.5:1 or better).
+- [x] The board draws every colour from a palette (`lib/palettes.ts`): four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`. *The game sets the current difficulty's palette on `<html>`, so dialogs use it too; Easy is the default.*
+- [x] Easy, Medium and Hard each have the palette in the design system. The shade order (none < outer < inner < both) is the same on every board.
+- [x] Touching cells get one continuous outline around the selection and its 12 neighbours, replacing the dark fill. No board state changes a cell's fill except the error tint and the ink highlight (which is far darker than any shade).
+- [x] A unit test checks every palette: shades in order; givens, entries and notes at least 4.5:1 on all four shades. *`tests/palettes.test.ts`, 21 checks.*
+- [x] The rules modal, the rule diagrams and `/how-to-play` describe the shades instead of blue, yellow and green, and draw with the current palette.
+- [x] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
+- [x] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
+- [x] Each palette has a `tone` and `on-tone` (design system §2.3). Toggles use them when on, instead of ink: the Pencil button, number keys with a note, and Check. *Josh chose tone for all three on the canvas (11 Nov); Check to be reassessed if it blends in.* *Josh, 11 Nov: ink or white doesn't read clearly as on/off for a toggle.* Prototype first; also decide whether Share and Play take the tone or stay ink.
+- [x] The palette test also checks `tone` against the off keys (3:1 or better in both themes) and `on-tone` text on `tone` (4.5:1 or better).
+
+**Known, not fixed here.** On Hard, the red error tint sits on a pink board, so mistakes stand out less than on Easy and Medium. The shape cue in [TRI-065](m3-mobile-accessibility.md#tri-065) (an underline under wrong digits) is the fix; it's worth doing next. In the small rule diagrams, the lightest shade (outer sides) is faint against plain cells; deepen the outer step if Josh finds it hard to see.
 
 **Check it in a preview.** On your phone, play a few moves on each difficulty. You can tell outer, inner and both cells apart on all three boards. Select a cell: one outline goes round it and its 12 neighbours, and digits inside stay clear. Open How to play: the rule cards describe shades and match the board.
 

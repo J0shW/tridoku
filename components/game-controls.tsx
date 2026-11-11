@@ -150,7 +150,8 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
         className={cn(
           PILL,
           "gap-1.5 pl-2.5 pr-3 text-sm font-semibold",
-          showErrors && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+          // Check on: the board's tone (TRI-099)
+          showErrors && "border-tone bg-tone text-on-tone hover:bg-tone/90",
         )}
       >
         <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />

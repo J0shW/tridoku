@@ -105,8 +105,8 @@ function HighlightExample() {
             <g key={cell.id}>
               <polygon
                 points={triPts(cell.row, cell.col, cell.direction)}
-                fill={isHighlighted ? "var(--board-highlight)" : "#e4e3d3"}
-                stroke="#aaa"
+                fill={isHighlighted ? "var(--board-highlight)" : "var(--board-cell-none)"}
+                stroke="var(--board-cell-line)"
                 strokeWidth="0.05"
               />
               {val !== undefined && (
@@ -117,7 +117,7 @@ function HighlightExample() {
                   dominantBaseline="middle"
                   fontSize="0.72"
                   fontWeight="700"
-                  fill={isHighlighted ? "#fff" : "#1a1a1a"}
+                  fill={isHighlighted ? "var(--board-highlight-digit)" : "var(--board-digit-given)"}
                 >
                   {val}
                 </text>
@@ -187,7 +187,7 @@ function ShowErrorsStep() {
         above the board on the right, to flag any digits that break a rule.
       </p>
       <div className="mt-4 flex flex-col items-center gap-2">
-        <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-primary bg-primary pl-2.5 pr-3 text-sm font-semibold text-primary-foreground">
+        <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-tone bg-tone pl-2.5 pr-3 text-sm font-semibold text-on-tone">
           <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
           Check
         </span>
@@ -251,9 +251,9 @@ const RULE_STEPS: Step[] = [
           <InnerTriangleExample />
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-center text-pretty">
-          On the board, <strong className="text-foreground">blue</strong> cells are on an outer side,{" "}
-          <strong className="text-foreground">yellow</strong> cells on the inner triangle, and{" "}
-          <strong className="text-foreground">green</strong> cells on both.
+          On the board, cells on an outer side are <strong className="text-foreground">lightly shaded</strong>,{" "}
+          cells on the inner triangle a <strong className="text-foreground">shade deeper</strong>, and{" "}
+          cells on both the <strong className="text-foreground">deepest</strong>.
         </p>
       </div>
     ),
