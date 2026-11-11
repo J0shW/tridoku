@@ -41,8 +41,9 @@ export function InputModeToggle({ mode, onModeChange, disabled }: InputModeToggl
         disabled={disabled}
         className={cn(
           "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-all",
+          // Pencil is the special mode, so it shows strongly when on (TRI-090)
           mode === 'pencil' 
-            ? "bg-background text-foreground shadow-sm" 
+            ? "bg-foreground text-background shadow-sm" 
             : "text-muted-foreground hover:text-foreground hover:bg-background/50"
         )}
         aria-pressed={mode === 'pencil'}

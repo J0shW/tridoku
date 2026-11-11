@@ -165,7 +165,7 @@ This takes 11 sizes in use (including `text-[15px]` and `text-[17px]`) down to 9
   - desktop 1024 and up;
   - plus `(orientation: landscape) and (max-height: 500px)` for landscape phones.
   - Container queries (`@container`) stay for the board corners (`@max-[350px]`).
-- **Fit rule (TRI-058).** The board width is `min(28rem, max(15rem, calc((100dvh − 330px − var(--slot-h, 0px)) × 1.15)))`. `--slot-h` is the height of the message slot (§3.6). That keeps the pad on screen when a tip shows.
+- **Fit rule (TRI-058).** The board width is `min(28rem, max(15rem, calc((100dvh − 330px) × 1.15)))`. Messages float or live in the header (§3.6), so nothing else takes vertical space.
 
 ### 2.6 Radius, borders, elevation, layers
 
@@ -272,15 +272,21 @@ Each component lives in `components/ui/` and is the only way to draw its pattern
   - The **win card** is the same folder: the difficulty tab on top, then "Solved" and the time in large type on the colour, then a paper section with stats, Share result (ink) and "Next up".
   - **Statistics** uses the folder tabs for Easy, Medium and Hard.
 
-### 3.6 Notice and the message slot
+### 3.6 Messages: never move the board **[Decided, TRI-090]**
 
-- **Anatomy:** tone icon (16), message (14/20), optional inline action (link or `sm` button), optional dismiss (IconButton, 32 visual with a 44 hit area).
-- **Tones:** `info` (tips), `warning` (fallback puzzle), `danger` (load error, with Retry) and `success` (view mode, "You solved this puzzle today", with Share result).
-- `role="status"`; `danger` uses `role="alert"`.
-- **Message slot.** In the game view, all notices render in one slot between the difficulty tabs and the board. It shows at most one at a time, in this order: danger > warning > tip.
-  - The slot's height feeds `--slot-h`, so the board shrinks instead of pushing the pad off screen. Today the pad's bottom row moves to 708 px on a 664 px screen (audit UI-01).
-  - Rule: **nothing may be inserted between the board and the pad.**
-- **Replaces** four copies of notice markup in `tridoku-game.tsx` and the view-mode banner's own colours.
+Rule: **a message never moves or resizes the board or the number pad.** Josh rejected an earlier version that shrank the board to make room, because a board that jumps while you play is worse than the message it shows. Each kind of message has its place:
+
+| Kind | Pattern | Example |
+|---|---|---|
+| Mode | The controls show it: in Pencil mode the Pencil button is ink and the number keys switch to a small corner digit, like a note | Pencil on |
+| First-time hint | A one-line bubble beside the control that triggered it. It goes after the first use, a tap, or 6 s, and appears once. Keyboard shortcuts are added only on devices with a fine pointer | "Notes on: tap a number to add or remove it" |
+| Tip | A **TipBanner** that slides in over the top of the screen, with an action and a 40 px dismiss button, and hides after 10–12 s | "Stuck? … Show me" |
+| Status that lasts all game | A few words in the header, in place of the puzzle number, tappable for the full banner | "From 13 Nov" |
+| Error with no board | Inline Notice where the board would be | Couldn't load, Retry |
+
+- **TipBanner:** `surface-raised`, `rounded-card`, elevation 2, `role="status"`. It slides from the top unless reduced motion is on, and floats (`z-toast`) over the header, never in the page flow. Only one shows at a time.
+- **Notice** (inline): tone icon (16), message (14/20), optional action and dismiss. Used only where there's no board: the welcome screen and load errors.
+- Copy in any message is one sentence where possible.
 
 ### 3.7 Dialog and AlertDialog
 
@@ -397,7 +403,7 @@ Region lines: `board-region-line`, 0.11 units. Board focus (once TRI-062 lands):
 - [ ] Text 4.5:1 and UI parts 3:1. Targets 44 px. Focus visible. Keyboard reachable. `aria-*` correct.
 - [ ] Reduced motion honoured. Hover only on pointer devices.
 - [ ] Copy follows §4 and the glossary.
-- [ ] The number pad still fits at 360×640 with any notice showing (`play-through.cjs` check).
+- [ ] No message moves the board or the pad (`play-through.cjs` checks), and the pad still fits at 360×640.
 
 ### Drift guard (TRI-097)
 

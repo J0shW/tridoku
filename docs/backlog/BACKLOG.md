@@ -132,7 +132,7 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-090](m5-design-system.md#tri-090) | Notices never push the number pad off screen | High | H | S | — | In review |
+| [TRI-090](m5-design-system.md#tri-090) | Messages never move the board or the number pad | High | H | S | — | In review |
 | [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | Todo |
 | [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | Todo |
 | [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | Todo |

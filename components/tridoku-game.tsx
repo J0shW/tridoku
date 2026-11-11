@@ -12,10 +12,11 @@ import { DifficultySelector } from "@/components/difficulty-selector"
 import { KofiWidget } from "@/components/kofi-widget"
 import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
+import { TipBanner } from "@/components/tip-banner"
 import { WelcomeScreen } from "@/components/welcome-screen"
 import { Button } from "@/components/ui/button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, X, RotateCw, Share2 } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
 import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
@@ -96,6 +97,33 @@ export function TridokuGame() {
     localStorage.setItem('tridoku-pencil-tip-dismissed', 'true')
   }, [])
 
+  // TRI-090: messages float over the screen or sit in space that's already there, so
+  // nothing moves the board or the number pad. The pencil hint is one line beside the
+  // Pen/Pencil switch; it goes after the first note or a few seconds.
+  const showPencilHint = inputMode === "pencil" && !pencilTipDismissed && !isViewMode && !isPaused && !isComplete
+  useEffect(() => {
+    if (!showPencilHint) return
+    const t = setTimeout(dismissPencilTip, 6000)
+    return () => clearTimeout(t)
+  }, [showPencilHint, dismissPencilTip])
+  // Keyboard shortcuts are only mentioned on devices with a keyboard and mouse
+  const [hasKeyboard] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+  )
+  const enterDigit = useCallback(
+    (n: number) => {
+      if (showPencilHint) dismissPencilTip()
+      setValue(n)
+    },
+    [showPencilHint, dismissPencilTip, setValue],
+  )
+
+  // The backup-puzzle explanation shows once per puzzle as a banner; the header keeps a short label.
+  const fallbackKey = fallback ? (fallback.sourceDate ?? "backup") : null
+  const [fallbackDismissed, setFallbackDismissed] = useState<string | null>(null)
+  const showFallbackBanner = !!fallbackKey && hasStarted && !isViewMode && fallbackDismissed !== fallbackKey
+  const dismissFallbackBanner = useCallback(() => setFallbackDismissed(fallbackKey), [fallbackKey])
+
   // Which card the rules open at, and whether this is the first-visit intro (TRI-029)
   const [rulesView, setRulesView] = useState<{ tab: RulesTab; step: number; firstTime: boolean }>({
     tab: "rules",
@@ -164,23 +192,6 @@ export function TridokuGame() {
   }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
 
-  // TRI-090: every game-view notice shows in one slot above the board, and the board
-  // shrinks by the slot's height, so a tip never pushes the number pad off screen.
-  const [slotHeight, setSlotHeight] = useState(0)
-  const slotObserver = useRef<ResizeObserver | null>(null)
-  // A callback ref, so measuring starts whenever the slot mounts (the game view can appear after loading)
-  const slotRef = useCallback((el: HTMLDivElement | null) => {
-    slotObserver.current?.disconnect()
-    slotObserver.current = null
-    if (!el) {
-      setSlotHeight(0)
-      return
-    }
-    const observer = new ResizeObserver(() => setSlotHeight(el.offsetHeight))
-    observer.observe(el)
-    slotObserver.current = observer
-  }, [])
-
   // Show win modal when complete
   useEffect(() => {
     if (isComplete) {
@@ -211,7 +222,7 @@ export function TridokuGame() {
     
     // Number keys
     if (e.key >= "1" && e.key <= "9") {
-      setValue(parseInt(e.key))
+      enterDigit(parseInt(e.key))
       return
     }
 
@@ -235,67 +246,12 @@ export function TridokuGame() {
       if (target) selectCell(target)
       return
     }
-  }, [isComplete, isPaused, setValue, clearCell, undo, selectCell, selectedCellId, inputMode, setInputMode])
+  }, [isComplete, isPaused, enterDigit, clearCell, undo, selectCell, selectedCellId, inputMode, setInputMode])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [handleKeyDown])
-
-  const powerTip = (
-    <div role="status" className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 pr-8 text-center text-sm text-muted-foreground">
-      <button
-        onClick={() => setShowPowerTip(false)}
-        className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
-        aria-label="Dismiss tip"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
-      Stuck? A digit just outside a region rules out every cell it touches inside that region.
-      That often leaves only one place for it.{" "}
-      <button
-        className="font-medium text-foreground underline underline-offset-2"
-        onClick={() => {
-          setShowPowerTip(false)
-          openRulesAt("tips", POWER_CELLS_TIP_INDEX)
-        }}
-      >
-        Show me
-      </button>
-    </div>
-  )
-
-  const pencilTip = (
-    // pr-8 keeps the text clear of the dismiss button (audit UI-07)
-    <div role="status" className="relative bg-muted/60 border border-border rounded-lg px-4 py-2.5 pr-8 text-center text-sm text-muted-foreground">
-      <button
-        onClick={dismissPencilTip}
-        className="absolute top-1.5 right-1.5 p-0.5 rounded-sm hover:bg-muted-foreground/20 transition-colors"
-        aria-label="Dismiss tip"
-      >
-        <X className="h-3.5 w-3.5" />
-      </button>
-      Tap a number to toggle a pencil mark. Tap again to remove it. Press backspace to clear all marks. Press space or &apos;p&apos; to swap modes.
-    </div>
-  )
-
-  const fallbackNotice = fallback ? (
-    <p role="status" className="rounded-lg border border-border bg-muted/60 px-4 py-2.5 text-center text-sm text-muted-foreground">
-      Today&apos;s puzzle isn&apos;t ready yet, so here&apos;s{" "}
-      {fallback.sourceDate
-        ? <>the puzzle from {format(fromDateKey(fallback.sourceDate), "d MMMM")}</>
-        : <>a backup puzzle</>}
-      . It still counts toward your streak.
-    </p>
-  ) : null
-
-  // One notice at a time, most important first: load error, fallback puzzle, then tips.
-  const slotNotice =
-    loadError && !isGenerating ? <LoadErrorNotice onRetry={retryLoad} />
-    : fallback && !isViewMode ? fallbackNotice
-    : showPowerTip && !isComplete && !isViewMode ? powerTip
-    : inputMode === "pencil" && !pencilTipDismissed && !isViewMode ? pencilTip
-    : null
 
   if (isLoading) {
     return (
@@ -318,7 +274,18 @@ export function TridokuGame() {
             <Triangle className="h-5 w-5 text-primary fill-primary/20" />
             <h1 className="whitespace-nowrap text-[17px] font-bold text-foreground">Daily Tridoku</h1>
             <p className="whitespace-nowrap text-xs text-muted-foreground">
-              <span className="max-[359px]:sr-only">Puzzle </span>#{puzzleNumber}
+              {fallbackKey && hasStarted && !isViewMode ? (
+                <button
+                  type="button"
+                  onClick={() => setFallbackDismissed(null)}
+                  className="underline decoration-dotted underline-offset-2"
+                  aria-label="Today's puzzle isn't ready yet. Show details"
+                >
+                  {fallback?.sourceDate ? `From ${format(fromDateKey(fallback.sourceDate), "d MMM")}` : "Backup puzzle"}
+                </button>
+              ) : (
+                <><span className="max-[359px]:sr-only">Puzzle </span>#{puzzleNumber}</>
+              )}
             </p>
           </div>
 
@@ -379,10 +346,7 @@ export function TridokuGame() {
               />
             </div>
             
-            {/* The message slot: at most one notice, most important first (TRI-090) */}
-            <div ref={slotRef} className={slotNotice ? undefined : "hidden"}>
-              {slotNotice}
-            </div>
+            {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
 
             {/* Game board, with the timer and controls in the empty corners beside the
                 triangle (TRI-087). On short screens the board shrinks so the number pad
@@ -390,8 +354,7 @@ export function TridokuGame() {
             <div className="flex justify-center">
               <div
                 className="@container relative w-full max-w-md"
-                // The 8 px is the gap below the slot when it shows
-                style={{ maxWidth: `min(28rem, max(15rem, calc((100dvh - ${330 + (slotHeight ? slotHeight + 8 : 0)}px) * 1.15)))` }}
+                style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
               >
                 <div className="absolute left-0 top-0 z-10 flex flex-col items-start gap-2">
                   <TimerButton
@@ -447,7 +410,18 @@ export function TridokuGame() {
             {/* Input mode toggle and number pad */}
             {!isViewMode && (
               <div className="pb-4 space-y-2">
-                <div className="flex justify-center">
+                <div className="relative flex justify-center">
+                  {showPencilHint && (
+                    <button
+                      type="button"
+                      role="status"
+                      onClick={dismissPencilTip}
+                      aria-label="Pencil is on: tap a number to add or remove it. Dismiss"
+                      className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-3.5 py-1.5 text-[13px] font-medium text-background shadow-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1"
+                    >
+                      Notes on: tap a number to add or remove it{hasKeyboard ? " · P switches" : ""}
+                    </button>
+                  )}
                   <InputModeToggle
                     mode={inputMode}
                     onModeChange={setInputMode}
@@ -455,7 +429,8 @@ export function TridokuGame() {
                   />
                 </div>
                 <NumberPad
-                  onNumberClick={setValue}
+                  onNumberClick={enterDigit}
+                  mode={inputMode}
                   onClear={clearCell}
                   disabled={isPaused || isComplete || selectedCellId === null || isViewMode}
                   activePencilMarks={
@@ -494,6 +469,29 @@ export function TridokuGame() {
           changeDifficulty(d)
         }}
       />
+
+      {/* Floating messages: the backup-puzzle note first, then the Power Cells tip */}
+      {showFallbackBanner ? (
+        <TipBanner onDismiss={dismissFallbackBanner} autoHideMs={10_000}>
+          Today&apos;s puzzle isn&apos;t ready yet, so this is{" "}
+          {fallback?.sourceDate ? <>the puzzle from {format(fromDateKey(fallback.sourceDate), "d MMMM")}</> : <>a backup puzzle</>}.
+          It still counts toward your streak.
+        </TipBanner>
+      ) : showPowerTip && !isComplete && !isViewMode ? (
+        <TipBanner onDismiss={() => setShowPowerTip(false)} autoHideMs={12_000}>
+          Stuck? A digit just outside a region rules out every cell it touches inside it.{" "}
+          <button
+            type="button"
+            className="font-medium underline underline-offset-2"
+            onClick={() => {
+              setShowPowerTip(false)
+              openRulesAt("tips", POWER_CELLS_TIP_INDEX)
+            }}
+          >
+            Show me
+          </button>
+        </TipBanner>
+      ) : null}
 
       <RulesModal
         open={showRules}
