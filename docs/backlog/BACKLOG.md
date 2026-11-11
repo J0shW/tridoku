@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**100 items** · 43 todo · 2 in progress · 6 in review · 47 done · 2 won't do · plus 13 [research items](research.md)
+**100 items** · 42 todo · 2 in progress · 6 in review · 48 done · 2 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -132,8 +132,8 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 
 | ID | Item | Severity | Impact | Effort | Depends on | Status |
 |---|---|---|---|---|---|---|
-| [TRI-090](m5-design-system.md#tri-090) | Messages never move the board or the number pad | High | H | S | — | In review |
-| [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | Todo |
+| [TRI-090](m5-design-system.md#tri-090) | Messages never move the board or the number pad | High | H | S | — | Done |
+| [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | In review |
 | [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | Todo |
 | [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | Todo |
 | [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | Todo |

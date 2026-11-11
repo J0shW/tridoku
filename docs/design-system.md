@@ -12,6 +12,14 @@ The aim is one look and one way of building every screen. We keep the warm paper
 
 Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are marked **[Decision]**.
 
+**What's live (TRI-088, 11 Nov).** The token *names* below are in `app/globals.css`, set to today's values, so nothing looks different yet:
+- UI roles;
+- difficulty colours;
+- board tokens (`--board-*`, renamed from `--tridoku-*`);
+- type scale, radii, elevation, layers and motion.
+
+The values in the tables are the targets. TRI-091 moves the UI roles to them, and TRI-099 replaces the board fills with tonal palettes. The shadcn names (`--background`, `--primary`, …) now point at these tokens.
+
 ---
 
 ## 1. Principles
@@ -31,7 +39,7 @@ Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are m
 
 ## 2. Foundations
 
-All tokens live in `app/globals.css`. Raw values go under `:root` and `.dark`. Tailwind names go in `@theme inline`, so classes read `bg-surface-raised`, `text-muted`, `rounded-card` and so on. Feature code never uses hex values, `rgb()`, `oklch()` or Tailwind palette colours (`green-600`) directly. See §6.
+All tokens live in `app/globals.css`. Raw values go under `:root` and `.dark`. Tailwind names go in `@theme inline`, so classes read `bg-surface-raised`, `text-fg-muted`, `text-label`, `rounded-card`, `shadow-menu` and so on. Layers and durations are plain variables: `z-(--z-dialog)`, `duration-(--dur-base)`. Feature code never uses hex values, `rgb()`, `oklch()` or Tailwind palette colours (`green-600`) directly. See §6.
 
 ### 2.1 Colour: UI roles
 
@@ -41,8 +49,8 @@ All tokens live in `app/globals.css`. Raw values go under `:root` and `.dark`. T
 | `--surface-raised` | #fffaf6 | #271d16 | Dialogs, menus, cards, active segment | `--card`, `--popover`, `bg-background` inside dialogs |
 | `--surface-sunken` | #f3e9df | #2a2019 | Segmented-control track, stat tiles, paused panel | `--muted`, `bg-muted/40`, `bg-muted/50`, `bg-muted/60`, `bg-secondary/50` |
 | `--control` | #efe2d8 | #362c24 | Pills, number keys, secondary buttons | `--secondary` |
-| `--text` | #3b2921 | #ece3da | Body, headings | `--foreground` |
-| `--text-muted` | #725f54 (5.6:1) | #a39486 (6.0:1) | Secondary text. **Never add opacity to it.** | `--muted-foreground`, `text-muted-foreground/60` |
+| `--fg` | #3b2921 | #ece3da | Body, headings | `--foreground` |
+| `--fg-muted` | #725f54 (5.6:1) | #a39486 (6.0:1) | Secondary text. **Never add opacity to it.** | `--muted-foreground`, `text-muted-foreground/60` |
 | `--border` | #e2d6cb | #3a3029 | Dividers, card edges | `--border` |
 | `--border-strong` | #cdbcae | #54483e | Control outlines | `--input`, `border-border` on controls |
 | `--action` | #2b2420 | #ece3da | Primary buttons, "on" states (Check), Pencil marks set on the pad, logo **[Decided: ink, no teal]** | `--primary` (teal) |

@@ -105,7 +105,7 @@ function HighlightExample() {
             <g key={cell.id}>
               <polygon
                 points={triPts(cell.row, cell.col, cell.direction)}
-                fill={isHighlighted ? "var(--tridoku-highlighted-fill)" : "#e4e3d3"}
+                fill={isHighlighted ? "var(--board-highlight)" : "#e4e3d3"}
                 stroke="#aaa"
                 strokeWidth="0.05"
               />
