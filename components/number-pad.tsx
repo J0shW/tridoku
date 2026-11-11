@@ -33,7 +33,8 @@ export function NumberPad({ onNumberClick, onClear, disabled, activePencilMarks,
               pencil ? "items-start justify-start p-2 text-base font-semibold" : "text-xl font-bold",
               "hover:bg-primary hover:text-primary-foreground hover:scale-105",
               "active:scale-95",
-              isActive && "bg-primary text-primary-foreground"
+              // A note set on this key: the board's tone (TRI-099)
+              isActive && "bg-tone text-on-tone hover:bg-tone hover:text-on-tone"
             )}
             aria-label={pencil ? `Note ${num}` : `Enter ${num}`}
             aria-pressed={pencil ? !!isActive : undefined}

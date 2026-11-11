@@ -17,9 +17,39 @@ const CELL_FILLS: Record<Cell["color"], string> = {
 }
 
 const SELECTED_FILL = "var(--board-selection-fill)"
-const TOUCHING_FILL = "var(--board-touching)"
 const SELECTED_STROKE = "var(--board-selection-stroke)"
 const ERROR_FILL = "var(--board-error-tint)"
+
+function triangleVertices(row: number, col: number, direction: "up" | "down"): [number, number][] {
+  return direction === "up"
+    ? [[col, (row + 1) * ROW_HEIGHT], [col + 1, row * ROW_HEIGHT], [col + 2, (row + 1) * ROW_HEIGHT]]
+    : [[col, row * ROW_HEIGHT], [col + 2, row * ROW_HEIGHT], [col + 1, (row + 1) * ROW_HEIGHT]]
+}
+
+/**
+ * The outline round a selected cell and the cells touching it (TRI-032, TRI-099): the edges
+ * that belong to only one cell of the group. One shape, drawn on top, so touching cells never
+ * change shade and can't be mistaken for a deeper rule colour.
+ */
+function touchingOutline(cellId: string | null): Edge[] {
+  if (!cellId) return []
+  const selected = TRIDOKU_BOARD.flat().find((c) => c.id === cellId && !c.hidden)
+  if (!selected) return []
+  const ids = new Set([selected.id, ...selected.neighbors])
+  const count = new Map<string, { n: number; edge: Edge }>()
+  const key = (x: number, y: number) => `${Math.round(x * 100)},${Math.round(y * 100)}`
+  for (const cell of TRIDOKU_BOARD.flat()) {
+    if (cell.hidden || !ids.has(cell.id)) continue
+    const v = triangleVertices(cell.row, cell.col, cell.direction)
+    for (const [a, b] of [[0, 1], [1, 2], [2, 0]]) {
+      const k = [key(v[a][0], v[a][1]), key(v[b][0], v[b][1])].sort().join("|")
+      const seen = count.get(k)
+      if (seen) seen.n++
+      else count.set(k, { n: 1, edge: { x1: v[a][0], y1: v[a][1], x2: v[b][0], y2: v[b][1] } })
+    }
+  }
+  return [...count.values()].filter((e) => e.n === 1).map((e) => e.edge)
+}
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
   if (direction === "up") {
@@ -220,11 +250,9 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
     if (id) onCellClick(id)
   }
 
-  // TRI-032: lightly shade the cells touching the selected one, since the
-  // no-touching rule is the one that's new compared with Sudoku.
-  const touching = new Set(
-    selectedCellId ? TRIDOKU_BOARD.flat().find((c) => c.id === selectedCellId && !c.hidden)?.neighbors ?? [] : [],
-  )
+  // TRI-032: show which cells touch the selected one, since the no-touching rule is the one
+  // that's new compared with Sudoku. Drawn as one outline round the group (TRI-099).
+  const outline = touchingOutline(selectedCellId)
 
   return (
     <div className="w-full">
@@ -263,13 +291,6 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                     stroke={isSelected ? "none" : "var(--board-cell-line)"}
                     strokeWidth={0.01}
                   />
-                  {touching.has(cell.id) && (
-                    <polygon
-                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                      fill={TOUCHING_FILL}
-                      style={{ pointerEvents: "none" }}
-                    />
-                  )}
                   {showErrors && gameCell?.hasError && !isSelected && (
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
@@ -354,6 +375,13 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
             strokeWidth={0.12}
             strokeLinecap="round"
           />
+        ))}
+        {/* The touching-cells outline: a pale halo under a thin ink line, so it reads apart from region lines */}
+        {outline.map((edge, i) => (
+          <line key={`halo-${i}`} x1={edge.x1} y1={edge.y1} x2={edge.x2} y2={edge.y2} stroke="var(--board-outline-halo)" strokeWidth={0.22} strokeLinecap="round" style={{ pointerEvents: "none" }} />
+        ))}
+        {outline.map((edge, i) => (
+          <line key={`outline-${i}`} x1={edge.x1} y1={edge.y1} x2={edge.x2} y2={edge.y2} className="stroke-board-region-line" strokeWidth={0.075} strokeLinecap="round" style={{ pointerEvents: "none" }} />
         ))}
         {/* Flash the cell the last undo changed. Keyed so each undo restarts it. */}
         {flash && (() => {

@@ -83,7 +83,7 @@ Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolba
 **UI audit (9 Nov).** No teal reaches 4.5:1 on the green overlap fill `#98ac8b` (`#0f6f6c` is 2.45:1), so the criterion below can't be met as written. Navy `#1e3a5f` passes on all four fills (4.72:1 minimum); the [design system](../design-system.md) proposes it, and Josh chooses on the canvas.
 
 **Done when**
-- [ ] Player entries use the primary teal in both themes with ≥4.5:1 contrast on every cell fill.
+- [x] Player entries use the primary teal in both themes with ≥4.5:1 contrast on every cell fill. *Changed to navy `#1e3a5f` (teal can't reach 4.5:1 on every fill), delivered by [TRI-099](m5-design-system.md#tri-099): 5.0:1 or better on every tonal shade.*
 
 <a id="tri-062"></a>
 ## TRI-062 · Keyboard-playable board

@@ -43,22 +43,35 @@
   --difficulty-medium: #ecbd6c;
   --difficulty-hard: #e26495;
 
-  /* Board. The rule fills are the same on every difficulty for now (TRI-031);
-     TRI-099 replaces them with tonal palettes. Cells are light in both themes. */
-  --board-cell-outer: #bfdde2;
-  --board-cell-inner: #eed496;
-  --board-cell-overlap: #98ac8b;
-  --board-cell-none: #e4e3d3;
+  /* Board (TRI-099). These defaults are the Easy palette; the game sets the current
+     difficulty's palette on <html> from lib/palettes.ts. The rule shades always run light
+     to deep: none < outer < inner < overlap (both). Cells are light in both themes. */
+  --board-cell-none: #f6fafb;
+  --board-cell-outer: #e2eff1;
+  --board-cell-inner: #c9e2e6;
+  --board-cell-overlap: #9cc6cd;
   /* Near-black in both themes: 6.3:1 or better on every fill (TRI-068) */
   --board-region-line: #2b2420;
-  --board-cell-line: #000000;
-  --board-digit-given: #000000;
-  --board-digit-entry: #000000;
-  --board-digit-note: #222222;
+  --board-cell-line: rgb(43 36 32 / 0.3);
+  --board-digit-given: #2b2420;
+  /* Navy, so your digits look different from the givens (TRI-061) */
+  --board-digit-entry: #1e3a5f;
+  --board-digit-note: #4a3a30;
   --board-digit-error: #dc2626;
   --board-error-tint: rgba(239, 68, 68, 0.3);
-  /* Cells touching the selected cell (TRI-032) */
-  --board-touching: rgba(40, 30, 20, 0.12);
+  /* Cells touching the selected cell get one outline round the group, never a fill,
+     so they can't be mistaken for a deeper rule shade (TRI-032, TRI-099) */
+  --board-outline-halo: rgb(255 252 247 / 0.95);
+  /* Diagrams: a correct example cell */
+  --board-good-tint: rgb(47 122 75 / 0.2);
+
+  /* Toggle "on" colour from the palette: deep in light mode, the folder colour in dark mode */
+  --tone-light: #2f6f7a;
+  --tone-dark: #bfdde2;
+  --on-tone-light: #fffaf6;
+  --on-tone-dark: #2b2420;
+  --tone: var(--tone-light);
+  --on-tone: var(--on-tone-light);
   /* A solid ink outline, not an animated grey dash (TRI-066): 5.6:1 or better on every fill */
   --board-selection-fill: rgba(255, 255, 255, 0.25);
   --board-selection-stroke: #2b2420;
@@ -121,6 +134,8 @@
   --overlay: rgb(0 0 0 / 0.5);
 
   /* The board is light in both themes, so its marks are the same as in light mode */
+  --tone: var(--tone-dark);
+  --on-tone: var(--on-tone-dark);
 }
 
 @theme inline {
@@ -151,6 +166,8 @@
   --color-difficulty-medium: var(--difficulty-medium);
   --color-difficulty-hard: var(--difficulty-hard);
   --color-board-region-line: var(--board-region-line);
+  --color-tone: var(--tone);
+  --color-on-tone: var(--on-tone);
 
   /* shadcn colour names */
   --color-background: var(--background);
