@@ -1,0 +1,1 @@
+selected-cell animation-name under reduced motion: dash-animation

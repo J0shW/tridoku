@@ -80,6 +80,8 @@ Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolba
 
 **Problem.** Givens are bold and entries regular, both black.
 
+**UI audit (9 Nov).** No teal reaches 4.5:1 on the green overlap fill `#98ac8b` (`#0f6f6c` is 2.45:1), so the criterion below can't be met as written. Navy `#1e3a5f` passes on all four fills (4.72:1 minimum); the [design system](../design-system.md) proposes it, and Josh chooses on the canvas.
+
 **Done when**
 - [ ] Player entries use the primary teal in both themes with ≥4.5:1 contrast on every cell fill.
 
@@ -131,6 +133,8 @@ Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolba
 
 **Problem.** Red digits on pink cells are 1.49:1–2.39:1 contrast, and the error overlay is skipped on the selected cell.
 
+**UI audit (9 Nov).** Red error digits measure 1.60–2.63:1 on the tinted fills, and even `#991b1b` is 2.90:1 on green, so the shape cue does the real work. The design system's error state: tint, `#991b1b` digit and an underline, also on the selected cell.
+
 **Done when**
 - [ ] Errors show a shape cue (underline or strike plus thicker red outline) on every fill, including the selected cell.
 - [ ] Error color reaches ≥3:1 against every cell fill.
@@ -167,6 +171,8 @@ Owner checked on an iPhone in the preview (9 Nov): pad fits with Safari's toolba
 | High | M | S | Dark-mode completion | none | 5.1, 5.a |
 
 **Problem.** Region lines are grey `#7e7e7e` on light cells in dark mode (3.1:1).
+
+**UI audit (9 Nov).** Measured 1.66:1 on overlap, 2.80–2.83:1 on blue and yellow, 3.14:1 on none. [TRI-091](m5-design-system.md#tri-091) sets region lines to `#2b2420` in both themes (6.3:1 or better).
 
 **Done when**
 - [ ] Region lines reach ≥4.5:1 against adjacent cells in dark mode (near-black lines, or darker fills).

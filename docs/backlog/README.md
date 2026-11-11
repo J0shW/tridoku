@@ -10,6 +10,7 @@ Everything we plan to change in Tridoku, built from the [baseline product review
 | [m2-puzzle-quality.md](m2-puzzle-quality.md) | M2 · Puzzle quality and gameplay |
 | [m3-mobile-accessibility.md](m3-mobile-accessibility.md) | M3 · Mobile and accessibility |
 | [m4-depth-revenue.md](m4-depth-revenue.md) | M4 · Depth and revenue |
+| [m5-design-system.md](m5-design-system.md) | M5 · Design system (from the [UI audit](../reviews/2026-11-09-ui-audit.md)) |
 | [research.md](research.md) | Questions for the owner, playtests and data checks |
 | [coverage.md](coverage.md) | Every review finding mapped to the items that cover it |
 

@@ -91,6 +91,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 **Problem.** Blue means outer edge on Easy and inner triangle on Hard (`app/globals.css:52-63`); the rules teach only Easy's colors.
 
+**11 Nov.** Josh chose tonal boards ([TRI-099](m5-design-system.md#tri-099)). The rule shades will follow the difficulty's colour, so the rule becomes "same shade order on every difficulty". Status stays Done; TRI-099 makes the change.
+
 **Done when**
 - [x] Outer edge, inner triangle and overlap use the same fills on all difficulties.
 - [x] Difficulty is signalled by an accent (tab underline, board outline).
