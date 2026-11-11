@@ -170,6 +170,8 @@ The difficulty tabs also have no selected state for screen readers.
 - [ ] The rules modal, the rule diagrams and `/how-to-play` describe "the lightest, middle and deepest shades" instead of blue, yellow and green, and draw with the current palette.
 - [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
 - [ ] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
+- [ ] Each palette has a `tone` and `on-tone` (design system §2.3). Toggles use them when on, instead of ink: the Pencil button, number keys with a note, and Check if the prototype agrees. *Josh, 11 Nov: ink or white doesn't read clearly as on/off for a toggle.* Prototype first; also decide whether Share and Play take the tone or stay ink.
+- [ ] The palette test also checks `tone` against the off keys (3:1 or better in both themes) and `on-tone` text on `tone` (4.5:1 or better).
 
 **Check it in a preview.** On your phone, play a few moves on each difficulty. You can tell outer, inner and both cells apart on all three boards. Select a cell: one outline goes round it and its 12 neighbours, and digits inside stay clear. Open How to play: the rule cards describe shades and match the board.
 

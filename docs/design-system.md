@@ -98,6 +98,7 @@ The board is drawn from a **palette**. A palette is a small set of values, so a 
 | `line` | Region lines and givens | |
 | `entry` | Player digits | |
 | `note` | Pencil marks | |
+| `tone`, `on-tone` | The "on" colour for toggles, and its text | (see below) |
 
 **The shade order never changes:** none < outer < inner < both, from light to deep, on every difficulty and every theme. That order *is* the rule, so the rules modal and `/how-to-play` describe "the lightest, middle and deepest shades" instead of "blue, yellow, green". This replaces TRI-031's "same colours on every difficulty" with "same shade order on every difficulty". Josh signed off on 11 Nov.
 
@@ -110,6 +111,27 @@ The board is drawn from a **palette**. A palette is a small set of values, so a 
 | Hard | #fdf4f7 | #f8dde7 | #f1bfd2 | #e293b3 | 6.6, 5.0, 4.7 |
 
 Shared inks on daily boards: `line` and givens #2b2420 (weight 700), entries #1e3a5f (weight 500), notes #4a3a30.
+
+**Toggle "on" colour (`tone`) [Decided in principle, Josh 11 Nov; values to tune in TRI-099].** Ink or white doesn't read clearly as "on" for a toggle; colour does. So each palette also supplies a `tone`, a strong shade of its own colour family. It's used for the "on" state of toggles:
+- the Pencil button when Pencil is on;
+- number keys with a note set;
+- Check when it's on (to confirm in the prototype).
+
+Plain actions (Share, Play, Resume) stay ink. Whether they should take the tone too is open: decide when prototyping TRI-099.
+
+Josh's folder colours are too pale for this: against the off keys they reach only 1.1–2.5:1. So the tone is a deeper shade in light mode and the bright folder shade in dark mode:
+
+| Palette | Light mode `tone` / `on-tone` | Light vs off key | Dark mode `tone` / `on-tone` |
+|---|---|---|---|
+| Easy | #2f6f7a / paper (5.5:1) | 4.5:1 | the folder colour #bfdde2 / ink |
+| Medium | #8a5a00 / paper (5.7:1) | 4.7:1 | #ecbd6c / ink |
+| Hard | #a8365f / paper (6.0:1) | 4.9:1 | #e26495 / ink |
+| Halloween (draft) | #b4541c / paper (4.8:1) | 3.9:1 | to tune |
+| Christmas (draft) | #2f6b4f / paper (6.1:1) | 5.0:1 | to tune |
+
+The deep tones fail in dark mode (about 2.2:1 against the dark off keys), which is why dark mode uses the bright folder shade. The palette check (§2.3a) gains two rules:
+- `on-tone` text at least 4.5:1 on `tone`;
+- `tone` at least 3:1 against the off-key colour, in both themes.
 
 **Marks drawn on top** (the same on every palette; on a dark theme board they flip to the palette's light ink):
 
@@ -134,7 +156,8 @@ A theme day is a dated palette plus three folder colours, with an optional page 
 - **Every palette passes a check before it ships:**
   - shades strictly in order, light to deep;
   - givens, entries and notes at least 4.5:1 on all four shades;
-  - folder text at least 4.5:1.
+  - folder text at least 4.5:1;
+  - `tone` at least 3:1 against the off keys in both themes, and `on-tone` text at least 4.5:1 on it.
   - The Halloween and Christmas drafts fail on entry digits (3.9:1 and 4.3:1) and get darker inks when they're built.
 
 ### 2.4 Typography
