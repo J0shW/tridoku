@@ -9,9 +9,12 @@ interface NumberPadProps {
   onClear: () => void
   disabled?: boolean
   activePencilMarks?: number[]
+  /** In Pencil mode the keys look like notes: a small digit in the corner (TRI-090). */
+  mode?: "pen" | "pencil"
 }
 
-export function NumberPad({ onNumberClick, onClear, disabled, activePencilMarks }: NumberPadProps) {
+export function NumberPad({ onNumberClick, onClear, disabled, activePencilMarks, mode = "pen" }: NumberPadProps) {
+  const pencil = mode === "pencil"
   const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
   return (
@@ -26,12 +29,14 @@ export function NumberPad({ onNumberClick, onClear, disabled, activePencilMarks 
             onClick={() => onNumberClick(num)}
             disabled={disabled}
             className={cn(
-              "text-xl font-bold h-14 w-14 rounded-xl transition-all duration-150",
+              "h-14 w-14 rounded-xl transition-all duration-150",
+              pencil ? "items-start justify-start p-2 text-base font-semibold" : "text-xl font-bold",
               "hover:bg-primary hover:text-primary-foreground hover:scale-105",
               "active:scale-95",
               isActive && "bg-primary text-primary-foreground"
             )}
-            aria-label={`Enter ${num}`}
+            aria-label={pencil ? `Note ${num}` : `Enter ${num}`}
+            aria-pressed={pencil ? !!isActive : undefined}
           >
             {num}
           </Button>

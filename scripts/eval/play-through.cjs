@@ -179,6 +179,12 @@ const start = async (page, diff) => {
     await page.evaluate(() => window.scrollTo(0, 0)) // measure what a player sees on arrival
     const box = await page.getByRole("button", { name: "Enter 9" }).boundingBox()
     note("Number pad fully visible at 360×640 (expect yes)", box && box.y + box.height <= 640 ? "yes" : `no (bottom at ${Math.round(box.y + box.height)} px)`)
+    // TRI-090: a tip must not push the pad off screen
+    await page.getByRole("button", { name: "Pencil", exact: true }).tap()
+    await page.waitForTimeout(200)
+    const clear = await page.getByRole("button", { name: "Clear cell" }).boundingBox()
+    note("Number pad fully visible at 360×640 with the pencil tip (expect yes)", clear && clear.y + clear.height <= 640 ? "yes" : `no (bottom at ${Math.round(clear.y + clear.height)} px)`)
+    await page.getByRole("button", { name: "Pen", exact: true }).tap()
     await page.locator(CELL).nth(2).locator("polygon").first().tap({ force: true })
     const anim = await page.evaluate(() => { const el = document.querySelector(".selected-cell"); return el ? getComputedStyle(el).animationName : "none" })
     note("Selection animation with reduced motion (expect none)", anim)
@@ -202,6 +208,27 @@ const start = async (page, diff) => {
     await ctx.close()
   }
 
+  // 8b. iPhone 13 visible area: pad on screen and board unmoved with the pencil hint and the fallback notice (TRI-090)
+  for (const [label, ahead] of [["pencil tip", 0], ["fallback notice", 30]]) {
+    const ctx = await browser.newContext({ viewport: { width: 390, height: 664 }, hasTouch: true, isMobile: true })
+    const page = await ctx.newPage()
+    if (ahead) await page.clock.install({ time: new Date(Date.now() + ahead * 864e5) })
+    await page.goto(BASE)
+    await start(page, "easy")
+    await page.evaluate(() => window.scrollTo(0, 0))
+    const boardBox = () => page.locator(CELL).first().boundingBox()
+    const before = await boardBox()
+    if (!ahead) await page.getByRole("button", { name: "Pencil", exact: true }).tap()
+    await page.waitForTimeout(400)
+    await page.evaluate(() => window.scrollTo(0, 0))
+    const after = await boardBox()
+    note(`Board stays put at 390×664 with the ${label} (expect yes)`, ahead ? "n/a (notice shows on load)" : Math.abs(after.y - before.y) < 1 && Math.abs(after.width - before.width) < 1 ? "yes" : `no (moved ${Math.round(after.y - before.y)} px)`)
+    const clear = await page.getByRole("button", { name: "Clear cell" }).boundingBox()
+    note(`Number pad fully visible at 390×664 with the ${label} (expect yes)`, clear && clear.y + clear.height <= 664 ? "yes" : `no (bottom at ${Math.round(clear.y + clear.height)} px)`)
+    await shot(page, `iphone13-${label.replace(" ", "-")}`)
+    await ctx.close()
+  }
+
   // 9. Missing date: most recent puzzle with a notice (TRI-010)
   {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } })
@@ -209,7 +236,7 @@ const start = async (page, diff) => {
     await page.clock.install({ time: new Date(Date.now() + 30 * 864e5) })
     await page.goto(BASE)
     await start(page, "easy")
-    const notice = await page.locator("p[role=status]").innerText().catch(() => "")
+    const notice = await page.locator("[role=status]", { hasText: "isn't ready" }).first().innerText().catch(() => "")
     note("30 days ahead (no puzzle published): notice shown (expect yes)", notice ? `yes: "${notice}"` : "no")
     await shot(page, "fallback-notice")
     await ctx.close()

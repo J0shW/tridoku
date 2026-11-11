@@ -26,23 +26,23 @@ Choices still open are marked **[Decision]** in the design system.
 Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BACKLOG.md).
 
 <a id="tri-090"></a>
-## TRI-090 · Notices never push the number pad off screen
+## TRI-090 · Messages never move the board or the number pad
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
-| High | H | S | Notes usage, mobile completion | none | UI audit UI-01 |
+| High | H | S | Notes usage, mobile completion | none | UI audit UI-01, UI-07 |
 
-**Problem.** On an iPhone 13 (390×664), the pencil tip, the power-cells tip and the fallback notice each push the pad's bottom row (6–9 and Clear) off screen. The pad's bottom moves from 618 px to 708 px. This undoes TRI-058 the first time a player tries Pencil.
+**Problem.** On an iPhone 13 (390×664), the pencil tip, the power-cells tip and the fallback notice each pushed the pad's bottom row (6–9 and Clear) off screen. The pad's bottom moved from 618 px to 708 px. That undid TRI-058 the first time a player tried Pencil. A first fix shrank the board to make room; Josh rejected it (11 Nov) because the board jumping is worse. The rule now: messages never move the board or the pad (design system §3.6).
 
 **Done when**
-- [ ] Every game-view notice renders in one slot between the difficulty tabs and the board, one at a time (load error > fallback > tip).
-- [ ] The board's size formula subtracts the slot's height (`--slot-h`), so the pad's bottom stays within 640 px at 360×640 and within 664 px at 390×664 with any notice showing.
-- [ ] `play-through.cjs` checks the pad fits with the pencil tip showing.
-- [ ] The pencil tip's dismiss button no longer overlaps its text.
+- [x] Pencil mode shows in the controls: the Pencil button is ink when on, and the number keys show a small corner digit (labelled "Note 3" and so on, with `aria-pressed`).
+- [x] The pencil tip is a one-line bubble above the Pen/Pencil switch. It goes after the first note, a tap, or 6 s, and appears once. Keyboard shortcuts are mentioned only on devices with a fine pointer.
+- [x] The power-cells tip is a banner that slides in over the top of the screen and hides after 12 s.
+- [x] The fallback notice is "From 13 Nov" in the header, in place of the puzzle number; a banner explains it once and comes back when the label is tapped.
+- [x] With any message showing, the pad's bottom stays at 618 px on an iPhone 13, 545 px on a 320×568 SE and within 640 px at 360×640. The board doesn't move.
+- [x] `play-through.cjs` checks the pad fits with the pencil hint (360×640 and 390×664) and the fallback notice (390×664), and that the board doesn't move when Pencil is turned on.
 
-Can ship before the rest of M5; it uses today's styling if TRI-089 isn't done yet.
-
-**Check it in a preview.** On a phone, start a puzzle and tap Pencil: the tip appears above the board and you can still see and tap 6, 7, 8, 9 and Clear.
+**Check it in a preview.** On your phone, start a puzzle and tap Pencil: a short dark bubble appears above the switch, the number keys change to small corner digits, and nothing else moves. Pick an empty cell and tap 3: the bubble goes and the 3 key lights up.
 
 <a id="tri-088"></a>
 ## TRI-088 · Design tokens in globals.css
