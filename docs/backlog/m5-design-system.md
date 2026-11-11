@@ -54,10 +54,10 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** Colours, sizes, radii, shadows, layers and durations are written inline across components. There are 60 hex values, 21 Tailwind palette colours, 11 font sizes and 9 radii. `globals.css` also carries unused tokens.
 
 **Done when**
-- [ ] `app/globals.css` defines the design system's §2 tokens: UI colour roles, board tokens, type scale, radii, elevation, z-index, durations and easing, each with light and dark values and Tailwind names under `@theme inline`.
-- [ ] Today's values map onto them, so **nothing looks different**: screenshots before and after match at 390 and 1440, light and dark.
-- [ ] The unused `--cell-*`, `--region-*`, `--chart-*` and `--sidebar-*` tokens are removed.
-- [ ] `docs/design-system.md` status line says which tokens are live.
+- [x] `app/globals.css` defines the design system's §2 tokens: UI colour roles, difficulty colours, board tokens, type scale, radii, elevation, z-index, durations and easing, each with light and dark values and Tailwind names under `@theme inline`. *The shadcn names point at them. Board tokens are renamed from `--tridoku-*` to `--board-*`.*
+- [x] Today's values map onto them, so **nothing looks different**: screenshots before and after match at 390 and 1440, light and dark. *40 screens (welcome, game, Check on, Pencil, menu, Statistics, Rules, paused, `/how-to-play`, 404) compared pixel by pixel with a fixed clock: all match, apart from anti-aliasing noise that two runs of unchanged code also show.*
+- [x] The unused `--cell-*`, `--region-*`, `--chart-*` and `--sidebar-*` tokens are removed.
+- [x] `docs/design-system.md` status line says which tokens are live.
 
 **Check it in a preview.** Nothing should look different. Compare the game, win modal and stats with production on your phone.
 

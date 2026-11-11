@@ -10,15 +10,15 @@ const STROKE_MARGIN = 0.15 // Extra margin to prevent stroke clipping
 
 // Cell fills by rule membership. The same on every difficulty (TRI-031).
 const CELL_FILLS: Record<Cell["color"], string> = {
-  outer: "var(--tridoku-cell-outer)",
-  inner: "var(--tridoku-cell-inner)",
-  overlap: "var(--tridoku-cell-overlap)",
-  none: "var(--tridoku-cell-none)",
+  outer: "var(--board-cell-outer)",
+  inner: "var(--board-cell-inner)",
+  overlap: "var(--board-cell-overlap)",
+  none: "var(--board-cell-none)",
 }
 
-const SELECTED_FILL = "var(--tridoku-selected-fill)"
-const TOUCHING_FILL = "var(--tridoku-touching-fill)"
-const SELECTED_STROKE = "var(--tridoku-selected-stroke)"
+const SELECTED_FILL = "var(--board-selection-fill)"
+const TOUCHING_FILL = "var(--board-touching)"
+const SELECTED_STROKE = "var(--board-selection-stroke)"
 const ERROR_FILL = "rgba(239, 68, 68, 0.3)"
 
 function getTrianglePoints(row: number, col: number, direction: "up" | "down"): string {
@@ -182,7 +182,7 @@ interface TridokuBoardProps {
   onResume?: () => void
 }
 
-const HIGHLIGHTED_FILL = "var(--tridoku-highlighted-fill)"
+const HIGHLIGHTED_FILL = "var(--board-highlight)"
 
 const VIEWBOX_RATIO = `${SVG_WIDTH + STROKE_MARGIN * 2} / ${SVG_HEIGHT + STROKE_MARGIN * 2}`
 
@@ -351,7 +351,7 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
             y1={edge.y1}
             x2={edge.x2}
             y2={edge.y2}
-            className="stroke-tridoku-region-stroke"
+            className="stroke-board-region-line"
             strokeWidth={0.12}
             strokeLinecap="round"
           />

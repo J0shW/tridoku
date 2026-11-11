@@ -3,134 +3,156 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Design tokens (docs/design-system.md §2).
+
+  TRI-088 introduces the names with today's values, so nothing looks different yet.
+  TRI-091 changes the UI values (ink actions, contrast fixes) and TRI-099 replaces the
+  board colours with tonal palettes. Feature code uses these tokens, never raw colours.
+
+  The shadcn names further down (--background, --primary, …) point at these tokens so
+  components/ui keeps working while it's migrated.
+*/
 :root {
-  --background: oklch(0.97 0.01 70);
-  --foreground: oklch(0.3 0.03 45);
-  --card: oklch(0.99 0.005 60);
-  --card-foreground: oklch(0.3 0.03 45);
-  --popover: oklch(0.99 0.005 60);
-  --popover-foreground: oklch(0.3 0.03 45);
-  --primary: oklch(0.55 0.12 190);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.92 0.02 60);
-  --secondary-foreground: oklch(0.3 0.03 45);
-  --muted: oklch(0.93 0.02 70);
-  --muted-foreground: oklch(0.5 0.03 50);
+  /* UI roles */
+  --bg: oklch(0.97 0.01 70);
+  --surface-raised: oklch(0.99 0.005 60);
+  --surface-sunken: oklch(0.93 0.02 70);
+  --control: oklch(0.92 0.02 60);
+  --fg: oklch(0.3 0.03 45);
+  --fg-muted: oklch(0.5 0.03 50);
+  --border: oklch(0.86 0.02 65);
+  --border-strong: oklch(0.9 0.015 65);
+  --action: oklch(0.55 0.12 190);
+  --on-action: oklch(0.99 0 0);
+  --danger: oklch(0.62 0.18 30);
+  --on-danger: oklch(0.98 0.01 30);
+  --success: #16a34a;
+  --warning: #d97706;
+  --focus: oklch(0.55 0.12 190);
+  --hover: rgb(59 41 33 / 0.06);
+  --press: rgb(59 41 33 / 0.12);
+  --overlay: rgb(0 0 0 / 0.5);
+
+  /* Difficulty colours (Josh's, the same in both themes) */
+  --difficulty-easy: #bfdde2;
+  --difficulty-medium: #ecbd6c;
+  --difficulty-hard: #e26495;
+
+  /* Board. The rule fills are the same on every difficulty for now (TRI-031);
+     TRI-099 replaces them with tonal palettes. Cells are light in both themes. */
+  --board-cell-outer: #bfdde2;
+  --board-cell-inner: #eed496;
+  --board-cell-overlap: #98ac8b;
+  --board-cell-none: #e4e3d3;
+  --board-region-line: #000000;
+  --board-cell-line: #000000;
+  --board-digit-given: #000000;
+  --board-digit-entry: #000000;
+  --board-digit-note: #222222;
+  --board-digit-error: #dc2626;
+  --board-error-tint: rgba(239, 68, 68, 0.3);
+  /* Cells touching the selected cell (TRI-032) */
+  --board-touching: rgba(40, 30, 20, 0.12);
+  --board-selection-fill: rgba(134, 134, 134, 0.07);
+  --board-selection-stroke: rgb(134, 134, 134);
+  --board-highlight: rgb(59, 130, 246);
+
+  /* Layers */
+  --z-corner: 10;
+  --z-sticky: 20;
+  --z-popover: 30;
+  --z-overlay: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+
+  /* Motion */
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* shadcn names, pointing at the tokens above */
+  --background: var(--bg);
+  --foreground: var(--fg);
+  --card: var(--surface-raised);
+  --card-foreground: var(--fg);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--fg);
+  --primary: var(--action);
+  --primary-foreground: var(--on-action);
+  --secondary: var(--control);
+  --secondary-foreground: var(--fg);
+  --muted: var(--surface-sunken);
+  --muted-foreground: var(--fg-muted);
+  /* Green, used only by the shadcn ghost/outline hover today. TRI-091 retires it. */
   --accent: oklch(0.73 0.12 140);
   --accent-foreground: oklch(0.25 0.04 140);
-  --destructive: oklch(0.62 0.18 30);
-  --destructive-foreground: oklch(0.98 0.01 30);
-  --border: oklch(0.86 0.02 65);
-  --input: oklch(0.9 0.015 65);
-  --ring: oklch(0.55 0.12 190);
-  --chart-1: oklch(0.6 0.11 220);
-  --chart-2: oklch(0.7 0.14 50);
-  --chart-3: oklch(0.68 0.15 340);
-  --chart-4: oklch(0.75 0.12 140);
-  --chart-5: oklch(0.65 0.13 30);
+  --destructive: var(--danger);
+  --destructive-foreground: var(--on-danger);
+  --input: var(--border-strong);
+  --ring: var(--focus);
   --radius: 0.625rem;
-  --sidebar: oklch(0.96 0.01 70);
-  --sidebar-foreground: oklch(0.3 0.03 45);
-  --sidebar-primary: oklch(0.55 0.12 190);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.92 0.02 60);
-  --sidebar-accent-foreground: oklch(0.3 0.03 45);
-  --sidebar-border: oklch(0.86 0.02 65);
-  --sidebar-ring: oklch(0.55 0.12 190);
-  
-  /* Game specific colors */
-  --cell-empty: oklch(0.98 0.008 65);
-  --cell-given: oklch(0.91 0.02 60);
-  --cell-selected: oklch(0.82 0.09 200);
-  --cell-error: oklch(0.88 0.11 25);
-  --cell-correct: oklch(0.83 0.11 140);
-  --region-outer: oklch(0.93 0.03 45);
-  --region-inner: oklch(0.9 0.045 200);
-  
-  /* Tridoku cell colors. The same on every difficulty, so a color always means the
-     same rule (TRI-031): blue = outer edge, yellow = inner triangle, green = both. */
-  --tridoku-cell-outer: #bfdde2;
-  --tridoku-cell-inner: #eed496;
-  --tridoku-cell-overlap: #98ac8b;
-  --tridoku-cell-none: #e4e3d3;
-  /* Cells touching the selected cell (TRI-032). Cells are light in both themes. */
-  --tridoku-touching-fill: rgba(40, 30, 20, 0.12);
-
-  --tridoku-region-stroke: #000000;
-  --tridoku-selected-fill: rgba(134, 134, 134, 0.07);
-  --tridoku-selected-stroke: rgb(134, 134, 134);
-  --tridoku-highlighted-fill: rgb(59, 130, 246);
-  --tridoku-highlighted-stroke: rgb(59, 130, 246);
 }
 
 .dark {
-  --background: oklch(0.2 0.02 60);
-  --foreground: oklch(0.92 0.015 65);
-  --card: oklch(0.24 0.02 55);
-  --card-foreground: oklch(0.92 0.015 65);
-  --popover: oklch(0.24 0.02 55);
-  --popover-foreground: oklch(0.92 0.015 65);
-  --primary: oklch(0.68 0.13 200);
-  --primary-foreground: oklch(0.18 0.02 60);
-  --secondary: oklch(0.3 0.02 60);
-  --secondary-foreground: oklch(0.92 0.015 65);
-  --muted: oklch(0.3 0.02 60);
-  --muted-foreground: oklch(0.63 0.025 60);
+  /* UI roles */
+  --bg: oklch(0.2 0.02 60);
+  --surface-raised: oklch(0.24 0.02 55);
+  --surface-sunken: oklch(0.3 0.02 60);
+  --control: oklch(0.3 0.02 60);
+  --fg: oklch(0.92 0.015 65);
+  --fg-muted: oklch(0.63 0.025 60);
+  --border: oklch(0.34 0.02 60);
+  --border-strong: oklch(0.3 0.02 60);
+  --action: oklch(0.68 0.13 200);
+  --on-action: oklch(0.18 0.02 60);
+  --danger: oklch(0.58 0.16 30);
+  --on-danger: oklch(0.93 0.04 30);
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --focus: oklch(0.68 0.13 200);
+  --hover: rgb(236 227 218 / 0.07);
+  --press: rgb(236 227 218 / 0.14);
+  --overlay: rgb(0 0 0 / 0.5);
+
+  /* Board: the fills stay light; only the strokes change */
+  --board-region-line: #7e7e7e;
+  --board-selection-fill: rgba(43, 43, 43, 0.07);
+  --board-selection-stroke: rgb(43, 43, 43);
+  --board-highlight: rgb(96, 165, 250);
+
   --accent: oklch(0.68 0.12 140);
   --accent-foreground: oklch(0.18 0.04 140);
-  --destructive: oklch(0.58 0.16 30);
-  --destructive-foreground: oklch(0.93 0.04 30);
-  --border: oklch(0.34 0.02 60);
-  --input: oklch(0.3 0.02 60);
-  --ring: oklch(0.68 0.13 200);
-  --chart-1: oklch(0.68 0.13 200);
-  --chart-2: oklch(0.72 0.12 50);
-  --chart-3: oklch(0.65 0.14 340);
-  --chart-4: oklch(0.7 0.11 140);
-  --chart-5: oklch(0.62 0.12 30);
-  --sidebar: oklch(0.22 0.02 60);
-  --sidebar-foreground: oklch(0.92 0.015 65);
-  --sidebar-primary: oklch(0.68 0.13 200);
-  --sidebar-primary-foreground: oklch(0.92 0.015 65);
-  --sidebar-accent: oklch(0.3 0.02 60);
-  --sidebar-accent-foreground: oklch(0.92 0.015 65);
-  --sidebar-border: oklch(0.34 0.02 60);
-  --sidebar-ring: oklch(0.68 0.13 200);
-  
-  /* Game specific colors */
-  --cell-empty: oklch(0.27 0.02 60);
-  --cell-given: oklch(0.34 0.03 55);
-  --cell-selected: oklch(0.42 0.09 200);
-  --cell-error: oklch(0.37 0.11 25);
-  --cell-correct: oklch(0.37 0.11 140);
-  --region-outer: oklch(0.3 0.04 45);
-  --region-inner: oklch(0.32 0.05 200);
-  
-  /* Tridoku cell colors (same in both themes; see :root) */
-  --tridoku-cell-outer: #bfdde2;
-  --tridoku-cell-inner: #eed496;
-  --tridoku-cell-overlap: #98ac8b;
-  --tridoku-cell-none: #e4e3d3;
-  /* Cells touching the selected cell (TRI-032). Cells are light in both themes. */
-  --tridoku-touching-fill: rgba(40, 30, 20, 0.12);
-
-  --tridoku-region-stroke: #7e7e7e;
-  --tridoku-selected-fill: rgba(43, 43, 43, 0.07);
-  --tridoku-selected-stroke: rgb(43, 43, 43);
-  --tridoku-highlighted-fill: rgb(96, 165, 250);
-  --tridoku-highlighted-stroke: rgb(96, 165, 250);
 }
 
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
-  --color-cell-empty: var(--cell-empty);
-  --color-cell-given: var(--cell-given);
-  --color-cell-selected: var(--cell-selected);
-  --color-cell-error: var(--cell-error);
-  --color-cell-correct: var(--cell-correct);
-  --color-region-outer: var(--region-outer);
-  --color-region-inner: var(--region-inner);
+
+  /* Token colours: bg-surface-raised, text-fg-muted, border-border-strong, … */
+  --color-bg: var(--bg);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-control: var(--control);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-border-strong: var(--border-strong);
+  --color-action: var(--action);
+  --color-on-action: var(--on-action);
+  --color-danger: var(--danger);
+  --color-on-danger: var(--on-danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-focus: var(--focus);
+  --color-hover: var(--hover);
+  --color-press: var(--press);
+  --color-overlay: var(--overlay);
+  --color-difficulty-easy: var(--difficulty-easy);
+  --color-difficulty-medium: var(--difficulty-medium);
+  --color-difficulty-hard: var(--difficulty-hard);
+  --color-board-region-line: var(--board-region-line);
+
+  /* shadcn colour names */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -150,25 +172,43 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+
+  /* Type scale (design system §2.4): text-caption … text-display */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-label-sm: 0.8125rem;
+  --text-label-sm--line-height: 1.125rem;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.25rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-title-sm: 1.125rem;
+  --text-title-sm--line-height: 1.5rem;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.75rem;
+  --text-heading: 1.5rem;
+  --text-heading--line-height: 2rem;
+  --text-display-sm: 1.875rem;
+  --text-display-sm--line-height: 2.25rem;
+  --text-display: 2.75rem;
+  --text-display--line-height: 3rem;
+
+  /* Radius: the shadcn steps plus the named ones (rounded-control, -card, -dialog) */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --radius-dialog: 1.25rem;
 
-  --color-tridoku-region-stroke: var(--tridoku-region-stroke);
+  /* Elevation */
+  --shadow-thumb: 0 1px 2px rgb(43 36 32 / 0.14);
+  --shadow-menu: 0 12px 28px -8px rgb(29 20 13 / 0.3);
+  --shadow-dialog: 0 24px 48px -12px rgb(29 20 13 / 0.35);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 @layer base {
