@@ -164,22 +164,20 @@ The difficulty tabs also have no selected state for screen readers.
 |---|---|---|---|---|---|
 | High | H | M | Rule comprehension, consistency | [TRI-088](#tri-088) | UI-02, UI-17, UI-34; owner decision 11 Nov |
 
+**Won't do (19 Nov).** Built in PR #63 but closed unmerged when Josh switched to the Mountain direction. Its tonal palettes were in the folder colours. [TRI-102](#tri-102) takes over the palette system, the contrast test and the rule copy, with the Mountain's dual-tone colours. [TRI-103](#tri-103) drops the touching-cells outline, and [TRI-101](#tri-101) replaces the tone toggles with pale tints.
+
 **Problem.** The board's rule colours (blue, yellow, green) clash with the difficulty folders: Easy's blue *is* the outer-edge blue. Josh chose tonal boards: each difficulty's board is a family of its own colour, and the rules read as shades.
 
 **Done when** (design system §2.3)
-- [x] The board draws every colour from a palette (`lib/palettes.ts`): four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`. *The game sets the current difficulty's palette on `<html>`, so dialogs use it too; Easy is the default.*
-- [x] Easy, Medium and Hard each have the palette in the design system. The shade order (none < outer < inner < both) is the same on every board.
-- [x] Touching cells get one continuous outline around the selection and its 12 neighbours, replacing the dark fill. No board state changes a cell's fill except the error tint and the ink highlight (which is far darker than any shade).
-- [x] A unit test checks every palette: shades in order; givens, entries and notes at least 4.5:1 on all four shades. *`tests/palettes.test.ts`, 21 checks.*
-- [x] The rules modal, the rule diagrams and `/how-to-play` describe the shades instead of blue, yellow and green, and draw with the current palette.
-- [x] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
-- [x] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
-- [x] Each palette has a `tone` and `on-tone` (design system §2.3). Toggles use them when on, instead of ink: the Pencil button, number keys with a note, and Check. *Josh chose tone for all three on the canvas (11 Nov); Check to be reassessed if it blends in.* *Josh, 11 Nov: ink or white doesn't read clearly as on/off for a toggle.* Prototype first; also decide whether Share and Play take the tone or stay ink.
-- [x] The palette test also checks `tone` against the off keys (3:1 or better in both themes) and `on-tone` text on `tone` (4.5:1 or better).
-
-**Known, not fixed here.** On Hard, the red error tint sits on a pink board, so mistakes stand out less than on Easy and Medium. The shape cue in [TRI-065](m3-mobile-accessibility.md#tri-065) (an underline under wrong digits) is the fix; it's worth doing next. In the small rule diagrams, the lightest shade (outer sides) is faint against plain cells; deepen the outer step if Josh finds it hard to see.
-
-**Mountain (19 Nov).** The folder-colour palettes are replaced by [TRI-102](#tri-102)'s dual-tone run boards, the touching-cells outline is removed by [TRI-103](#tri-103), and the solid tone toggles become [TRI-101](#tri-101)'s pale tints. The palette system and its test stay.
+- [ ] The board draws every colour from a palette (`lib/palettes.ts`): four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`.
+- [ ] Easy, Medium and Hard each have the palette in the design system. The shade order (none < outer < inner < both) is the same on every board.
+- [ ] Touching cells get one continuous outline around the selection and its 12 neighbours (`--board-touching`), replacing the dark fill. No board state changes a cell's fill except the error tint.
+- [ ] A unit test checks every palette: shades in order; givens, entries and notes at least 4.5:1 on all four shades.
+- [ ] The rules modal, the rule diagrams and `/how-to-play` describe "the lightest, middle and deepest shades" instead of blue, yellow and green, and draw with the current palette.
+- [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same shade order on every difficulty". Josh signed off on 11 Nov.
+- [ ] Player entries are navy `#1e3a5f` (6.2, 5.9 and 5.0:1 minimum). Covers [TRI-061](m3-mobile-accessibility.md#tri-061).
+- [ ] Each palette has a `tone` and `on-tone` (design system §2.3). Toggles use them when on, instead of ink: the Pencil button, number keys with a note, and Check if the prototype agrees. *Josh, 11 Nov: ink or white doesn't read clearly as on/off for a toggle.* Prototype first; also decide whether Share and Play take the tone or stay ink.
+- [ ] The palette test also checks `tone` against the off keys (3:1 or better in both themes) and `on-tone` text on `tone` (4.5:1 or better).
 
 **Check it in a preview.** On your phone, play a few moves on each difficulty. You can tell outer, inner and both cells apart on all three boards. Select a cell: one outline goes round it and its 12 neighbours, and digits inside stay clear. Open How to play: the rule cards describe shades and match the board.
 
@@ -188,7 +186,7 @@ The difficulty tabs also have no selected state for screen readers.
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
-| High | H | M | Shares, return visits, consistency | [TRI-089](#tri-089), [TRI-099](#tri-099) | Owner decision 19 Nov; designer review 18 Nov |
+| High | H | M | Shares, return visits, consistency | [TRI-089](#tri-089), [TRI-102](#tri-102) | Owner decision 19 Nov; designer review 18 Nov |
 
 **Problem.** Josh changed direction on 19 Nov, from difficulty folders to **Tridoku Mountain** ([canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL)). The difficulties become ski runs: ● Green circle (Easy), ■ Blue square (Medium), ◆ Black diamond (Hard). The board is the peak. A designer reviewed both canvases on 18 Nov:
 - the folders' big colour panels pulled the eye before the board did;
@@ -201,7 +199,7 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [ ] Run colours: green `#1d7a43`, blue `#1d5bb8`, black `#15171c`. They're used only for signs, toggles and the finish screens, never as big panels.
 - [ ] Each run has a name for the day (for example Marmot Meadow, Spruce Glade, The Chute), shown beside the input switch. Names come from a fixed list, picked by the puzzle's date with `lib/dates.ts`, so everyone sees the same name.
 - [ ] The scenery behind the board: sky, two flat ranges of hills and small pines. The pines are in the hills' blue-grey (no more than 1.6:1 against the sky), so they never compete with the board. Nothing is drawn under the board.
-- [ ] Toggles that are on (Pencil, number keys with a note, Check) use a pale tint of the run colour with a border and text in the run colour. The text is 4.5:1 or better in both themes. This replaces TRI-099's solid tone toggles.
+- [ ] Toggles that are on (Pencil, number keys with a note, Check) use a pale tint of the run colour with a border and text in the run colour. The text is 4.5:1 or better in both themes. These replace the ink toggles on main.
 - [ ] The welcome screen is a trailhead: a signpost with three arrow signs, one per run. Each sign shows the run's name, its difficulty with a one-line description, and a status: your time, "On it" or "Fresh". A button below continues your current run.
 - [ ] Dark mode is night skiing: navy sky, stars and a moon. The board stays light, like floodlit snow. The Black diamond turns light at night so it stays visible.
 - [ ] Barlow Condensed for signs and headings and Barlow for body text, loaded with `next/font`.
@@ -216,12 +214,13 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
-| High | H | S | Rule comprehension | [TRI-099](#tri-099) | Owner decision 17 Nov |
+| High | H | M | Rule comprehension, consistency | [TRI-088](#tri-088) | Owner decision 17 Nov; UI-02, UI-17, UI-34 |
 
-**Problem.** On the mountain, each run's board has two hues. The outer sides are a tint of the run's colour, the inner triangle is a warm "sunlit" hue, and cells in both are the deepest shade. It's built on TRI-099's palette system and test.
+**Problem.** On the mountain, each run's board has two hues. The outer sides are a tint of the run's colour, the inner triangle is a warm "sunlit" hue, and cells in both are the deepest shade. It takes over the palette system from [TRI-099](#tri-099), which was closed unmerged; PR #63 is a working reference for the code.
 
 **Done when**
-- [ ] `lib/palettes.ts` has these palettes (outer, inner, both, neither):
+- [ ] The board draws every colour from a palette in `lib/palettes.ts`: four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`. The game applies the current run's palette, so dialogs use it too.
+- [ ] The palettes are (outer, inner, both, neither):
 
   | Run | Outer | Inner | Both | Neither |
   |---|---|---|---|---|
@@ -230,10 +229,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
   | Black diamond | `#dde1e7` | `#f3d2d4` | `#bfaab6` | `#fcfcfd` |
   | Night (all runs) | `#c9dbea` | `#ecd6bc` | `#a9b2cf` | `#e9eef4` |
 
-- [ ] Region lines and givens are slate `#1c2733`; your digits stay navy `#1e3a5f`. The TRI-099 palette test passes for every palette (the lowest is 5.3:1).
+- [ ] Region lines and givens are slate `#1c2733`. Your digits are navy `#1e3a5f`, which covers [TRI-061](m3-mobile-accessibility.md#tri-061).
+- [ ] A unit test checks every palette: none, outer and inner lighter than both, and givens, entries and notes at least 4.5:1 on all four shades (the lowest is 5.3:1).
+- [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same layout of shades on every run".
 - [ ] The rules modal, the rule diagrams and `/how-to-play` describe the two hues ("outer sides in the run's colour, the inner triangle warm, cells in both deepest") and draw with the current palette.
 
-**Known, not fixed here.** The outer sides on Medium and Hard are close to the sky's blue-grey, so the board's edge is soft against the scenery. TRI-104's shadow helps. Stronger outer colours were tried on the canvas; Josh chose to leave them as they are (19 Nov). Revisit if players mention it.
+**Known, not fixed here.** The outer sides on Medium and Hard are close to the sky's blue-grey, so the board's edge is soft against the scenery. TRI-104's shadow helps a little. Stronger outer colours were tried on the canvas; Josh chose to leave them as they are (19 Nov). Revisit if players mention it.
 
 **Check it in a preview.** Play a few moves on each run. Outer, inner and both cells are easy to tell apart, and every digit is clear.
 
@@ -244,12 +245,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 |---|---|---|---|---|---|
 | Medium | M | S | Familiarity | none | Owner decision 19 Nov |
 
-**Problem.** Josh wants his original selection back: a grey dashed border that marches round the cell. It was replaced on 11 Nov by a solid ink outline (TRI-091, for TRI-066). He also wants the outline round the touching cells removed: "players are smart". This undoes part of [TRI-032](m1-first-impression.md#tri-032) and TRI-099.
+**Problem.** Josh wants his original selection back: a grey dashed border that marches round the cell. It was replaced on 11 Nov by a solid ink outline (TRI-091, for TRI-066). He also wants the outline round the touching cells removed: "players are smart". This undoes part of [TRI-032](m1-first-impression.md#tri-032).
 
 **Done when**
 - [ ] The selected cell has the original border: stroke `rgb(134 134 134)`, width 0.15, dashes 0.4 / 0.2, moving one loop a second (the values before commit `e0f2755`).
 - [ ] With reduced motion on, the dashes stay still ([TRI-066](m3-mobile-accessibility.md#tri-066)).
-- [ ] Touching cells get no outline and no fill. The halo token and `touchingOutline()` are removed.
+- [ ] Touching cells get no outline and no fill. Today's touching-cells shading is removed.
 - [ ] The rules copy doesn't promise that touching cells are highlighted.
 
 **Known, not fixed here.** The grey dashes are about 1.9:1 against the deepest shade, under WCAG's 3:1 for UI parts. Josh chose the original look on 19 Nov. If it's hard to see in testing, darken the dashes to slate and keep the movement.
@@ -368,7 +369,7 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [ ] A theme day is a dated entry: board palette, run colours, scenery extras and a header line ("Halloween · No. 304"). It's chosen with `lib/dates.ts` for the puzzle's date.
 - [ ] Claude proposes a theme calendar at the start of this item. Josh picks the days.
 - [ ] Halloween and Christmas ship first. Their entry inks are darkened to pass the palette check (the drafts are 3.9:1 and 4.3:1).
-- [ ] Every theme passes the TRI-099 palette test.
+- [ ] Every theme passes the TRI-102 palette test.
 - [ ] Each theme day is checked in light and dark at 390 px, with screenshots in the PR.
 - [ ] A `theme_day` property on `puzzle_started` and `result_shared`, through `trackEvent`, and listed in `docs/metrics.md`.
 - [ ] The puzzle, timer and share text are unchanged.

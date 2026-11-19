@@ -207,7 +207,7 @@ Every numbered finding and recommendation in the [baseline review](../reviews/20
 | Owner idea (8 Nov) | How does the inventor's book grade difficulty? | [R-13](research.md) |
 | Owner decision (11 Nov) | Difficulty folders, tonal boards always, ink buttons, theme days | [TRI-092](m5-design-system.md#tri-092), [TRI-099](m5-design-system.md#tri-099), [TRI-091](m5-design-system.md#tri-091), [TRI-100](m5-design-system.md#tri-100) |
 | Designer review (18 Nov) | Board must be the boldest thing; folder panels, solid signs and toggles, and dark trees pull the eye; scenery should dim while playing; Christmas mountain | [TRI-101](m5-design-system.md#tri-101), [TRI-104](m5-design-system.md#tri-104), [TRI-100](m5-design-system.md#tri-100) |
-| Owner decision (19 Nov) | Mountain direction replaces folders; dual-tone boards; dashed selection, no neighbour outline; lift ticket; ride up and ski down | [TRI-101](m5-design-system.md#tri-101) to [TRI-108](m5-design-system.md#tri-108) |
+| Owner decision (19 Nov) | Mountain direction replaces folders and tonal palettes (TRI-092, TRI-099 won't do); dual-tone boards; dashed selection, no neighbour outline; lift ticket; ride up and ski down | [TRI-101](m5-design-system.md#tri-101) to [TRI-108](m5-design-system.md#tri-108) |
 | Found in M3 prototyping (9 Nov) | Timer and pause are separate; eye icon unclear for error checking; Reset has equal weight | [TRI-087](m3-mobile-accessibility.md#tri-087) |
 
 ## UI audit (9 Nov)
@@ -217,7 +217,7 @@ Findings from the [UI audit](../reviews/2026-11-09-ui-audit.md). New evidence fo
 | Ref | Finding | Covered by |
 |---|---|---|
 | UI-01 | Tips and notices push the number pad off screen | [TRI-090](m5-design-system.md#tri-090) |
-| UI-02 | Difficulty colour means three things; Easy borrows the outer-rule blue | [TRI-092](m5-design-system.md#tri-092), [TRI-099](m5-design-system.md#tri-099) |
+| UI-02 | Difficulty colour means three things; Easy borrows the outer-rule blue | [TRI-101](m5-design-system.md#tri-101), [TRI-102](m5-design-system.md#tri-102) |
 | UI-03 | Seven button styles | [TRI-089](m5-design-system.md#tri-089), [TRI-093](m5-design-system.md#tri-093) |
 | UI-04 | Ghost and outline hovers are green | [TRI-091](m5-design-system.md#tri-091) |
 | UI-05 | Contrast failures outside the board | [TRI-091](m5-design-system.md#tri-091) |
@@ -232,7 +232,7 @@ Findings from the [UI audit](../reviews/2026-11-09-ui-audit.md). New evidence fo
 | UI-14 | 16 controls under 44 px | [TRI-093](m5-design-system.md#tri-093), [TRI-059](m3-mobile-accessibility.md#tri-059) |
 | UI-15 | Three tab styles; difficulty tabs lack a selected state | [TRI-089](m5-design-system.md#tri-089), [TRI-092](m5-design-system.md#tri-092) |
 | UI-16 | Copy drift: case, names, rule count | [TRI-098](m5-design-system.md#tri-098) |
-| UI-17 | Off-palette opaque blue highlight | [TRI-091](m5-design-system.md#tri-091), [TRI-099](m5-design-system.md#tri-099) |
+| UI-17 | Off-palette opaque blue highlight | [TRI-091](m5-design-system.md#tri-091), [TRI-102](m5-design-system.md#tri-102) |
 | UI-18 | Check on and Undo note look the same | [TRI-093](m5-design-system.md#tri-093) |
 | UI-19 | Pad looks disabled on first view | [TRI-093](m5-design-system.md#tri-093) |
 | UI-20 | Clear key outline and red hover | [TRI-093](m5-design-system.md#tri-093) |
@@ -249,7 +249,7 @@ Findings from the [UI audit](../reviews/2026-11-09-ui-audit.md). New evidence fo
 | UI-31 | Ko-fi offset and white; footer buttons | [TRI-094](m5-design-system.md#tri-094) |
 | UI-32 | Statistics modal layout and case | [TRI-094](m5-design-system.md#tri-094) |
 | UI-33 | Win modal crowded | [TRI-094](m5-design-system.md#tri-094) |
-| UI-34 | Dark board lines and selection | [TRI-091](m5-design-system.md#tri-091), [TRI-099](m5-design-system.md#tri-099), [TRI-068](m3-mobile-accessibility.md#tri-068) |
+| UI-34 | Dark board lines and selection | [TRI-091](m5-design-system.md#tri-091), [TRI-102](m5-design-system.md#tri-102), [TRI-103](m5-design-system.md#tri-103), [TRI-068](m3-mobile-accessibility.md#tri-068) |
 | UI-35 | Footer padding; safe areas | [TRI-093](m5-design-system.md#tri-093), [TRI-070](m4-depth-revenue.md#tri-070) |
 | UI-36 | Three focus styles | [TRI-089](m5-design-system.md#tri-089) |
 | UI-37 | Rules modal dots and credit | [TRI-094](m5-design-system.md#tri-094) |
