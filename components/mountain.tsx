@@ -92,6 +92,8 @@ export function MountainScenery({ className }: { className?: string }) {
       <polygon points="215,300 215,170 262,120 300,160 345,112 400,168 400,300" style={{ fill: "var(--scene-far)" }} />
       <polygon points="-10,300 -10,236 30,214 70,240 112,200 150,236 150,300" style={{ fill: "var(--scene-near)" }} />
       <polygon points="240,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
+      {/* A low ridge across the bottom, so no gap shows below the board */}
+      <polygon points="-10,300 -10,262 195,252 400,262 400,300" style={{ fill: "var(--scene-near)" }} />
       {TREES.map((pts) => (
         <polygon key={pts} points={pts} style={{ fill: "var(--scene-tree)" }} />
       ))}

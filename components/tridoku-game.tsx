@@ -354,8 +354,12 @@ export function TridokuGame() {
         ) : (
           /* Game view - active puzzle */
           <>
+            {/* The run picker and the board share one backdrop on Mountain: the scenery starts
+                behind the signs and ends a little below the board (TRI-101) */}
+            <div className={`relative flex flex-col gap-2 ${mountain ? "pb-3" : ""}`}>
+            {mountain && <MountainScenery className="absolute -top-4 bottom-0 -left-4 -right-4 h-[calc(100%+1rem)] w-[calc(100%+2rem)]" />}
             {/* Difficulty selector: trail signs on the Mountain theme (TRI-101) */}
-            <div className="flex justify-center mb-3">
+            <div className="relative flex justify-center mb-3">
               {mountain ? (
                 <RunSigns
                   current={difficulty!}
@@ -375,14 +379,12 @@ export function TridokuGame() {
               )}
             </div>
             
-            {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
+            {loadError && !isGenerating && <div className="relative"><LoadErrorNotice onRetry={retryLoad} /></div>}
 
             {/* Game board, with the timer and controls in the empty corners beside the
                 triangle (TRI-087). On short screens the board shrinks so the number pad
                 stays on screen (TRI-058). */}
             <div className="relative flex justify-center">
-              {/* The mountain behind the board, edge to edge (TRI-101) */}
-              {mountain && <MountainScenery className="absolute inset-y-0 -left-4 -right-4 h-full w-[calc(100%+2rem)]" />}
               <div
                 className="@container relative w-full max-w-md"
                 style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
@@ -423,6 +425,7 @@ export function TridokuGame() {
                   flash={undoFeedback}
                 />
               </div>
+            </div>
             </div>
 
             {/* View mode indicator, with a way back to the result card (TRI-035) */}

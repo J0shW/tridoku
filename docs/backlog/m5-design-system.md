@@ -206,7 +206,7 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [x] Dark mode is night skiing: navy sky, stars and a moon. The board stays light, like floodlit snow. The Black diamond turns light at night so it stays visible. *No moon: it collided with the ⋯ button.*
 - [x] Barlow Condensed for signs and headings and Barlow for body text, loaded with `next/font`.
 - [ ] The PR has blurred (squint-test) screenshots of each run at 390 px, light and dark, and the board stands out first in every one.
-- [x] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks). *Mountain's pad sits 8 px lower than Classic's (taller signs and the run-name row): 600 of 640, 626 of 664, 553 of 568 on a 320 px SE.*
+- [x] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks). *Mountain's pad sits 20 px lower than Classic's (taller signs, the run-name row, and scenery that runs a little below the board, which Josh asked for on 20 Nov): 612 of 640, 638 of 664, 565 of 568 on a 320 px SE.*
 - [x] **[Decided 19 Nov]** Players choose Classic or Mountain with a theme picker. Everything above applies to the Mountain theme; Classic keeps today's screens. *"Look: Classic / Mountain" in the ⋯ menu, remembered on the device, with `board_theme_changed`. Classic is the default. A script in `<head>` sets the theme before the first paint.*
 - [x] The picker shows on the live site (after the trailhead PR). *Classic stays the default for now; Josh to decide whether new players get Mountain.*
 

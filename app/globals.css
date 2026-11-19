@@ -42,6 +42,8 @@
   --toggle-on: var(--action);
   --toggle-on-fg: var(--on-action);
   --toggle-on-border: var(--action);
+  /* The selected side of a two-way switch (Pen / Pencil) */
+  --segment-on: var(--background);
 
   /* Difficulty colours (Josh's, the same in both themes) */
   --difficulty-easy: #bfdde2;
@@ -162,6 +164,7 @@
   --run-easy: #1d7a43;
   --run-medium: #1d5bb8;
   --run-hard: #15171c;
+  --segment-on: #ffffff;
   /* Text on a solid run colour (trailhead signs): white by day, 5.4:1 or better */
   --on-run: #ffffff;
 }
@@ -189,6 +192,8 @@
   --run-easy: #8fd3a8;
   --run-medium: #8fb4ef;
   --run-hard: #e6edf5;
+  /* Lighter than the switch around it (the navy page colour disappeared, TRI-101 review) */
+  --segment-on: #2a4163;
   --on-run: #0f1a2a;
 }
 /* Toggles that are on: a pale tint of the run with its colour as border and text (4.6:1 or better) */
@@ -230,6 +235,7 @@
   --color-toggle-on: var(--toggle-on);
   --color-toggle-on-fg: var(--toggle-on-fg);
   --color-toggle-on-border: var(--toggle-on-border);
+  --color-segment-on: var(--segment-on);
   --font-signage: var(--font-barlow-condensed), 'Geist', system-ui, sans-serif;
   --color-difficulty-easy: var(--difficulty-easy);
   --color-difficulty-medium: var(--difficulty-medium);
