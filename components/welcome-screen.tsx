@@ -73,10 +73,10 @@ export function WelcomeScreen({
         </div>
 
         {mountain ? (
-          // Same message as Classic (TRI-026): what Tridoku is, first
+          // What it is, first (TRI-026): the name, then one line (Josh, 20 Nov)
           <div className="space-y-1">
-            <h2 className="font-signage text-4xl font-extrabold uppercase tracking-[0.03em] text-foreground text-balance">Sudoku on a triangle</h2>
-            <p className="text-muted-foreground text-pretty">Tridoku: 81 cells, 4 rules and three new runs every day.</p>
+            <h2 className="font-signage text-5xl font-extrabold uppercase tracking-[0.04em] text-foreground">Tridoku</h2>
+            <p className="text-lg text-muted-foreground text-pretty">It&apos;s Sudoku on a triangle. 3 challenges per day.</p>
           </div>
         ) : (
         <div className="space-y-2">

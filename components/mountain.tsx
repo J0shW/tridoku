@@ -27,10 +27,11 @@ export function RunShape({ run, className }: { run: Difficulty; className?: stri
 
 const LABEL: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" }
 
-/** The ski-run name for each difficulty, shown with its shape. */
+/** The ski-run colour for each difficulty, shown with its shape. Players know the ski
+    grades, so the short names (Josh, 20 Nov). */
 export const RUN_CLASS: Record<Difficulty, string> = {
-  easy: "Green circle",
-  medium: "Blue square",
+  easy: "Green",
+  medium: "Blue",
   hard: "Black diamond",
 }
 
