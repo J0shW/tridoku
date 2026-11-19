@@ -35,7 +35,7 @@ const DIFFICULTIES: {
   body: string
 }[] = [
   { value: "easy", label: "Easy", description: "Great first puzzle", card: "border-[#98ac8b] bg-[#bfdde2]", title: "text-[#1f4028]", body: "text-[#24442f]" },
-  { value: "medium", label: "Medium", description: "Needs one trick", card: "border-[#e2885b] bg-[#ecbd6c]", title: "text-[#4d2f18]", body: "text-[#5a3a1c]" },
+  { value: "medium", label: "Medium", description: "A step up", card: "border-[#e2885b] bg-[#ecbd6c]", title: "text-[#4d2f18]", body: "text-[#5a3a1c]" },
   { value: "hard", label: "Hard", description: "For Sudoku regulars", card: "border-[#b47098] bg-[#e26495]", title: "text-[#2e0f1f]", body: "text-[#3d1529]" },
 ]
 

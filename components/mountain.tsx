@@ -110,7 +110,7 @@ export function MountainScenery({ className }: { className?: string }) {
 
 const DESCRIPTION: Record<Difficulty, string> = {
   easy: "Great first puzzle",
-  medium: "Needs one trick",
+  medium: "A step up",
   hard: "For Sudoku regulars",
 }
 

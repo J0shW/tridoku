@@ -49,7 +49,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Problem.** "40–50 starting numbers" means nothing to players, and the stated ranges are wrong (Hard says 24–30; actual 27–36).
 
 **Done when**
-- [x] Cards read e.g. "Easy · great first puzzle", "Medium · needs one trick", "Hard · for Sudoku regulars".
+- [x] Cards read e.g. "Easy · great first puzzle", "Medium · needs one trick", "Hard · for Sudoku regulars". *Medium changed to "A step up" (Josh, 20 Nov).*
 - [ ] Median solve times are added once TRI-020 has two weeks of data.
 - [x] Given counts are removed from the UI.
 
