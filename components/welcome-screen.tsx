@@ -11,6 +11,9 @@ import { Spinner } from "@/components/ui/spinner"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { formatTime, loadPuzzle, type Difficulty } from "@/lib/tridoku"
 import type { GameStats, PuzzleInProgress } from "@/hooks/use-tridoku"
+import { MountainScenery, TrailheadSigns } from "@/components/mountain"
+import { runName } from "@/lib/run-names"
+import { todayKey } from "@/lib/dates"
 
 interface WelcomeScreenProps {
   stats: GameStats
@@ -20,6 +23,8 @@ interface WelcomeScreenProps {
   errorNotice: React.ReactNode
   onPlay: (difficulty: Difficulty) => void
   onOpenRules: () => void
+  /** The Mountain theme's trailhead (TRI-101) instead of the Classic cards */
+  mountain?: boolean
 }
 
 // Text colors chosen for at least 4.5:1 contrast on each card (TRI-067).
@@ -44,7 +49,12 @@ export function WelcomeScreen({
   errorNotice,
   onPlay,
   onOpenRules,
+  mountain = false,
 }: WelcomeScreenProps) {
+  const names = useMemo(() => {
+    const day = todayKey()
+    return { easy: runName("easy", day), medium: runName("medium", day), hard: runName("hard", day) }
+  }, [])
   const previewCells = useMemo(() => (previewPuzzle ? loadPuzzle(previewPuzzle) : null), [previewPuzzle])
 
   // First visit: nothing played on this browser and nothing in progress.
@@ -56,18 +66,29 @@ export function WelcomeScreen({
     <div className="flex-1 flex items-center justify-center">
       <div className="max-w-md w-full space-y-6 text-center">
         {/* Today's board, as a picture of what the game is (TRI-026) */}
-        <div className="mx-auto w-full max-w-[15rem] pointer-events-none select-none" aria-hidden="true">
-          {previewCells ? (
-            <TridokuBoard cells={previewCells} selectedCellId={null} onCellClick={() => {}} isPaused={false} />
-          ) : (
-            <div className="aspect-[18/16] w-full" />
-          )}
+        <div className="relative pointer-events-none select-none" aria-hidden="true">
+          {/* On Mountain, today's board is the peak at the trailhead (TRI-101) */}
+          {mountain && <MountainScenery className="absolute inset-y-0 -left-4 -right-4 h-full w-[calc(100%+2rem)]" />}
+          <div className="relative mx-auto w-full max-w-[15rem]">
+            {previewCells ? (
+              <TridokuBoard cells={previewCells} selectedCellId={null} onCellClick={() => {}} isPaused={false} />
+            ) : (
+              <div className="aspect-[18/16] w-full" />
+            )}
+          </div>
         </div>
 
+        {mountain ? (
+          <div className="space-y-1">
+            <h2 className="font-signage text-4xl font-extrabold uppercase tracking-[0.03em] text-foreground">Pick your run</h2>
+            <p className="text-muted-foreground text-pretty">Sudoku on a triangle. Three new runs down the same mountain, every day.</p>
+          </div>
+        ) : (
         <div className="space-y-2">
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-balance">Sudoku on a triangle</h2>
           <p className="text-muted-foreground text-pretty">81 cells, 4 rules, a new puzzle every day.</p>
         </div>
+        )}
 
         {errorNotice}
 
@@ -81,11 +102,11 @@ export function WelcomeScreen({
               <HelpCircle className="h-4 w-4" />
               How to play
             </Button>
-            <p className="pt-2 text-sm text-muted-foreground">Already know the rules? Pick a difficulty:</p>
+            <p className="pt-2 text-sm text-muted-foreground">Already know the rules? Pick a {mountain ? "run" : "difficulty"}:</p>
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-muted-foreground">Today&apos;s puzzles</p>
+            <p className="text-sm font-medium text-muted-foreground">{mountain ? "Today\u2019s runs" : "Today\u2019s puzzles"}</p>
             <Button variant="ghost" size="sm" className="gap-1.5" onClick={onOpenRules}>
               <HelpCircle className="h-4 w-4" />
               How to play
@@ -93,6 +114,9 @@ export function WelcomeScreen({
           </div>
         )}
 
+        {mountain ? (
+          <TrailheadSigns stats={stats} progressToday={progressToday} names={names} onPlay={onPlay} disabled={isGenerating} />
+        ) : (
         <div className={isFirstVisit ? "grid grid-cols-3 gap-2" : "space-y-3"}>
           {DIFFICULTIES.map((d) => {
             const done = stats[d.value].completedToday
@@ -121,6 +145,7 @@ export function WelcomeScreen({
             )
           })}
         </div>
+        )}
 
         {isGenerating && (
           <div className="flex items-center justify-center gap-3">

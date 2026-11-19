@@ -1,15 +1,13 @@
 // Which board theme to show (TRI-102, TRI-101): Classic (today's look) or Mountain.
-// Players pick it in the game's More menu. Classic is the default for everyone.
-// The picker shows on previews and in development only until the Mountain welcome screen
-// lands (the second half of TRI-101). On previews `?theme=mountain` also switches it.
+// Players pick it in the game's More menu, and it's remembered on the device. Classic is the
+// default. `?theme=mountain` (or `classic`) in a link also switches it.
 
-import { IS_PRODUCTION } from './app-env.ts'
 import { BOARD_THEMES, type BoardTheme } from './palettes.ts'
 
 export const BOARD_THEME_KEY = 'tridoku-board-theme'
 
-/** Whether players can see and change the theme. */
-export const THEME_PICKER_ENABLED = !IS_PRODUCTION
+/** Whether players can see and change the theme. On everywhere since the trailhead (TRI-101). */
+export const THEME_PICKER_ENABLED = true
 
 const isTheme = (v: string | null): v is BoardTheme => v !== null && (BOARD_THEMES as string[]).includes(v)
 
@@ -42,7 +40,7 @@ export function applyLook(theme: BoardTheme, run: string, root: HTMLElement = do
 
 /**
  * Runs before the app paints (app/layout.tsx), so a Mountain player doesn't see a flash
- * of Classic. Only rendered while the picker is enabled.
+ * of Classic.
  */
 export const BOARD_THEME_SCRIPT = `(function(){try{
   var q = new URLSearchParams(location.search).get('theme');

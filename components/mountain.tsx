@@ -98,3 +98,65 @@ export function MountainScenery({ className }: { className?: string }) {
     </svg>
   )
 }
+
+const DESCRIPTION: Record<Difficulty, string> = {
+  easy: "Great first puzzle",
+  medium: "Needs one trick",
+  hard: "For Sudoku regulars",
+}
+
+interface TrailheadSignsProps {
+  stats: Record<Difficulty, DifficultyStats>
+  progressToday: Partial<Record<Difficulty, PuzzleInProgress>>
+  /** Today's run names, by difficulty */
+  names: Record<Difficulty, string>
+  onPlay: (difficulty: Difficulty) => void
+  disabled?: boolean
+}
+
+/**
+ * The welcome screen's signpost (TRI-101): three arrow signs on a wooden post, one per run,
+ * with the run's name, difficulty and today's status. Solid run colours are fine here:
+ * there's no board in play yet.
+ */
+export function TrailheadSigns({ stats, progressToday, names, onPlay, disabled }: TrailheadSignsProps) {
+  return (
+    <div role="list" aria-label="Today's runs" className="relative pl-6 text-left">
+      <div className="absolute bottom-[-6px] left-[14px] top-[-6px] w-3 rounded-[3px] bg-[#7a5a40] dark:bg-[#4a3a2c]" aria-hidden="true" />
+      <div className="relative space-y-2.5">
+        {(["easy", "medium", "hard"] as const).map((run) => {
+          const done = stats[run].completedToday
+          const progress = !done ? progressToday[run] : undefined
+          const status = done ? "✓ Done" : progress ? `On it · ${formatTime(progress.elapsedTime)}` : "Fresh"
+          return (
+            <div role="listitem" key={run}>
+              <button
+                type="button"
+                onClick={() => onPlay(run)}
+                disabled={disabled}
+                aria-label={`${LABEL[run]}, ${RUN_CLASS[run]}: ${names[run]}. ${DESCRIPTION[run]}. ${done ? "Completed today" : progress ? `In progress, ${formatTime(progress.elapsedTime)}` : "Not started"}`}
+                style={{
+                  background: `var(--run-${run})`,
+                  color: "var(--on-run)",
+                  clipPath: "polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%)",
+                }}
+                className="flex h-16 w-[calc(100%-8px)] items-center gap-3 rounded-l-[4px] pl-4 pr-8 text-left transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                <svg viewBox="0 0 24 24" className="size-6 shrink-0" aria-hidden="true">
+                  <path d={SHAPE_PATH[run]} style={{ fill: "var(--on-run)" }} />
+                </svg>
+                <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
+                  <span className="w-full truncate font-signage text-[22px] font-extrabold uppercase tracking-[0.03em]">{names[run]}</span>
+                  <span className="text-[13px] font-semibold opacity-90">
+                    {LABEL[run]} · {DESCRIPTION[run]}
+                  </span>
+                </span>
+                <span className="shrink-0 font-signage text-base font-bold uppercase tabular-nums">{status}</span>
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}

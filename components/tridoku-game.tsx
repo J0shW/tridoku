@@ -349,6 +349,7 @@ export function TridokuGame() {
             errorNotice={loadError && !isGenerating ? <LoadErrorNotice onRetry={retryLoad} /> : null}
             onPlay={playFromWelcome}
             onOpenRules={openRules}
+            mountain={mountain}
           />
         ) : (
           /* Game view - active puzzle */

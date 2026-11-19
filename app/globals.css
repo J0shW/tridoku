@@ -162,6 +162,8 @@
   --run-easy: #1d7a43;
   --run-medium: #1d5bb8;
   --run-hard: #15171c;
+  /* Text on a solid run colour (trailhead signs): white by day, 5.4:1 or better */
+  --on-run: #ffffff;
 }
 .dark[data-look="mountain"] {
   --bg: #0f1a2a;
@@ -187,6 +189,7 @@
   --run-easy: #8fd3a8;
   --run-medium: #8fb4ef;
   --run-hard: #e6edf5;
+  --on-run: #0f1a2a;
 }
 /* Toggles that are on: a pale tint of the run with its colour as border and text (4.6:1 or better) */
 :root[data-look="mountain"][data-run="easy"] { --toggle-on: #e2f1e7; --toggle-on-fg: #1d7a43; }
