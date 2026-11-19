@@ -21,6 +21,8 @@ Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are m
 
 **TRI-091 (11 Nov)** made the action colour ink (teal gone, favicons included), made the selection a static ink outline, set region lines to `#2b2420` in both themes, made the highlight an ink cell with a paper digit, and set success and warning to the table's values. The surface, border and muted values in the tables are still targets. TRI-099 replaces the board fills with tonal palettes.
 
+**TRI-103 (19 Nov)** brought back Josh's grey dashed, moving selection and removed the touching-cells shade.
+
 **TRI-089 (11 Nov)** added the §3 components in `components/ui/`: Button, IconButton and Pill (`button.tsx`), SegmentedControl, Notice, Badge and StatTile. See them at `/test/components` in any preview. The old shadcn Button and Badge live on as `legacy-button.tsx` and `legacy-badge.tsx` until the screens move over. `cn()` in `lib/utils.ts` knows the named text sizes; add any new size there too, or tailwind-merge will drop colour classes next to it. Destructive buttons use `--danger-solid` (#b42318, white text 6.8:1). The shadcn names (`--background`, `--primary`, …) now point at these tokens.
 
 ---
@@ -142,7 +144,7 @@ The deep tones fail in dark mode (about 2.2:1 against the dark off keys), which 
 |---|---|---|---|
 | `--board-cell-line` | `line` at 26 %, 0.012 units | Hairlines | `#000` |
 | `--board-region-line` | `line`, 0.11 units | Bold region borders | #000 light, #7e7e7e dark (TRI-068) |
-| `--board-selection` | `line`, solid 0.17 stroke + 25 % paper wash | Static, so reduced motion is honoured | grey dashed, animated |
+| `--board-selection` | dark grey (`#4d4d4d`) dashed 0.15 stroke that marches round the cell + 7 % grey wash (TRI-103, Josh's original, darkened) | Still with reduced motion on | same as live |
 | `--board-touching` | **one continuous outline** around the selected cell and the 12 cells touching it: `line` 0.075 over a paper halo 0.22 | Never a fill: darkening a cell would make it look like the next rule shade (measured on every palette) | 12 % dark fill |
 | `--board-error-tint` | rgba(220,38,38,0.22), plus `#991b1b` digit and an underline | The red hue keeps it apart from the shades. The digit alone is 3.0–3.4:1, so the underline is required (TRI-065) | red tint, #DC2626 |
 | `--board-highlight` | **inverse:** ink fill, paper digit (14:1) **[Decision: not yet prototyped]** | A tint would read as a deeper shade | opaque #3b82f6 |
@@ -223,7 +225,7 @@ This takes 11 sizes in use (including `text-[15px]` and `text-[17px]`) down to 9
 - **Under `prefers-reduced-motion: reduce`:**
   - no scale (pad keys, Ko-fi close);
   - no rotation (theme icon);
-  - no dash animation (TRI-066);
+  - the selection dashes stand still (TRI-066, TRI-103);
   - dialogs fade only.
 - Hover styles are gated on `@media (hover: hover)` so they don't stick after a tap.
 
@@ -375,8 +377,8 @@ Rule: **a message never moves or resizes the board or the number pad.** Josh rej
 | Given | `digit-given` 700 | |
 | Entry | `digit-entry` 500 | TRI-061 |
 | Notes | up to 3 at the corners, 0.5 units, `digit-note` | TRI-060 decides more than 3 |
-| Selected | solid `selection` stroke + 18 % white wash | static, so reduced motion is honoured (TRI-066) |
-| Touching | one continuous `touching` outline around the selection and its 12 neighbours | TRI-032. Whether to show it on Medium and Hard is still open (R-12) |
+| Selected | dark grey dashed `selection` stroke, moving; still with reduced motion on | TRI-103 (19 Nov): Josh's original look, darkened to 3.5:1 or better |
+| Touching | nothing | TRI-103 (19 Nov): Josh removed it on every difficulty, which closes R-12 |
 | Error (Check on) | `error-tint` + `error-digit` + underline, also on the selected cell | TRI-065 |
 | Highlighted | inverse: ink fill, paper digit | not yet prototyped |
 | Flash | `flash` fading | TRI-052 |
