@@ -205,7 +205,7 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [ ] Barlow Condensed for signs and headings and Barlow for body text, loaded with `next/font`.
 - [ ] The PR has blurred (squint-test) screenshots of each run at 390 px, light and dark, and the board stands out first in every one.
 - [ ] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks).
-- [ ] **[Decision]** Should players be able to pick Classic or Mountain in settings? This came up in the review ("you can choose the appearance"). Josh decides before this item starts.
+- [ ] **[Decided 19 Nov]** Players choose Classic or Mountain with a theme picker. Build it here, replacing the preview-only `?theme=` switch from TRI-102; default to be decided with Josh. Everything above applies to the Mountain theme; Classic keeps today's screens.
 
 **Check it in a preview.** On your phone, open the game and switch between the three runs. Only the board, and the thin line under the selected sign, should catch your eye. Turn on dark mode for night skiing. Open the welcome screen and read the signpost.
 
@@ -218,9 +218,11 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 
 **Problem.** On the mountain, each run's board has two hues. The outer sides are a tint of the run's colour, the inner triangle is a warm "sunlit" hue, and cells in both are the deepest shade. It takes over the palette system from [TRI-099](#tri-099), which was closed unmerged; PR #63 is a working reference for the code.
 
+**Two board themes (Josh, 19 Nov).** Players will choose between **Classic** (today's colours) and **Mountain** with a theme picker in [TRI-101](#tri-101). Until then Classic is the only theme on the live site, and Mountain is preview-only: open a preview with `?theme=mountain` (and `?theme=classic` to go back), which is remembered on that device.
+
 **Done when**
-- [ ] The board draws every colour from a palette in `lib/palettes.ts`: four shades plus line, entry and note inks. There are no colour literals in `tridoku-board.tsx` or `rule-diagrams.tsx`. The game applies the current run's palette, so dialogs use it too.
-- [ ] The palettes are (outer, inner, both, neither):
+- [x] The board draws every colour from a palette in `lib/palettes.ts`: four shades plus line, given, entry and note inks. There are no colour literals for the rule shades in `tridoku-board.tsx` or `rule-diagrams.tsx`. The game applies the current palette on `<html>`, so dialogs use it too. *`getPalette(theme, run, dark)`; Classic is the CSS default and the same on every run.*
+- [x] The Mountain palettes are (outer, inner, both, neither):
 
   | Run | Outer | Inner | Both | Neither |
   |---|---|---|---|---|
@@ -229,14 +231,14 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
   | Black diamond | `#dde1e7` | `#f3d2d4` | `#bfaab6` | `#fcfcfd` |
   | Night (all runs) | `#c9dbea` | `#ecd6bc` | `#a9b2cf` | `#e9eef4` |
 
-- [ ] Region lines and givens are slate `#1c2733`. Your digits are navy `#1e3a5f`, which covers [TRI-061](m3-mobile-accessibility.md#tri-061).
-- [ ] A unit test checks every palette: none, outer and inner lighter than both, givens, entries and notes at least 4.5:1 on all four shades (the lowest is 5.3:1); and the selection dashes at least 3:1 on all four (TRI-103).
-- [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same layout of shades on every run".
-- [ ] The rules modal, the rule diagrams and `/how-to-play` describe the two hues ("outer sides in the run's colour, the inner triangle warm, cells in both deepest") and draw with the current palette.
+- [x] Region lines and givens are slate `#1c2733` on Mountain. Your digits are navy `#1e3a5f` on both themes, which covers [TRI-061](m3-mobile-accessibility.md#tri-061). *This is the one change Classic players see.*
+- [x] A unit test checks every palette (Classic and the four Mountain ones): both is the deepest shade; every pair of shades is apart by lightness (1.1:1) or hue (OKLab distance 0.04); givens, lines, entries and notes at least 4.5:1 on all four shades; and the selection dashes at least 3:1 on all four (TRI-103). *`tests/palettes.test.ts`, 42 checks.*
+- [x] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as still true on Classic and as "same layout of shades on every run" on Mountain.
+- [x] The rules modal, the rule diagrams and `/how-to-play` draw with the current palette. Instead of naming colours ("blue", "yellow", "green"), the copy shows a small swatch of each shade, so it's right on both themes.
 
 **Known, not fixed here.** The outer sides on Medium and Hard are close to the sky's blue-grey, so the board's edge is soft against the scenery. TRI-104's shadow helps a little. Stronger outer colours were tried on the canvas; Josh chose to leave them as they are (19 Nov). Revisit if players mention it.
 
-**Check it in a preview.** Play a few moves on each run. Outer, inner and both cells are easy to tell apart, and every digit is clear.
+**Check it in a preview.** Open the preview with `?theme=mountain` and play a few moves on each run, in light and dark mode. Outer, inner and both cells are easy to tell apart, and every digit is clear. Open How to play from the game: the swatches match the board. Then open it with `?theme=classic`: the board looks as it does today, apart from navy digits for your entries.
 
 <a id="tri-103"></a>
 ## TRI-103 · Selected cell: the dashed border, and no neighbour outline

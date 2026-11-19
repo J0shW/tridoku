@@ -93,6 +93,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 **11 Nov.** Josh chose tonal boards ([TRI-099](m5-design-system.md#tri-099)). The rule shades will follow the difficulty's colour, so the rule becomes "same shade order on every difficulty". Status stays Done; TRI-099 makes the change.
 
+**19 Nov.** TRI-099 was dropped for the Mountain direction. On the Classic board theme this rule still holds. On the Mountain theme ([TRI-102](m5-design-system.md#tri-102)) each run has its own hues, so the rule becomes "same layout of shades on every run": outer sides one colour, the inner triangle another, cells on both the deepest.
+
 **Done when**
 - [x] Outer edge, inner triangle and overlap use the same fills on all difficulties.
 - [x] Difficulty is signalled by an accent (tab underline, board outline).
