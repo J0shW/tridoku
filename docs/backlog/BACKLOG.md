@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**100 items** · 38 todo · 2 in progress · 6 in review · 52 done · 2 won't do · plus 13 [research items](research.md)
+**108 items** · 44 todo · 2 in progress · 5 in review · 53 done · 4 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -135,13 +135,21 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | [TRI-090](m5-design-system.md#tri-090) | Messages never move the board or the number pad | High | H | S | — | Done |
 | [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | Done |
 | [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | Done |
-| [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | In review |
+| [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | Done |
 | [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | Todo |
-| [TRI-099](m5-design-system.md#tri-099) | Tonal board palettes | High | H | M | TRI-088 | Todo |
-| [TRI-092](m5-design-system.md#tri-092) | Difficulty folders | High | H | M | TRI-089, TRI-099 | Todo |
+| [TRI-099](m5-design-system.md#tri-099) | Tonal board palettes | High | H | M | TRI-088 | Won't do |
+| [TRI-092](m5-design-system.md#tri-092) | Difficulty folders | High | H | M | TRI-089, TRI-099 | Won't do |
+| [TRI-101](m5-design-system.md#tri-101) | Mountain look: run signs and scenery | High | H | M | TRI-089, TRI-102 | Todo |
+| [TRI-102](m5-design-system.md#tri-102) | Dual-tone run boards | High | H | M | TRI-088 | Todo |
+| [TRI-103](m5-design-system.md#tri-103) | Selected cell: the dashed border, and no neighbour outline | Medium | M | S | — | Todo |
+| [TRI-104](m5-design-system.md#tri-104) | The mountain falls into shadow while you play | Medium | M | S | TRI-101 | Todo |
+| [TRI-105](m5-design-system.md#tri-105) | Run complete: the lift ticket and your finished board | Medium | H | M | TRI-101, TRI-094 | Todo |
+| [TRI-106](m5-design-system.md#tri-106) | Share it like a lift ticket | Medium | M | S | TRI-105 | Todo |
+| [TRI-107](m5-design-system.md#tri-107) | Ride up and ski down | Low | M | M | TRI-101, TRI-104, TRI-105 | Todo |
+| [TRI-108](m5-design-system.md#tri-108) | Season pass | Low | M | M | TRI-101 | Todo |
 | [TRI-094](m5-design-system.md#tri-094) | Dialogs and menus on the system | Medium | M | M | TRI-089 | Todo |
 | [TRI-095](m5-design-system.md#tri-095) | System and secondary pages | Medium | M | S | TRI-089 | Todo |
 | [TRI-098](m5-design-system.md#tri-098) | Content pass | Medium | M | S | — | Todo |
 | [TRI-096](m5-design-system.md#tri-096) | Desktop, tablet and landscape layouts | Medium | M | M | TRI-093 | Todo |
 | [TRI-097](m5-design-system.md#tri-097) | Drift guard in CI | Medium | M | S | TRI-093, TRI-094, TRI-095 | Todo |
-| [TRI-100](m5-design-system.md#tri-100) | Theme days | Low | M | S | TRI-099, TRI-092 | Todo |
+| [TRI-100](m5-design-system.md#tri-100) | Theme days | Low | M | S | TRI-102, TRI-107 | Todo |
