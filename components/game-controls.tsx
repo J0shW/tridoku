@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react"
 import { Check, Clock, MoreHorizontal, Pause, Play, RotateCcw, Undo2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatTime } from "@/lib/tridoku"
+import type { BoardTheme } from "@/lib/palettes"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -112,10 +113,18 @@ interface GameControlsProps {
   onReset: () => void
   /** Finished, viewing a solved puzzle, or loading: Check and Reset don't apply. */
   disabled?: boolean
+  /** The board theme, when players can pick it (TRI-101). Omit to hide the picker. */
+  boardTheme?: BoardTheme
+  onBoardThemeChange?: (theme: BoardTheme) => void
 }
 
+const THEME_OPTIONS: { value: BoardTheme; label: string }[] = [
+  { value: "classic", label: "Classic" },
+  { value: "mountain", label: "Mountain" },
+]
+
 /** Check (error checking on/off) and a More menu with Reset. */
-export function GameControls({ showErrors, onToggleErrors, onReset, disabled = false }: GameControlsProps) {
+export function GameControls({ showErrors, onToggleErrors, onReset, disabled = false, boardTheme, onBoardThemeChange }: GameControlsProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -150,7 +159,7 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
         className={cn(
           PILL,
           "gap-1.5 pl-2.5 pr-3 text-sm font-semibold",
-          showErrors && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
+          showErrors && "border-toggle-on-border bg-toggle-on text-toggle-on-fg hover:bg-toggle-on/90",
         )}
       >
         <Check className="h-4 w-4" strokeWidth={2.5} aria-hidden="true" />
@@ -186,6 +195,27 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
               <RotateCcw className="h-[18px] w-[18px]" aria-hidden="true" />
               Reset puzzle
             </button>
+            {boardTheme && onBoardThemeChange && (
+              <div role="group" aria-label="Look" className="mt-1 border-t border-border pt-1.5">
+                <p className="px-2.5 pb-1 text-xs font-medium text-muted-foreground">Look</p>
+                {THEME_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    role="menuitemradio"
+                    aria-checked={boardTheme === o.value}
+                    onClick={() => {
+                      setMenuOpen(false)
+                      onBoardThemeChange(o.value)
+                    }}
+                    className="flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-sm font-medium hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none"
+                  >
+                    <Check className={cn("h-[18px] w-[18px]", boardTheme !== o.value && "invisible")} aria-hidden="true" />
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

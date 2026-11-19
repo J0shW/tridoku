@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Barlow, Barlow_Condensed, Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme-provider'
 import { IS_PRODUCTION, DEV_CLOCK_SCRIPT } from '@/lib/app-env'
+import { BOARD_THEME_SCRIPT, THEME_PICKER_ENABLED } from '@/lib/board-theme'
 import { OG_IMAGE_SIZE, ogImagePath } from '@/lib/og'
 import './globals.css'
 
@@ -12,6 +13,9 @@ import './globals.css'
 const _geist = Geist({ subsets: ["latin"] });
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
+// The Mountain look's type (TRI-101): Barlow for text, Barlow Condensed for signs and headings.
+const barlow = Barlow({ subsets: ["latin"], weight: ["500", "600", "700"], variable: "--font-barlow", display: "swap" });
+const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], weight: ["600", "700", "800"], variable: "--font-barlow-condensed", display: "swap" });
 
 const DESCRIPTION = 'A daily triangular sudoku puzzle game. Fill the triangle with digits 1-9 following unique rules!'
 
@@ -71,8 +75,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
       <body className="font-sans antialiased bg-background text-foreground">
+        {THEME_PICKER_ENABLED && (
+          <Script id="board-theme" strategy="beforeInteractive">
+            {BOARD_THEME_SCRIPT}
+          </Script>
+        )}
         {!IS_PRODUCTION && (
           <Script id="dev-clock" strategy="beforeInteractive">
             {DEV_CLOCK_SCRIPT}

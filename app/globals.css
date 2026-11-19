@@ -37,6 +37,11 @@
   --hover: rgb(59 41 33 / 0.06);
   --press: rgb(59 41 33 / 0.12);
   --overlay: rgb(0 0 0 / 0.5);
+  /* A toggle that's on (Pencil, note keys, Check): ink on Classic, a pale run tint on
+     Mountain (TRI-101) */
+  --toggle-on: var(--action);
+  --toggle-on-fg: var(--on-action);
+  --toggle-on-border: var(--action);
 
   /* Difficulty colours (Josh's, the same in both themes) */
   --difficulty-easy: #bfdde2;
@@ -126,6 +131,75 @@
   --board-selection-stroke: rgb(43, 43, 43);
 }
 
+/*
+  Tridoku Mountain (TRI-101). The game sets data-look="mountain" and data-run (easy, medium,
+  hard) on <html> when a player picks the Mountain theme. Snow and slate by day; night skiing
+  in dark mode. The board's own colours come from lib/palettes.ts (TRI-102). The rule from
+  the design review (18 Nov): the board is the boldest thing on screen.
+*/
+:root[data-look="mountain"] {
+  --bg: #eef4fa;
+  --surface-raised: #ffffff;
+  --surface-sunken: #e3eaf2;
+  --control: #ffffff;
+  --fg: #1c2733;
+  --fg-muted: #4b5a6b;
+  --border: #c9d6e3;
+  --border-strong: #c9d6e3;
+  --action: #1c2733;
+  --on-action: #fbfdff;
+  --focus: #1c2733;
+  --hover: rgb(28 39 51 / 0.06);
+  --press: rgb(28 39 51 / 0.12);
+  --overlay: rgb(16 26 40 / 0.5);
+  /* Scenery: sky, far and near hills, pines (TRI-101) */
+  --scene-sky: #e3edf7;
+  --scene-far: #cfdcea;
+  --scene-near: #b8cadd;
+  --scene-tree: #b3c5d8;
+  --scene-star: transparent;
+  /* Run colours: signs and toggles only, never big panels */
+  --run-easy: #1d7a43;
+  --run-medium: #1d5bb8;
+  --run-hard: #15171c;
+}
+.dark[data-look="mountain"] {
+  --bg: #0f1a2a;
+  --surface-raised: #16243a;
+  --surface-sunken: #0c1626;
+  --control: #16243a;
+  --fg: #e6edf5;
+  --fg-muted: #9aabbf;
+  --border: #2e4562;
+  --border-strong: #2e4562;
+  --action: #e6edf5;
+  --on-action: #0f1a2a;
+  --focus: #e6edf5;
+  --hover: rgb(230 237 245 / 0.07);
+  --press: rgb(230 237 245 / 0.14);
+  --overlay: rgb(3 8 15 / 0.66);
+  --scene-sky: #0f1a2a;
+  --scene-far: #1a2a40;
+  --scene-near: #22364f;
+  --scene-tree: #1a2a40;
+  --scene-star: #dfe8f3;
+  /* At night the black diamond turns floodlight white so it stays visible */
+  --run-easy: #8fd3a8;
+  --run-medium: #8fb4ef;
+  --run-hard: #e6edf5;
+}
+/* Toggles that are on: a pale tint of the run with its colour as border and text (4.6:1 or better) */
+:root[data-look="mountain"][data-run="easy"] { --toggle-on: #e2f1e7; --toggle-on-fg: #1d7a43; }
+:root[data-look="mountain"][data-run="medium"] { --toggle-on: #e1eaf8; --toggle-on-fg: #1d5bb8; }
+:root[data-look="mountain"][data-run="hard"] { --toggle-on: #e4e7eb; --toggle-on-fg: #15171c; }
+.dark[data-look="mountain"][data-run="easy"] { --toggle-on: #1c3a2b; --toggle-on-fg: #8fd3a8; }
+.dark[data-look="mountain"][data-run="medium"] { --toggle-on: #1d3150; --toggle-on-fg: #8fb4ef; }
+.dark[data-look="mountain"][data-run="hard"] { --toggle-on: #2a3a52; --toggle-on-fg: #e6edf5; }
+[data-look="mountain"] { --toggle-on-border: var(--toggle-on-fg); }
+[data-look="mountain"] body {
+  font-family: var(--font-barlow), 'Geist', system-ui, sans-serif;
+}
+
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
   --font-mono: 'Geist Mono', 'Geist Mono Fallback';
@@ -150,6 +224,10 @@
   --color-hover: var(--hover);
   --color-press: var(--press);
   --color-overlay: var(--overlay);
+  --color-toggle-on: var(--toggle-on);
+  --color-toggle-on-fg: var(--toggle-on-fg);
+  --color-toggle-on-border: var(--toggle-on-border);
+  --font-signage: var(--font-barlow-condensed), 'Geist', system-ui, sans-serif;
   --color-difficulty-easy: var(--difficulty-easy);
   --color-difficulty-medium: var(--difficulty-medium);
   --color-difficulty-hard: var(--difficulty-hard);

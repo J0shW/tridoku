@@ -18,11 +18,13 @@ import { Button } from "@/components/ui/legacy-button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
-import { fromDateKey } from "@/lib/dates"
+import { fromDateKey, todayKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
-import { applyPalette, getPalette } from "@/lib/palettes"
-import { readBoardTheme } from "@/lib/board-theme"
+import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
+import { applyLook, readBoardTheme, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
+import { MountainScenery, RunShape, RunSigns } from "@/components/mountain"
+import { runName } from "@/lib/run-names"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
 import dynamic from "next/dynamic"
@@ -86,12 +88,19 @@ export function TridokuGame() {
 
   const { theme, setTheme, resolvedTheme } = useTheme()
 
-  // TRI-102: put the board palette for this theme, run and light or dark mode on <html>.
-  // Classic everywhere for now; Mountain is preview-only until the theme picker (TRI-101).
-  const [boardTheme] = useState(readBoardTheme)
+  // TRI-102, TRI-101: put the board palette for this theme, run and light or dark mode on
+  // <html>, and mark it with the theme and run for the Mountain styles.
+  const [boardTheme, setBoardTheme] = useState<BoardTheme>(readBoardTheme)
+  const mountain = boardTheme === "mountain"
   useEffect(() => {
     applyPalette(getPalette(boardTheme, difficulty ?? "easy", resolvedTheme === "dark"))
+    applyLook(boardTheme, difficulty ?? "easy")
   }, [boardTheme, difficulty, resolvedTheme])
+  const changeBoardTheme = useCallback((next: BoardTheme) => {
+    setBoardTheme(next)
+    saveBoardTheme(next)
+    trackEvent("board_theme_changed", { theme: next })
+  }, [])
 
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
@@ -281,7 +290,7 @@ export function TridokuGame() {
         <div className="container max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Triangle className="h-5 w-5 text-primary fill-primary/20" />
-            <h1 className="whitespace-nowrap text-[17px] font-bold text-foreground">Daily Tridoku</h1>
+            <h1 className={`whitespace-nowrap font-bold text-foreground ${mountain ? "font-signage text-xl font-extrabold uppercase tracking-[0.05em]" : "text-[17px]"}`}>Daily Tridoku</h1>
             <p className="whitespace-nowrap text-xs text-muted-foreground">
               {fallbackKey && hasStarted && !isViewMode ? (
                 <button
@@ -344,15 +353,25 @@ export function TridokuGame() {
         ) : (
           /* Game view - active puzzle */
           <>
-            {/* Difficulty selector */}
+            {/* Difficulty selector: trail signs on the Mountain theme (TRI-101) */}
             <div className="flex justify-center mb-3">
-              <DifficultySelector
-                currentDifficulty={difficulty!}
-                inProgress={progressToday}
-                stats={stats}
-                onDifficultyChange={changeDifficulty}
-                disabled={isGenerating}
-              />
+              {mountain ? (
+                <RunSigns
+                  current={difficulty!}
+                  inProgress={progressToday}
+                  stats={stats}
+                  onChange={changeDifficulty}
+                  disabled={isGenerating}
+                />
+              ) : (
+                <DifficultySelector
+                  currentDifficulty={difficulty!}
+                  inProgress={progressToday}
+                  stats={stats}
+                  onDifficultyChange={changeDifficulty}
+                  disabled={isGenerating}
+                />
+              )}
             </div>
             
             {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
@@ -360,7 +379,9 @@ export function TridokuGame() {
             {/* Game board, with the timer and controls in the empty corners beside the
                 triangle (TRI-087). On short screens the board shrinks so the number pad
                 stays on screen (TRI-058). */}
-            <div className="flex justify-center">
+            <div className="relative flex justify-center">
+              {/* The mountain behind the board, edge to edge (TRI-101) */}
+              {mountain && <MountainScenery className="absolute inset-y-0 -left-4 -right-4 h-full w-[calc(100%+2rem)]" />}
               <div
                 className="@container relative w-full max-w-md"
                 style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
@@ -384,6 +405,8 @@ export function TridokuGame() {
                     showErrors={showErrors}
                     onToggleErrors={toggleErrors}
                     onReset={resetPuzzle}
+                    boardTheme={THEME_PICKER_ENABLED ? boardTheme : undefined}
+                    onBoardThemeChange={changeBoardTheme}
                     disabled={isGenerating || isComplete || isViewMode}
                   />
                 </div>
@@ -419,14 +442,22 @@ export function TridokuGame() {
             {/* Input mode toggle and number pad */}
             {!isViewMode && (
               <div className="pb-4 space-y-2">
-                <div className="relative flex justify-center">
+                <div className={mountain ? "flex items-center justify-between gap-3" : "relative flex justify-center"}>
+                  {/* Today's run name, beside the switch (TRI-101) */}
+                  {mountain && difficulty && (
+                    <p className="flex min-w-0 items-center gap-2 font-signage text-[19px] font-extrabold uppercase tracking-[0.04em]">
+                      <RunShape run={difficulty} className="size-4" />
+                      <span className="truncate">{runName(difficulty, puzzleDate ?? todayKey())}</span>
+                    </p>
+                  )}
+                  <div className="relative">
                   {showPencilHint && (
                     <button
                       type="button"
                       role="status"
                       onClick={dismissPencilTip}
                       aria-label="Pencil is on: tap a number to add or remove it. Dismiss"
-                      className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-foreground px-3.5 py-1.5 text-[13px] font-medium text-background shadow-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1"
+                      className={`absolute bottom-full z-20 mb-2 whitespace-nowrap ${mountain ? "right-0" : "left-1/2 -translate-x-1/2"} rounded-full bg-foreground px-3.5 py-1.5 text-[13px] font-medium text-background shadow-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-bottom-1`}
                     >
                       Notes on: tap a number to add or remove it{hasKeyboard ? " · P switches" : ""}
                     </button>
@@ -436,6 +467,7 @@ export function TridokuGame() {
                     onModeChange={setInputMode}
                     disabled={isPaused || isComplete}
                   />
+                  </div>
                 </div>
                 <NumberPad
                   onNumberClick={enterDigit}
