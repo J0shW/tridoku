@@ -9,6 +9,8 @@
 - Touching cells shown with one continuous outline.
 - Theme days, built on the palettes.
 
+**Direction changed (19 Nov):** [Tridoku Mountain](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL), which replaces the folders. A designer's review (18 Nov) set its main rule: the board is the boldest thing on screen. The Mountain items are [TRI-101](#tri-101) to [TRI-108](#tri-108).
+
 Choices still open are marked **[Decision]** in the design system.
 
 **Done when**
@@ -134,6 +136,8 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 |---|---|---|---|---|---|
 | High | H | M | Rule comprehension, consistency | [TRI-089](#tri-089), [TRI-099](#tri-099) | UI-02, UI-15, UI-39 |
 
+**Won't do (19 Nov).** Replaced by the Mountain direction ([TRI-101](#tri-101)). A designer's review found the big folder colour panels pulled the eye before the board. The colour-meaning and tablist problems below are covered by TRI-101.
+
 **Problem.** Difficulty colour means three different things:
 - the tabs and cards use blue, amber and pink, where Easy's blue is the board's outer-edge blue;
 - the stats modal uses green, yellow and red;
@@ -175,19 +179,193 @@ The difficulty tabs also have no selected state for screen readers.
 
 **Known, not fixed here.** On Hard, the red error tint sits on a pink board, so mistakes stand out less than on Easy and Medium. The shape cue in [TRI-065](m3-mobile-accessibility.md#tri-065) (an underline under wrong digits) is the fix; it's worth doing next. In the small rule diagrams, the lightest shade (outer sides) is faint against plain cells; deepen the outer step if Josh finds it hard to see.
 
+**Mountain (19 Nov).** The folder-colour palettes are replaced by [TRI-102](#tri-102)'s dual-tone run boards, the touching-cells outline is removed by [TRI-103](#tri-103), and the solid tone toggles become [TRI-101](#tri-101)'s pale tints. The palette system and its test stay.
+
 **Check it in a preview.** On your phone, play a few moves on each difficulty. You can tell outer, inner and both cells apart on all three boards. Select a cell: one outline goes round it and its 12 neighbours, and digits inside stay clear. Open How to play: the rule cards describe shades and match the board.
+
+<a id="tri-101"></a>
+## TRI-101 · Mountain look: run signs and scenery
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| High | H | M | Shares, return visits, consistency | [TRI-089](#tri-089), [TRI-099](#tri-099) | Owner decision 19 Nov; designer review 18 Nov |
+
+**Problem.** Josh changed direction on 19 Nov, from difficulty folders to **Tridoku Mountain** ([canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL)). The difficulties become ski runs: ● Green circle (Easy), ■ Blue square (Medium), ◆ Black diamond (Hard). The board is the peak. A designer reviewed both canvases on 18 Nov:
+- the folders' big colour panels pulled the eye before the board did;
+- the first Mountain draft's solid signs, solid toggles and dark trees did the same.
+
+The rule from that review: **the board is the boldest thing on screen.** Blur a screenshot (the squint test) and the board should be the first thing you see.
+
+**Done when** (the quiet look on the canvas)
+- [ ] The difficulty tabs are three trail signs: a shape plus Easy, Medium or Hard. The selected run gets a thin border and underline in its colour, never a solid fill. The others are muted. The signs are a tablist with `aria-selected`.
+- [ ] Run colours: green `#1d7a43`, blue `#1d5bb8`, black `#15171c`. They're used only for signs, toggles and the finish screens, never as big panels.
+- [ ] Each run has a name for the day (for example Marmot Meadow, Spruce Glade, The Chute), shown beside the input switch. Names come from a fixed list, picked by the puzzle's date with `lib/dates.ts`, so everyone sees the same name.
+- [ ] The scenery behind the board: sky, two flat ranges of hills and small pines. The pines are in the hills' blue-grey (no more than 1.6:1 against the sky), so they never compete with the board. Nothing is drawn under the board.
+- [ ] Toggles that are on (Pencil, number keys with a note, Check) use a pale tint of the run colour with a border and text in the run colour. The text is 4.5:1 or better in both themes. This replaces TRI-099's solid tone toggles.
+- [ ] The welcome screen is a trailhead: a signpost with three arrow signs, one per run. Each sign shows the run's name, its difficulty with a one-line description, and a status: your time, "On it" or "Fresh". A button below continues your current run.
+- [ ] Dark mode is night skiing: navy sky, stars and a moon. The board stays light, like floodlit snow. The Black diamond turns light at night so it stays visible.
+- [ ] Barlow Condensed for signs and headings and Barlow for body text, loaded with `next/font`.
+- [ ] The PR has blurred (squint-test) screenshots of each run at 390 px, light and dark, and the board stands out first in every one.
+- [ ] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks).
+- [ ] **[Decision]** Should players be able to pick Classic or Mountain in settings? This came up in the review ("you can choose the appearance"). Josh decides before this item starts.
+
+**Check it in a preview.** On your phone, open the game and switch between the three runs. Only the board, and the thin line under the selected sign, should catch your eye. Turn on dark mode for night skiing. Open the welcome screen and read the signpost.
+
+<a id="tri-102"></a>
+## TRI-102 · Dual-tone run boards
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| High | H | S | Rule comprehension | [TRI-099](#tri-099) | Owner decision 17 Nov |
+
+**Problem.** On the mountain, each run's board has two hues. The outer sides are a tint of the run's colour, the inner triangle is a warm "sunlit" hue, and cells in both are the deepest shade. It's built on TRI-099's palette system and test.
+
+**Done when**
+- [ ] `lib/palettes.ts` has these palettes (outer, inner, both, neither):
+
+  | Run | Outer | Inner | Both | Neither |
+  |---|---|---|---|---|
+  | Green circle | `#d2ecd9` | `#f5e2b2` | `#aec98f` | `#fbfdfb` |
+  | Blue square | `#d3e2f6` | `#f6dcc4` | `#b4b9dd` | `#fbfcff` |
+  | Black diamond | `#dde1e7` | `#f3d2d4` | `#bfaab6` | `#fcfcfd` |
+  | Night (all runs) | `#c9dbea` | `#ecd6bc` | `#a9b2cf` | `#e9eef4` |
+
+- [ ] Region lines and givens are slate `#1c2733`; your digits stay navy `#1e3a5f`. The TRI-099 palette test passes for every palette (the lowest is 5.3:1).
+- [ ] The rules modal, the rule diagrams and `/how-to-play` describe the two hues ("outer sides in the run's colour, the inner triangle warm, cells in both deepest") and draw with the current palette.
+
+**Known, not fixed here.** The outer sides on Medium and Hard are close to the sky's blue-grey, so the board's edge is soft against the scenery. TRI-104's shadow helps. Stronger outer colours were tried on the canvas; Josh chose to leave them as they are (19 Nov). Revisit if players mention it.
+
+**Check it in a preview.** Play a few moves on each run. Outer, inner and both cells are easy to tell apart, and every digit is clear.
+
+<a id="tri-103"></a>
+## TRI-103 · Selected cell: the dashed border, and no neighbour outline
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | M | S | Familiarity | none | Owner decision 19 Nov |
+
+**Problem.** Josh wants his original selection back: a grey dashed border that marches round the cell. It was replaced on 11 Nov by a solid ink outline (TRI-091, for TRI-066). He also wants the outline round the touching cells removed: "players are smart". This undoes part of [TRI-032](m1-first-impression.md#tri-032) and TRI-099.
+
+**Done when**
+- [ ] The selected cell has the original border: stroke `rgb(134 134 134)`, width 0.15, dashes 0.4 / 0.2, moving one loop a second (the values before commit `e0f2755`).
+- [ ] With reduced motion on, the dashes stay still ([TRI-066](m3-mobile-accessibility.md#tri-066)).
+- [ ] Touching cells get no outline and no fill. The halo token and `touchingOutline()` are removed.
+- [ ] The rules copy doesn't promise that touching cells are highlighted.
+
+**Known, not fixed here.** The grey dashes are about 1.9:1 against the deepest shade, under WCAG's 3:1 for UI parts. Josh chose the original look on 19 Nov. If it's hard to see in testing, darken the dashes to slate and keep the movement.
+
+**Check it in a preview.** Tap a few cells, including one in the deepest shade. The dashed border marches round the selected cell, and nothing else on the board changes.
+
+<a id="tri-104"></a>
+## TRI-104 · The mountain falls into shadow while you play
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | M | S | Focus, completion rate | [TRI-101](#tri-101) | Designer review 18 Nov |
+
+**Problem.** The scenery is part of the welcome, but you shouldn't be looking at it while you solve. The review suggested the mountain dims once you start playing.
+
+**Done when**
+- [ ] On arrival, the full scene shows.
+- [ ] On your first tap on the board, or after 4 seconds without input, the sky, hills and pines fade over 600 ms to the shadow colours. Day: sky `#dce6f0`, hills `#d3dde8` and `#c8d4e1`, pines `#c4d0de`, page `#e6edf4`. Night: sky and page `#0c1625`, hills `#142238` and `#192a42`, and the stars go out.
+- [ ] The board, signs and keys keep their colours. Nothing moves or resizes.
+- [ ] The sun comes back when you finish.
+- [ ] With reduced motion on, the change is instant.
+- [ ] Every label stays at 4.5:1 or better in shadow (grey text is 6.0:1).
+
+**Check it in a preview.** Open a run and wait 4 seconds: the hills and trees go quiet and the board stays bright. Reload and tap a cell straight away: the same happens at once.
+
+<a id="tri-105"></a>
+## TRI-105 · Run complete: the lift ticket and your finished board
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | H | M | Shares, return visits | [TRI-101](#tri-101), [TRI-094](#tri-094) | Owner decision 19 Nov |
+
+**Problem.** The win card becomes a lift ticket, and after you close it the solved board should stay on screen to look at.
+
+**Done when**
+- [ ] The win dialog is a lift ticket:
+  - a band in the run's colour reading "Day ticket", the date and the puzzle number;
+  - the run's shape, "Green circle · Run complete" and the run's name;
+  - your time, large, with a line if it's your fastest;
+  - this week's streak as hole punches;
+  - Share ticket, Next run and "Lifts reopen in …".
+- [ ] Closing the ticket leaves the solved board on screen, read only. The number pad is replaced by a card with your time, Share ticket and Next run.
+- [ ] The dialog traps focus and returns it when closed (TRI-094).
+- [ ] Today's win stats (streak, best streak, solved) are all still available, on the ticket or in the season pass.
+
+**Check it in a preview.** Finish a run. The ticket appears; close it. The board stays with your digits on it and can't be edited, and the card below offers Share and Next run.
+
+<a id="tri-106"></a>
+## TRI-106 · Share it like a lift ticket
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Medium | M | S | Shares | [TRI-105](#tri-105) | Owner idea 15 Nov |
+
+**Problem.** The share text and link preview should carry the mountain.
+
+**Done when**
+- [ ] The link preview (1200×630) is a lift ticket with the day's three run times and the solved board.
+- [ ] The share text uses the run shapes as plain text characters, for example `● 3:12  ■ 6:40  ◆ 8:41`. A run you skipped doesn't appear.
+- [ ] The share text changes only after Josh tests it on iMessage, Notes, WhatsApp and Discord. The indent stays as it is unless he tests that too.
+- [ ] `result_shared` still fires through `trackEvent`.
+
+**Check it in a preview.** Finish a run, tap Share, and paste into Notes and one chat app. Paste the preview link into a chat and check the ticket image.
+
+<a id="tri-107"></a>
+## TRI-107 · Ride up and ski down
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | M | M | Delight, return visits | [TRI-101](#tri-101), [TRI-104](#tri-104), [TRI-105](#tri-105) | Owner idea 19 Nov |
+
+**Problem.** Josh wants a small story for each day's run. The "A day on the mountain" row on the [canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL) is a **storyboard, not a spec**: improve the drawing, timing and motion while building it.
+
+**Done when**
+- [ ] **Opening a run:** fresh snow covers the board and a chair lift runs up the mountain. A skier rides the chair to the peak (about 2 seconds) and steps off. The snow fades to show today's board, then the scenery falls into shadow (TRI-104).
+- [ ] **Finishing:** fresh snow settles over the solved board, and the skier zigzags down the face, leaving tracks and throwing up powder. Then the lift ticket appears (TRI-105). Closing it clears the snow from the finished board.
+- [ ] The ride up plays the first time you open a run each day. Coming back to a run you've started goes straight to the board.
+- [ ] A tap anywhere skips to the end of an animation.
+- [ ] The clock only counts the puzzle: it starts when the board is shown and stops on the last correct digit.
+- [ ] With reduced motion on, there's no ride and no zigzag: the snow simply fades out or in.
+- [ ] Snow, lift and skier are drawn over the board, and the board never moves.
+- [ ] It runs smoothly on a mid-range phone (checked with 4× CPU slowdown in DevTools).
+- [ ] `intro_skipped` and `outro_skipped` events through `trackEvent`, listed in `docs/metrics.md`, so we know whether people skip it.
+- [ ] Josh signs off a rough prototype in the preview before it's polished.
+
+**Check it in a preview.** Open a run you haven't played today: watch the ride up, then play. Finish it and watch the run down. Reload and open the same run: the ride doesn't play again. Turn on reduced motion and try once more.
+
+<a id="tri-108"></a>
+## TRI-108 · Season pass
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | M | M | Return visits | [TRI-101](#tri-101) | Owner idea 15 Nov |
+
+**Problem.** The statistics screen should feel like part of the mountain.
+
+**Done when**
+- [ ] Statistics is a season pass: runs finished and best time for each shape, day streak and longest streak, and this week as a grid of shapes.
+- [ ] It uses only data we already store. No new tracking.
+- [ ] **[Decision]** Pins to collect (First tracks, Off piste, Triple run, Double black). Josh decides whether they're worth building.
+
+**Check it in a preview.** Open Statistics after finishing a run: your counts, best times and this week's runs match what you've played.
 
 <a id="tri-100"></a>
 ## TRI-100 · Theme days
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
-| Low | M | S | Return visits, shares | [TRI-099](#tri-099), [TRI-092](#tri-092) | Owner idea, 11 Nov |
+| Low | M | S | Return visits, shares | [TRI-102](#tri-102), [TRI-107](#tri-107) | Owner idea, 11 Nov; designer review 18 Nov |
 
 **Problem.** Palettes make it cheap to dress the game for a date. Josh wants theme days, starting with the Halloween and Christmas drafts on the [canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK).
 
 **Done when**
-- [ ] A theme day is a dated entry: palette, three folder colours, an optional page background and a header line ("Halloween · No. 304"). It's chosen with `lib/dates.ts` for the puzzle's date.
+**Mountain (19 Nov).** Theme days now dress the mountain. The review's Christmas ideas: lights on the pines, Santa flying past, and a star placed on the peak when you finish. The board is a triangle, so it really is a tree. Keep extras to the start and finish, never while you're solving (TRI-104). The review also noted that a full Christmas is very specific, so give Christmas Day the full version and the rest of December a general winter look.
+
+- [ ] A theme day is a dated entry: board palette, run colours, scenery extras and a header line ("Halloween · No. 304"). It's chosen with `lib/dates.ts` for the puzzle's date.
 - [ ] Claude proposes a theme calendar at the start of this item. Josh picks the days.
 - [ ] Halloween and Christmas ship first. Their entry inks are darkened to pass the palette check (the drafts are 3.9:1 and 4.3:1).
 - [ ] Every theme passes the TRI-099 palette test.
@@ -195,7 +373,7 @@ The difficulty tabs also have no selected state for screen readers.
 - [ ] A `theme_day` property on `puzzle_started` and `result_shared`, through `trackEvent`, and listed in `docs/metrics.md`.
 - [ ] The puzzle, timer and share text are unchanged.
 
-**Check it in a preview.** Set the date to 31 October with the dev tools: the board, folders and header switch to Halloween. Set it to 25 December for Christmas, then back to today.
+**Check it in a preview.** Set the date to 31 October with the dev tools: the board, mountain and header switch to Halloween. Set it to 25 December for Christmas, then back to today.
 
 <a id="tri-094"></a>
 ## TRI-094 · Dialogs and menus on the system

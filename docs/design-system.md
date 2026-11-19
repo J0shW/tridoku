@@ -2,7 +2,8 @@
 
 **Status: direction chosen (11 Nov 2026).** Nothing here is in the app yet. It comes from the [UI audit](reviews/2026-11-09-ui-audit.md). The rollout is milestone [M5](backlog/m5-design-system.md).
 
-- **Chosen direction:** [difficulty folders canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK). Josh picked it on 11 Nov.
+- **Direction changed (19 Nov):** [Tridoku Mountain canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL). Difficulties are ski runs and the board is the peak. Where this document describes folders, tone toggles or the touching-cells outline, backlog items [TRI-101](backlog/m5-design-system.md#tri-101) to [TRI-108](backlog/m5-design-system.md#tri-108) take precedence.
+- **Previous direction:** [difficulty folders canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK). Josh picked it on 11 Nov.
 - **Reference only:** the [first design-system canvas](https://claude.ai/artifact/KCC9s4riFkSrmGv9bWic9M), which has the component sheet and foundations, and the [difficulty colour exploration](https://claude.ai/artifact/DRMFTVx9vUYH5UXzmi2odS). Neither is the direction. Their boards don't show digits (a canvas rendering bug), so don't judge legibility from them.
 
 The aim is one look and one way of building every screen. We keep the warm paper page, Geist and Josh's three difficulty colours. Three things change:
