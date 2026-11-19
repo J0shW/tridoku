@@ -111,6 +111,8 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] Selecting a cell lightly shades its 12 touching neighbors.
 - [x] The shade is subtle enough not to compete with errors or highlights, in both themes.
 
+**Removed (19 Nov).** Josh took the shading out in [TRI-103](m5-design-system.md#tri-103): "players are smart".
+
 <a id="tri-033"></a>
 ## TRI-033 · Returning players continue where they left off
 

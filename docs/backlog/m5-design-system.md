@@ -248,12 +248,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** Josh wants his original selection back: a grey dashed border that marches round the cell. It was replaced on 11 Nov by a solid ink outline (TRI-091, for TRI-066). He also wants the outline round the touching cells removed: "players are smart". This undoes part of [TRI-032](m1-first-impression.md#tri-032).
 
 **Done when**
-- [ ] The selected cell has the original border: stroke `rgb(134 134 134)`, width 0.15, dashes 0.4 / 0.2, moving one loop a second (the values before commit `e0f2755`).
-- [ ] With reduced motion on, the dashes stay still ([TRI-066](m3-mobile-accessibility.md#tri-066)).
-- [ ] Touching cells get no outline and no fill. Today's touching-cells shading is removed.
-- [ ] The rules copy doesn't promise that touching cells are highlighted.
+- [x] The selected cell has the original border: stroke `rgb(134 134 134)`, width 0.15, dashes 0.4 / 0.2, moving one loop a second (the values before commit `e0f2755`). *Dark mode uses the original dark-mode grey, `rgb(43 43 43)`.*
+- [x] With reduced motion on, the dashes stay still ([TRI-066](m3-mobile-accessibility.md#tri-066)).
+- [x] Touching cells get no outline and no fill. Today's touching-cells shading is removed. *Closes [R-12](research.md).*
+- [x] The rules copy doesn't promise that touching cells are highlighted. *It never did.*
 
-**Known, not fixed here.** The grey dashes are about 1.9:1 against the deepest shade, under WCAG's 3:1 for UI parts. Josh chose the original look on 19 Nov. If it's hard to see in testing, darken the dashes to slate and keep the movement.
+**Known, not fixed here.** On today's colours the grey dashes are 2.5–2.8:1 on most cells and 1.5:1 on the green overlap, under WCAG's 3:1 for UI parts (about 1.9:1 on the Mountain's deepest shade). Josh chose the original look on 19 Nov. If it's hard to see in testing, darken the dashes to slate and keep the movement.
 
 **Check it in a preview.** Tap a few cells, including one in the deepest shade. The dashed border marches round the selected cell, and nothing else on the board changes.
 

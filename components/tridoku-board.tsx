@@ -17,7 +17,6 @@ const CELL_FILLS: Record<Cell["color"], string> = {
 }
 
 const SELECTED_FILL = "var(--board-selection-fill)"
-const TOUCHING_FILL = "var(--board-touching)"
 const SELECTED_STROKE = "var(--board-selection-stroke)"
 const ERROR_FILL = "var(--board-error-tint)"
 
@@ -220,12 +219,6 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
     if (id) onCellClick(id)
   }
 
-  // TRI-032: lightly shade the cells touching the selected one, since the
-  // no-touching rule is the one that's new compared with Sudoku.
-  const touching = new Set(
-    selectedCellId ? TRIDOKU_BOARD.flat().find((c) => c.id === selectedCellId && !c.hidden)?.neighbors ?? [] : [],
-  )
-
   return (
     <div className="w-full">
       <svg
@@ -243,8 +236,17 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
               opacity: 0;
               animation: undo-flash 900ms ease-out;
             }
+            /* TRI-103: Josh's original selection, a dashed border that marches round the cell */
+            @keyframes dash-animation {
+              to { stroke-dashoffset: -0.6; }
+            }
+            .selected-cell {
+              stroke-dasharray: 0.4 0.2;
+              animation: dash-animation 1s linear infinite;
+            }
             @media (prefers-reduced-motion: reduce) {
               .undo-flash { animation: none; }
+              .selected-cell { animation: none; }
             }
           `}
         </style>
@@ -263,13 +265,6 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                     stroke={isSelected ? "none" : "var(--board-cell-line)"}
                     strokeWidth={0.01}
                   />
-                  {touching.has(cell.id) && (
-                    <polygon
-                      points={getTrianglePoints(cell.row, cell.col, cell.direction)}
-                      fill={TOUCHING_FILL}
-                      style={{ pointerEvents: "none" }}
-                    />
-                  )}
                   {showErrors && gameCell?.hasError && !isSelected && (
                     <polygon
                       points={getTrianglePoints(cell.row, cell.col, cell.direction)}
@@ -377,7 +372,8 @@ export function TridokuBoard({ cells, selectedCellId, onCellClick, isPaused, hig
                 fill={SELECTED_FILL}
                 stroke={SELECTED_STROKE}
                 strokeWidth={0.15}
-                strokeLinejoin="round"
+                strokeLinejoin="miter"
+                strokeLinecap="butt"
                 className="selected-cell"
                 style={{ pointerEvents: "none" }}
               />

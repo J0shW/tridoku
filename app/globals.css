@@ -57,11 +57,10 @@
   --board-digit-note: #222222;
   --board-digit-error: #dc2626;
   --board-error-tint: rgba(239, 68, 68, 0.3);
-  /* Cells touching the selected cell (TRI-032) */
-  --board-touching: rgba(40, 30, 20, 0.12);
-  /* A solid ink outline, not an animated grey dash (TRI-066): 5.6:1 or better on every fill */
-  --board-selection-fill: rgba(255, 255, 255, 0.25);
-  --board-selection-stroke: #2b2420;
+  /* Josh's original grey dashed selection, back by his choice (TRI-103, 19 Nov). Faint on
+     the green overlap shade (1.5:1); darken the stroke if players find it hard to see. */
+  --board-selection-fill: rgba(134, 134, 134, 0.07);
+  --board-selection-stroke: rgb(134, 134, 134);
   /* Double-tap highlight: an ink cell with a paper digit, so it's never mistaken for a shade */
   --board-highlight: #2b2420;
   --board-highlight-digit: #fffaf6;
@@ -120,7 +119,10 @@
   --press: rgb(236 227 218 / 0.14);
   --overlay: rgb(0 0 0 / 0.5);
 
-  /* The board is light in both themes, so its marks are the same as in light mode */
+  /* The board is light in both themes, so its marks are the same as in light mode, apart
+     from the selection, which was a darker grey in dark mode originally */
+  --board-selection-fill: rgba(43, 43, 43, 0.07);
+  --board-selection-stroke: rgb(43, 43, 43);
 }
 
 @theme inline {
