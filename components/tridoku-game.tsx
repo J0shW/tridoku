@@ -18,13 +18,12 @@ import { Button } from "@/components/ui/legacy-button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
-import { fromDateKey, todayKey } from "@/lib/dates"
+import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
 import { applyLook, readBoardTheme, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
-import { MountainScenery, RunShape, RunSigns } from "@/components/mountain"
-import { runName } from "@/lib/run-names"
+import { MountainScenery, RUN_CLASS, RunShape, RunSigns } from "@/components/mountain"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
 import dynamic from "next/dynamic"
@@ -447,11 +446,11 @@ export function TridokuGame() {
             {!isViewMode && (
               <div className="pb-4 space-y-2">
                 <div className={mountain ? "flex items-center justify-between gap-3" : "relative flex justify-center"}>
-                  {/* Today's run name, beside the switch (TRI-101) */}
+                  {/* The run you're on, beside the switch (TRI-101) */}
                   {mountain && difficulty && (
                     <p className="flex min-w-0 items-center gap-2 font-signage text-[19px] font-extrabold uppercase tracking-[0.04em]">
                       <RunShape run={difficulty} className="size-4" />
-                      <span className="truncate">{runName(difficulty, puzzleDate ?? todayKey())}</span>
+                      <span className="truncate">{RUN_CLASS[difficulty]}</span>
                     </p>
                   )}
                   <div className="relative">

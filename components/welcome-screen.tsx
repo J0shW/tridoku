@@ -12,8 +12,6 @@ import { TridokuBoard } from "@/components/tridoku-board"
 import { formatTime, loadPuzzle, type Difficulty } from "@/lib/tridoku"
 import type { GameStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 import { MountainScenery, TrailheadSigns } from "@/components/mountain"
-import { runName } from "@/lib/run-names"
-import { todayKey } from "@/lib/dates"
 
 interface WelcomeScreenProps {
   stats: GameStats
@@ -51,10 +49,6 @@ export function WelcomeScreen({
   onOpenRules,
   mountain = false,
 }: WelcomeScreenProps) {
-  const names = useMemo(() => {
-    const day = todayKey()
-    return { easy: runName("easy", day), medium: runName("medium", day), hard: runName("hard", day) }
-  }, [])
   const previewCells = useMemo(() => (previewPuzzle ? loadPuzzle(previewPuzzle) : null), [previewPuzzle])
 
   // First visit: nothing played on this browser and nothing in progress.
@@ -79,9 +73,10 @@ export function WelcomeScreen({
         </div>
 
         {mountain ? (
+          // Same message as Classic (TRI-026): what Tridoku is, first
           <div className="space-y-1">
-            <h2 className="font-signage text-4xl font-extrabold uppercase tracking-[0.03em] text-foreground">Pick your run</h2>
-            <p className="text-muted-foreground text-pretty">Sudoku on a triangle. Three new runs down the same mountain, every day.</p>
+            <h2 className="font-signage text-4xl font-extrabold uppercase tracking-[0.03em] text-foreground text-balance">Sudoku on a triangle</h2>
+            <p className="text-muted-foreground text-pretty">Tridoku: 81 cells, 4 rules and three new runs every day.</p>
           </div>
         ) : (
         <div className="space-y-2">
@@ -102,11 +97,11 @@ export function WelcomeScreen({
               <HelpCircle className="h-4 w-4" />
               How to play
             </Button>
-            <p className="pt-2 text-sm text-muted-foreground">Already know the rules? Pick a {mountain ? "run" : "difficulty"}:</p>
+            <p className="pt-2 text-sm text-muted-foreground">Already know the rules? Pick {mountain ? "your run" : "a difficulty"}:</p>
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-muted-foreground">{mountain ? "Today\u2019s runs" : "Today\u2019s puzzles"}</p>
+            <p className="text-sm font-medium text-muted-foreground">{mountain ? "Pick your run" : "Today\u2019s puzzles"}</p>
             <Button variant="ghost" size="sm" className="gap-1.5" onClick={onOpenRules}>
               <HelpCircle className="h-4 w-4" />
               How to play
@@ -115,7 +110,7 @@ export function WelcomeScreen({
         )}
 
         {mountain ? (
-          <TrailheadSigns stats={stats} progressToday={progressToday} names={names} onPlay={onPlay} disabled={isGenerating} />
+          <TrailheadSigns stats={stats} progressToday={progressToday} onPlay={onPlay} disabled={isGenerating} />
         ) : (
         <div className={isFirstVisit ? "grid grid-cols-3 gap-2" : "space-y-3"}>
           {DIFFICULTIES.map((d) => {

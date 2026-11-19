@@ -8,7 +8,6 @@
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatTime, type Difficulty } from "@/lib/tridoku"
-import { RUN_CLASS } from "@/lib/run-names"
 import type { DifficultyStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 
 const SHAPE_PATH: Record<Difficulty, string> = {
@@ -27,6 +26,13 @@ export function RunShape({ run, className }: { run: Difficulty; className?: stri
 }
 
 const LABEL: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" }
+
+/** The ski-run name for each difficulty, shown with its shape. */
+export const RUN_CLASS: Record<Difficulty, string> = {
+  easy: "Green circle",
+  medium: "Blue square",
+  hard: "Black diamond",
+}
 
 interface RunSignsProps {
   current: Difficulty
@@ -110,18 +116,16 @@ const DESCRIPTION: Record<Difficulty, string> = {
 interface TrailheadSignsProps {
   stats: Record<Difficulty, DifficultyStats>
   progressToday: Partial<Record<Difficulty, PuzzleInProgress>>
-  /** Today's run names, by difficulty */
-  names: Record<Difficulty, string>
   onPlay: (difficulty: Difficulty) => void
   disabled?: boolean
 }
 
 /**
- * The welcome screen's signpost (TRI-101): three arrow signs on a wooden post, one per run,
- * with the run's name, difficulty and today's status. Solid run colours are fine here:
+ * The welcome screen's signpost (TRI-101): three arrow signs on a wooden post, one per run.
+ * The difficulty leads; the ski-run name and a one-line description sit under it. Solid run colours are fine here:
  * there's no board in play yet.
  */
-export function TrailheadSigns({ stats, progressToday, names, onPlay, disabled }: TrailheadSignsProps) {
+export function TrailheadSigns({ stats, progressToday, onPlay, disabled }: TrailheadSignsProps) {
   return (
     <div role="list" aria-label="Today's runs" className="relative pl-6 text-left">
       <div className="absolute bottom-[-6px] left-[14px] top-[-6px] w-3 rounded-[3px] bg-[#7a5a40] dark:bg-[#4a3a2c]" aria-hidden="true" />
@@ -136,7 +140,7 @@ export function TrailheadSigns({ stats, progressToday, names, onPlay, disabled }
                 type="button"
                 onClick={() => onPlay(run)}
                 disabled={disabled}
-                aria-label={`${LABEL[run]}, ${RUN_CLASS[run]}: ${names[run]}. ${DESCRIPTION[run]}. ${done ? "Completed today" : progress ? `In progress, ${formatTime(progress.elapsedTime)}` : "Not started"}`}
+                aria-label={`${LABEL[run]}, ${RUN_CLASS[run]}. ${DESCRIPTION[run]}. ${done ? "Completed today" : progress ? `In progress, ${formatTime(progress.elapsedTime)}` : "Not started"}`}
                 style={{
                   background: `var(--run-${run})`,
                   color: "var(--on-run)",
@@ -148,12 +152,14 @@ export function TrailheadSigns({ stats, progressToday, names, onPlay, disabled }
                   <path d={SHAPE_PATH[run]} style={{ fill: "var(--on-run)" }} />
                 </svg>
                 <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
-                  <span className="w-full truncate font-signage text-[22px] font-extrabold uppercase tracking-[0.03em]">{names[run]}</span>
-                  <span className="text-[13px] font-semibold opacity-90">
-                    {LABEL[run]} · {DESCRIPTION[run]}
+                  <span className="flex w-full items-baseline gap-2 font-signage uppercase">
+                    <span className="text-[22px] font-extrabold tracking-[0.03em]">{LABEL[run]}</span>
+                    <span className="truncate text-[15px] font-bold tracking-[0.05em] opacity-90">{RUN_CLASS[run]}</span>
                   </span>
+                  <span className="text-[13px] font-semibold opacity-90">{DESCRIPTION[run]}</span>
                 </span>
-                <span className="shrink-0 font-signage text-base font-bold uppercase tabular-nums">{status}</span>
+                {/* "Fresh" is the default, so it gives way first on narrow phones */}
+                <span className={cn("shrink-0 font-signage text-base font-bold uppercase tabular-nums", !done && !progress && "max-[359px]:hidden")}>{status}</span>
               </button>
             </div>
           )
