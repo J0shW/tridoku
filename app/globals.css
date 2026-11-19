@@ -57,10 +57,10 @@
   --board-digit-note: #222222;
   --board-digit-error: #dc2626;
   --board-error-tint: rgba(239, 68, 68, 0.3);
-  /* Josh's original grey dashed selection, back by his choice (TRI-103, 19 Nov). Faint on
-     the green overlap shade (1.5:1); darken the stroke if players find it hard to see. */
-  --board-selection-fill: rgba(134, 134, 134, 0.07);
-  --board-selection-stroke: rgb(134, 134, 134);
+  /* Josh's original dashed selection (TRI-103, 19 Nov), darkened from rgb(134 134 134) so
+     it passes 3:1 on every cell (3.5:1 on the green overlap, the lowest) */
+  --board-selection-fill: rgba(77, 77, 77, 0.07);
+  --board-selection-stroke: #4d4d4d;
   /* Double-tap highlight: an ink cell with a paper digit, so it's never mistaken for a shade */
   --board-highlight: #2b2420;
   --board-highlight-digit: #fffaf6;

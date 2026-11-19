@@ -144,7 +144,7 @@ The deep tones fail in dark mode (about 2.2:1 against the dark off keys), which 
 |---|---|---|---|
 | `--board-cell-line` | `line` at 26 %, 0.012 units | Hairlines | `#000` |
 | `--board-region-line` | `line`, 0.11 units | Bold region borders | #000 light, #7e7e7e dark (TRI-068) |
-| `--board-selection` | grey dashed 0.15 stroke that marches round the cell + 7 % grey wash (TRI-103, Josh's original) | Still with reduced motion on | same as live |
+| `--board-selection` | dark grey (`#4d4d4d`) dashed 0.15 stroke that marches round the cell + 7 % grey wash (TRI-103, Josh's original, darkened) | Still with reduced motion on | same as live |
 | `--board-touching` | **one continuous outline** around the selected cell and the 12 cells touching it: `line` 0.075 over a paper halo 0.22 | Never a fill: darkening a cell would make it look like the next rule shade (measured on every palette) | 12 % dark fill |
 | `--board-error-tint` | rgba(220,38,38,0.22), plus `#991b1b` digit and an underline | The red hue keeps it apart from the shades. The digit alone is 3.0–3.4:1, so the underline is required (TRI-065) | red tint, #DC2626 |
 | `--board-highlight` | **inverse:** ink fill, paper digit (14:1) **[Decision: not yet prototyped]** | A tint would read as a deeper shade | opaque #3b82f6 |
@@ -377,7 +377,7 @@ Rule: **a message never moves or resizes the board or the number pad.** Josh rej
 | Given | `digit-given` 700 | |
 | Entry | `digit-entry` 500 | TRI-061 |
 | Notes | up to 3 at the corners, 0.5 units, `digit-note` | TRI-060 decides more than 3 |
-| Selected | grey dashed `selection` stroke, moving; still with reduced motion on | TRI-103 (19 Nov): Josh's original look, by his choice |
+| Selected | dark grey dashed `selection` stroke, moving; still with reduced motion on | TRI-103 (19 Nov): Josh's original look, darkened to 3.5:1 or better |
 | Touching | nothing | TRI-103 (19 Nov): Josh removed it on every difficulty, which closes R-12 |
 | Error (Check on) | `error-tint` + `error-digit` + underline, also on the selected cell | TRI-065 |
 | Highlighted | inverse: ink fill, paper digit | not yet prototyped |

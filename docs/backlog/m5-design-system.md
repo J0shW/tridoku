@@ -230,7 +230,7 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
   | Night (all runs) | `#c9dbea` | `#ecd6bc` | `#a9b2cf` | `#e9eef4` |
 
 - [ ] Region lines and givens are slate `#1c2733`. Your digits are navy `#1e3a5f`, which covers [TRI-061](m3-mobile-accessibility.md#tri-061).
-- [ ] A unit test checks every palette: none, outer and inner lighter than both, and givens, entries and notes at least 4.5:1 on all four shades (the lowest is 5.3:1).
+- [ ] A unit test checks every palette: none, outer and inner lighter than both, givens, entries and notes at least 4.5:1 on all four shades (the lowest is 5.3:1); and the selection dashes at least 3:1 on all four (TRI-103).
 - [ ] [TRI-031](m1-first-impression.md#tri-031)'s rule ("same colours on every difficulty") is recorded as replaced by "same layout of shades on every run".
 - [ ] The rules modal, the rule diagrams and `/how-to-play` describe the two hues ("outer sides in the run's colour, the inner triangle warm, cells in both deepest") and draw with the current palette.
 
@@ -248,12 +248,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** Josh wants his original selection back: a grey dashed border that marches round the cell. It was replaced on 11 Nov by a solid ink outline (TRI-091, for TRI-066). He also wants the outline round the touching cells removed: "players are smart". This undoes part of [TRI-032](m1-first-impression.md#tri-032).
 
 **Done when**
-- [x] The selected cell has the original border: stroke `rgb(134 134 134)`, width 0.15, dashes 0.4 / 0.2, moving one loop a second (the values before commit `e0f2755`). *Dark mode uses the original dark-mode grey, `rgb(43 43 43)`.*
+- [x] The selected cell has the original border: width 0.15, dashes 0.4 / 0.2, moving one loop a second (the values before commit `e0f2755`). *The grey is darkened from `rgb(134 134 134)` to `#4d4d4d` at Josh's request (19 Nov), so it's 3.5:1 or better on every cell. Dark mode uses the original dark-mode grey, `rgb(43 43 43)`.*
 - [x] With reduced motion on, the dashes stay still ([TRI-066](m3-mobile-accessibility.md#tri-066)).
 - [x] Touching cells get no outline and no fill. Today's touching-cells shading is removed. *Closes [R-12](research.md).*
 - [x] The rules copy doesn't promise that touching cells are highlighted. *It never did.*
 
-**Known, not fixed here.** On today's colours the grey dashes are 2.5–2.8:1 on most cells and 1.5:1 on the green overlap, under WCAG's 3:1 for UI parts (about 1.9:1 on the Mountain's deepest shade). Josh chose the original look on 19 Nov. If it's hard to see in testing, darken the dashes to slate and keep the movement.
+**Contrast.** The original grey was 1.5:1 on the green overlap, under WCAG's 3:1 for UI parts. After seeing it, Josh asked for it darker: `#4d4d4d` is 3.5:1 or better on every cell. TRI-102 must keep it at 3:1 or better on the Mountain shades.
 
 **Check it in a preview.** Tap a few cells, including one in the deepest shade. The dashed border marches round the selected cell, and nothing else on the board changes.
 
