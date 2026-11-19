@@ -134,7 +134,8 @@ export function TrailheadSigns({ stats, progressToday, onPlay, disabled }: Trail
         {(["easy", "medium", "hard"] as const).map((run) => {
           const done = stats[run].completedToday
           const progress = !done ? progressToday[run] : undefined
-          const status = done ? "✓ Done" : progress ? `On it · ${formatTime(progress.elapsedTime)}` : "Fresh"
+          // What tapping the sign does next (Start, Continue), or that it's finished
+          const status = done ? "✓ Done" : progress ? "Continue" : "Start"
           return (
             <div role="listitem" key={run}>
               <button
@@ -147,7 +148,7 @@ export function TrailheadSigns({ stats, progressToday, onPlay, disabled }: Trail
                   color: "var(--on-run)",
                   clipPath: "polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%)",
                 }}
-                className="flex h-16 w-[calc(100%-8px)] items-center gap-3 rounded-l-[4px] pl-4 pr-8 text-left transition-opacity hover:opacity-90 disabled:opacity-50"
+                className="flex h-16 w-[calc(100%-8px)] items-center gap-3 rounded-l-[4px] pl-4 pr-8 text-left max-[389px]:gap-2.5 max-[389px]:pl-3 max-[389px]:pr-7 transition-opacity hover:opacity-90 disabled:opacity-50"
               >
                 <svg viewBox="0 0 24 24" className="size-6 shrink-0" aria-hidden="true">
                   <path d={SHAPE_PATH[run]} style={{ fill: "var(--on-run)" }} />
@@ -155,12 +156,16 @@ export function TrailheadSigns({ stats, progressToday, onPlay, disabled }: Trail
                 <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
                   <span className="flex w-full items-baseline gap-2 font-signage uppercase">
                     <span className="text-[22px] font-extrabold tracking-[0.03em]">{LABEL[run]}</span>
-                    <span className="truncate text-[15px] font-bold tracking-[0.05em] opacity-90">{RUN_CLASS[run]}</span>
+                    <span className="truncate text-[15px] font-bold tracking-[0.05em] opacity-90 max-[389px]:text-[13px] max-[389px]:tracking-[0.03em]">{RUN_CLASS[run]}</span>
                   </span>
                   <span className="text-[13px] font-semibold opacity-90">{DESCRIPTION[run]}</span>
                 </span>
-                {/* "Fresh" is the default, so it gives way first on narrow phones */}
-                <span className={cn("shrink-0 font-signage text-base font-bold uppercase tabular-nums", !done && !progress && "max-[359px]:hidden")}>{status}</span>
+                {/* "Start" is the default (the whole sign is the button), so it gives way first on narrow phones */}
+                <span className={cn("flex shrink-0 flex-col items-end font-signage text-base font-bold uppercase leading-tight", !done && !progress && "max-[359px]:hidden")}>
+                  {status}
+                  {/* The time so far sits under "Continue", so the sign stays narrow */}
+                  {progress && <span className="text-[13px] font-semibold tabular-nums opacity-90">{formatTime(progress.elapsedTime)}</span>}
+                </span>
               </button>
             </div>
           )
