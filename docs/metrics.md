@@ -79,6 +79,7 @@ Every event also carries `days_since_first` (whole days since this browser's fir
 | `kofi_prompt_shown` | Win modal showed "Buy me a coffee" (one puzzle a week; again if that result is reopened) | `difficulty` |
 | `kofi_opened` | Ko-fi panel opened | `source` (`footer` / `win_modal`) |
 | `feedback_opened` | Feedback opened | — |
+| `board_theme_changed` | Classic or Mountain picked in the More menu (TRI-101) | `theme` (`classic` / `mountain`) |
 
 The Tally feedback form itself also receives hidden fields with each response (TRI-043): `puzzle_number`, `puzzle_date`, `difficulty`, `solved`, `device_type` (`phone` / `tablet` / `desktop`) and `app_version` (the build's commit). They are `none` when no puzzle is open.
 | `puzzle_load_failed` | Puzzles couldn't be downloaded | `difficulty`, `reason` |

@@ -21,6 +21,8 @@ Decisions Josh made on 11 Nov are marked **[Decided]**. Choices still open are m
 
 **TRI-091 (11 Nov)** made the action colour ink (teal gone, favicons included), made the selection a static ink outline, set region lines to `#2b2420` in both themes, made the highlight an ink cell with a paper digit, and set success and warning to the table's values. The surface, border and muted values in the tables are still targets. TRI-099 replaces the board fills with tonal palettes.
 
+**TRI-101, first half (19 Nov)** added the Mountain look behind a theme picker (⋯ menu → Look; previews only for now): `data-look="mountain"` and `data-run` on `<html>` switch the UI tokens to snow and slate (night skiing in dark mode), `--toggle-on` tokens give on-toggles a pale run tint, and `components/mountain.tsx` has the trail signs and scenery. Fonts: Barlow and Barlow Condensed (`--font-signage`).
+
 **TRI-102 (19 Nov)** added board themes: `lib/palettes.ts` holds Classic (today's colours, the same on every difficulty) and Mountain (dual tone per run, one floodlit palette at night). The game puts the current palette on `<html>`. Players get a theme picker in TRI-101; until then Mountain is preview-only (`?theme=mountain`). Your digits are navy on both. `tests/palettes.test.ts` checks every palette.
 
 **TRI-103 (19 Nov)** brought back Josh's grey dashed, moving selection and removed the touching-cells shade.

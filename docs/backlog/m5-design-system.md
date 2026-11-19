@@ -195,17 +195,20 @@ The difficulty tabs also have no selected state for screen readers.
 The rule from that review: **the board is the boldest thing on screen.** Blur a screenshot (the squint test) and the board should be the first thing you see.
 
 **Done when** (the quiet look on the canvas)
-- [ ] The difficulty tabs are three trail signs: a shape plus Easy, Medium or Hard. The selected run gets a thin border and underline in its colour, never a solid fill. The others are muted. The signs are a tablist with `aria-selected`.
-- [ ] Run colours: green `#1d7a43`, blue `#1d5bb8`, black `#15171c`. They're used only for signs, toggles and the finish screens, never as big panels.
-- [ ] Each run has a name for the day (for example Marmot Meadow, Spruce Glade, The Chute), shown beside the input switch. Names come from a fixed list, picked by the puzzle's date with `lib/dates.ts`, so everyone sees the same name.
-- [ ] The scenery behind the board: sky, two flat ranges of hills and small pines. The pines are in the hills' blue-grey (no more than 1.6:1 against the sky), so they never compete with the board. Nothing is drawn under the board.
-- [ ] Toggles that are on (Pencil, number keys with a note, Check) use a pale tint of the run colour with a border and text in the run colour. The text is 4.5:1 or better in both themes. These replace the ink toggles on main.
+**Built in two PRs.** (A) the theme picker and the Mountain game screen; (B) the trailhead welcome screen. The picker shows on previews only until (B) lands, so the live site never shows a half-built Mountain.
+
+- [x] The difficulty tabs are three trail signs: a shape plus Easy, Medium or Hard. The selected run gets a thin border and underline in its colour, never a solid fill. The others are muted. The signs are a tablist with `aria-selected`. *`RunSigns` in `components/mountain.tsx`; a ✓ for done today and a dot for in progress.*
+- [x] Run colours: green `#1d7a43`, blue `#1d5bb8`, black `#15171c`. They're used only for signs, toggles and the finish screens, never as big panels.
+- [x] Each run has a name for the day (for example Marmot Meadow, Spruce Glade, The Chute), shown beside the input switch. Names come from a fixed list, picked by the puzzle's date with `lib/dates.ts`, so everyone sees the same name. *`lib/run-names.ts`, 11 names a run.*
+- [x] The scenery behind the board: sky, two flat ranges of hills and small pines. The pines are in the hills' blue-grey (no more than 1.6:1 against the sky), so they never compete with the board. Nothing is drawn under the board.
+- [x] Toggles that are on (Pencil, number keys with a note, Check) use a pale tint of the run colour with a border and text in the run colour. The text is 4.5:1 or better in both themes. These replace the ink toggles on main. *Through `--toggle-on` tokens, so Classic keeps its ink toggles. Lowest: Easy, 4.6:1.*
 - [ ] The welcome screen is a trailhead: a signpost with three arrow signs, one per run. Each sign shows the run's name, its difficulty with a one-line description, and a status: your time, "On it" or "Fresh". A button below continues your current run.
-- [ ] Dark mode is night skiing: navy sky, stars and a moon. The board stays light, like floodlit snow. The Black diamond turns light at night so it stays visible.
-- [ ] Barlow Condensed for signs and headings and Barlow for body text, loaded with `next/font`.
+- [x] Dark mode is night skiing: navy sky, stars and a moon. The board stays light, like floodlit snow. The Black diamond turns light at night so it stays visible. *No moon: it collided with the ⋯ button.*
+- [x] Barlow Condensed for signs and headings and Barlow for body text, loaded with `next/font`.
 - [ ] The PR has blurred (squint-test) screenshots of each run at 390 px, light and dark, and the board stands out first in every one.
-- [ ] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks).
-- [ ] **[Decided 19 Nov]** Players choose Classic or Mountain with a theme picker. Build it here, replacing the preview-only `?theme=` switch from TRI-102; default to be decided with Josh. Everything above applies to the Mountain theme; Classic keeps today's screens.
+- [x] The TRI-058 fit and TRI-087 corner layout hold at 360×640 and 390×664 (play-through checks). *Mountain's pad sits 8 px lower than Classic's (taller signs and the run-name row): 600 of 640, 626 of 664, 553 of 568 on a 320 px SE.*
+- [x] **[Decided 19 Nov]** Players choose Classic or Mountain with a theme picker. Everything above applies to the Mountain theme; Classic keeps today's screens. *"Look: Classic / Mountain" in the ⋯ menu, remembered on the device, with `board_theme_changed`. Classic is the default. A script in `<head>` sets the theme before the first paint.*
+- [ ] The picker shows on the live site (after the trailhead PR).
 
 **Check it in a preview.** On your phone, open the game and switch between the three runs. Only the board, and the thin line under the selected sign, should catch your eye. Turn on dark mode for night skiing. Open the welcome screen and read the signpost.
 
