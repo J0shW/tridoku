@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ChevronLeft, ChevronRight, MousePointerClick, Hand, ArrowUpDown, Check } from "lucide-react"
 import { TRIDOKU_BOARD } from "@/lib/tridoku"
-import { ROW_H, triPts, centroid, ExampleBox, RegionExample, OuterEdgesExample, InnerTriangleExample, NoTouchingExample, PowerCellExample } from "@/components/rule-diagrams"
+import { ROW_H, triPts, centroid, ExampleBox, Swatch, RegionExample, OuterEdgesExample, InnerTriangleExample, NoTouchingExample, PowerCellExample } from "@/components/rule-diagrams"
 import { Button } from "@/components/ui/legacy-button"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { cn } from "@/lib/utils"
@@ -251,9 +251,9 @@ const RULE_STEPS: Step[] = [
           <InnerTriangleExample />
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed mt-3 text-center text-pretty">
-          On the board, <strong className="text-foreground">blue</strong> cells are on an outer side,{" "}
-          <strong className="text-foreground">yellow</strong> cells on the inner triangle, and{" "}
-          <strong className="text-foreground">green</strong> cells on both.
+          On the board, cells on an outer side share one colour <Swatch shade="outer" />, cells on the inner
+          triangle another <Swatch shade="inner" />, and cells on both are the{" "}
+          <strong className="text-foreground">deepest</strong> <Swatch shade="overlap" />.
         </p>
       </div>
     ),

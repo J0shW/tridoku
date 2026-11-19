@@ -43,8 +43,8 @@
   --difficulty-medium: #ecbd6c;
   --difficulty-hard: #e26495;
 
-  /* Board. The rule fills are the same on every difficulty for now (TRI-031);
-     TRI-099 replaces them with tonal palettes. Cells are light in both themes. */
+  /* Board. These defaults are the Classic palette; the game sets the current theme's palette
+     on <html> from lib/palettes.ts (TRI-102). Cells are light in both themes. */
   --board-cell-outer: #bfdde2;
   --board-cell-inner: #eed496;
   --board-cell-overlap: #98ac8b;
@@ -53,7 +53,8 @@
   --board-region-line: #2b2420;
   --board-cell-line: #000000;
   --board-digit-given: #000000;
-  --board-digit-entry: #000000;
+  /* Navy, so your digits look different from the givens (TRI-061): 4.7:1 or better */
+  --board-digit-entry: #1e3a5f;
   --board-digit-note: #222222;
   --board-digit-error: #dc2626;
   --board-error-tint: rgba(239, 68, 68, 0.3);

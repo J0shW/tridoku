@@ -26,6 +26,18 @@ export function centroid(row: number, col: number, dir: "up" | "down") {
 
 // ─── Example wrappers ──────────────────────────────────────────────────────────
 
+/** A small chip of a board shade, so rule copy can point at a colour that changes with the
+    board theme (TRI-102) instead of naming it. */
+export function Swatch({ shade }: { shade: "outer" | "inner" | "overlap" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="inline-block size-3 rounded-[3px] align-[-1px] mx-0.5 ring-1 ring-black/20"
+      style={{ background: `var(--board-cell-${shade})` }}
+    />
+  )
+}
+
 export function ExampleBox({ children, caption }: { children: React.ReactNode; caption: string }) {
   return (
     <div className="mt-3 rounded-md bg-muted/40 border border-border/60 p-2">
@@ -55,7 +67,7 @@ export function RegionExample() {
             <g key={cell.id}>
               <polygon
                 points={triPts(cell.row, cell.col, cell.direction)}
-                fill="#e4e3d3"
+                fill="var(--board-cell-none)"
                 stroke="#aaa"
                 strokeWidth="0.05"
               />
@@ -66,7 +78,7 @@ export function RegionExample() {
                 dominantBaseline="middle"
                 fontSize="0.72"
                 fontWeight="700"
-                fill="#2a2a2a"
+                fill="var(--board-digit-given)"
               >
                 {i + 1}
               </text>
@@ -94,8 +106,9 @@ export function OuterEdgesExample() {
   const leftEdgeCells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden && c.isOuterLeftEdge)
 
   function fill(color: string) {
-    if (color === "outer" || color === "overlap") return "#bfdde2"
-    return "#e4e3d3"
+    // TRI-102: drawn with the current board palette
+    if (color === "outer" || color === "overlap") return "var(--board-cell-outer)"
+    return "var(--board-cell-none)"
   }
 
   return (
@@ -125,7 +138,7 @@ export function OuterEdgesExample() {
               dominantBaseline="middle"
               fontSize="0.68"
               fontWeight="700"
-              fill="#1a4a5a"
+              fill="var(--board-digit-entry)"
             >
               {i + 1}
             </text>
@@ -144,8 +157,8 @@ export function InnerTriangleExample() {
   const innerTopCells = TRIDOKU_BOARD[4].filter((c) => !c.hidden && c.isInnerTopEdge)
 
   function fill(color: string) {
-    if (color === "inner" || color === "overlap") return "#eed496"
-    return "#e4e3d3"
+    if (color === "inner" || color === "overlap") return "var(--board-cell-inner)"
+    return "var(--board-cell-none)"
   }
 
   return (
@@ -175,7 +188,7 @@ export function InnerTriangleExample() {
               dominantBaseline="middle"
               fontSize="0.68"
               fontWeight="700"
-              fill="#5a3a00"
+              fill="var(--board-digit-entry)"
             >
               {i + 1}
             </text>

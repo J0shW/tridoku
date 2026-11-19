@@ -21,6 +21,8 @@ import { format } from "date-fns"
 import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
+import { applyPalette, getPalette } from "@/lib/palettes"
+import { readBoardTheme } from "@/lib/board-theme"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
 import dynamic from "next/dynamic"
@@ -82,7 +84,14 @@ export function TridokuGame() {
     setInputMode,
   } = useTridoku()
 
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
+
+  // TRI-102: put the board palette for this theme, run and light or dark mode on <html>.
+  // Classic everywhere for now; Mountain is preview-only until the theme picker (TRI-101).
+  const [boardTheme] = useState(readBoardTheme)
+  useEffect(() => {
+    applyPalette(getPalette(boardTheme, difficulty ?? "easy", resolvedTheme === "dark"))
+  }, [boardTheme, difficulty, resolvedTheme])
 
   const [showStats, setShowStats] = useState(false)
   const [showWin, setShowWin] = useState(false)
