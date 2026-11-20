@@ -18,13 +18,12 @@ import { Button } from "@/components/ui/legacy-button"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
-import { fromDateKey, todayKey } from "@/lib/dates"
+import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
 import { applyLook, readBoardTheme, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
-import { MountainScenery, RunShape, RunSigns } from "@/components/mountain"
-import { runName } from "@/lib/run-names"
+import { MountainScenery, RUN_CLASS, RunShape, RunSigns } from "@/components/mountain"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
 import dynamic from "next/dynamic"
@@ -349,12 +348,17 @@ export function TridokuGame() {
             errorNotice={loadError && !isGenerating ? <LoadErrorNotice onRetry={retryLoad} /> : null}
             onPlay={playFromWelcome}
             onOpenRules={openRules}
+            mountain={mountain}
           />
         ) : (
           /* Game view - active puzzle */
           <>
+            {/* The run picker and the board share one backdrop on Mountain: the scenery starts
+                behind the signs and ends a little below the board (TRI-101) */}
+            <div className={`relative flex flex-col gap-2 ${mountain ? "pb-3" : ""}`}>
+            {mountain && <MountainScenery className="absolute -top-4 bottom-0 -left-4 -right-4 h-[calc(100%+1rem)] w-[calc(100%+2rem)]" />}
             {/* Difficulty selector: trail signs on the Mountain theme (TRI-101) */}
-            <div className="flex justify-center mb-3">
+            <div className="relative flex justify-center mb-3">
               {mountain ? (
                 <RunSigns
                   current={difficulty!}
@@ -374,14 +378,12 @@ export function TridokuGame() {
               )}
             </div>
             
-            {loadError && !isGenerating && <LoadErrorNotice onRetry={retryLoad} />}
+            {loadError && !isGenerating && <div className="relative"><LoadErrorNotice onRetry={retryLoad} /></div>}
 
             {/* Game board, with the timer and controls in the empty corners beside the
                 triangle (TRI-087). On short screens the board shrinks so the number pad
                 stays on screen (TRI-058). */}
             <div className="relative flex justify-center">
-              {/* The mountain behind the board, edge to edge (TRI-101) */}
-              {mountain && <MountainScenery className="absolute inset-y-0 -left-4 -right-4 h-full w-[calc(100%+2rem)]" />}
               <div
                 className="@container relative w-full max-w-md"
                 style={{ maxWidth: "min(28rem, max(15rem, calc((100dvh - 330px) * 1.15)))" }}
@@ -423,6 +425,7 @@ export function TridokuGame() {
                 />
               </div>
             </div>
+            </div>
 
             {/* View mode indicator, with a way back to the result card (TRI-035) */}
             {isViewMode && (
@@ -443,11 +446,11 @@ export function TridokuGame() {
             {!isViewMode && (
               <div className="pb-4 space-y-2">
                 <div className={mountain ? "flex items-center justify-between gap-3" : "relative flex justify-center"}>
-                  {/* Today's run name, beside the switch (TRI-101) */}
+                  {/* The run you're on, beside the switch (TRI-101) */}
                   {mountain && difficulty && (
                     <p className="flex min-w-0 items-center gap-2 font-signage text-[19px] font-extrabold uppercase tracking-[0.04em]">
                       <RunShape run={difficulty} className="size-4" />
-                      <span className="truncate">{runName(difficulty, puzzleDate ?? todayKey())}</span>
+                      <span className="truncate">{RUN_CLASS[difficulty]}</span>
                     </p>
                   )}
                   <div className="relative">

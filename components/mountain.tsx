@@ -8,7 +8,6 @@
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatTime, type Difficulty } from "@/lib/tridoku"
-import { RUN_CLASS } from "@/lib/run-names"
 import type { DifficultyStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 
 const SHAPE_PATH: Record<Difficulty, string> = {
@@ -27,6 +26,14 @@ export function RunShape({ run, className }: { run: Difficulty; className?: stri
 }
 
 const LABEL: Record<Difficulty, string> = { easy: "Easy", medium: "Medium", hard: "Hard" }
+
+/** The ski-run colour for each difficulty, shown with its shape. Players know the ski
+    grades, so the short names (Josh, 20 Nov). */
+export const RUN_CLASS: Record<Difficulty, string> = {
+  easy: "Green",
+  medium: "Blue",
+  hard: "Black diamond",
+}
 
 interface RunSignsProps {
   current: Difficulty
@@ -92,9 +99,78 @@ export function MountainScenery({ className }: { className?: string }) {
       <polygon points="215,300 215,170 262,120 300,160 345,112 400,168 400,300" style={{ fill: "var(--scene-far)" }} />
       <polygon points="-10,300 -10,236 30,214 70,240 112,200 150,236 150,300" style={{ fill: "var(--scene-near)" }} />
       <polygon points="240,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
+      {/* A low ridge across the bottom, so no gap shows below the board */}
+      <polygon points="-10,300 -10,262 195,252 400,262 400,300" style={{ fill: "var(--scene-near)" }} />
       {TREES.map((pts) => (
         <polygon key={pts} points={pts} style={{ fill: "var(--scene-tree)" }} />
       ))}
     </svg>
+  )
+}
+
+const DESCRIPTION: Record<Difficulty, string> = {
+  easy: "Great first puzzle",
+  medium: "A step up",
+  hard: "For Sudoku regulars",
+}
+
+interface TrailheadSignsProps {
+  stats: Record<Difficulty, DifficultyStats>
+  progressToday: Partial<Record<Difficulty, PuzzleInProgress>>
+  onPlay: (difficulty: Difficulty) => void
+  disabled?: boolean
+}
+
+/**
+ * The welcome screen's signpost (TRI-101): three arrow signs on a wooden post, one per run.
+ * The difficulty leads; the ski-run name and a one-line description sit under it. Solid run colours are fine here:
+ * there's no board in play yet.
+ */
+export function TrailheadSigns({ stats, progressToday, onPlay, disabled }: TrailheadSignsProps) {
+  return (
+    <div role="list" aria-label="Today's runs" className="relative pl-6 text-left">
+      <div className="absolute bottom-[-6px] left-[14px] top-[-6px] w-3 rounded-[3px] bg-[#7a5a40] dark:bg-[#4a3a2c]" aria-hidden="true" />
+      <div className="relative space-y-2.5">
+        {(["easy", "medium", "hard"] as const).map((run) => {
+          const done = stats[run].completedToday
+          const progress = !done ? progressToday[run] : undefined
+          // What tapping the sign does next (Start, Continue), or that it's finished
+          const status = done ? "✓ Done" : progress ? "Continue" : "Start"
+          return (
+            <div role="listitem" key={run}>
+              <button
+                type="button"
+                onClick={() => onPlay(run)}
+                disabled={disabled}
+                aria-label={`${LABEL[run]}, ${RUN_CLASS[run]}. ${DESCRIPTION[run]}. ${done ? "Completed today" : progress ? `In progress, ${formatTime(progress.elapsedTime)}` : "Not started"}`}
+                style={{
+                  background: `var(--run-${run})`,
+                  color: "var(--on-run)",
+                  clipPath: "polygon(0 0, calc(100% - 22px) 0, 100% 50%, calc(100% - 22px) 100%, 0 100%)",
+                }}
+                className="flex h-16 w-[calc(100%-8px)] items-center gap-3 rounded-l-[4px] pl-4 pr-8 text-left max-[389px]:gap-2.5 max-[389px]:pl-3 max-[389px]:pr-7 transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                <svg viewBox="0 0 24 24" className="size-6 shrink-0" aria-hidden="true">
+                  <path d={SHAPE_PATH[run]} style={{ fill: "var(--on-run)" }} />
+                </svg>
+                <span className="flex min-w-0 flex-1 flex-col items-start leading-tight">
+                  <span className="flex w-full items-baseline gap-2 font-signage uppercase">
+                    <span className="text-[22px] font-extrabold tracking-[0.03em]">{LABEL[run]}</span>
+                    <span className="truncate text-[15px] font-bold tracking-[0.05em] opacity-90 max-[389px]:text-[13px] max-[389px]:tracking-[0.03em]">{RUN_CLASS[run]}</span>
+                  </span>
+                  <span className="text-[13px] font-semibold opacity-90">{DESCRIPTION[run]}</span>
+                </span>
+                {/* "Start" is the default (the whole sign is the button), so it gives way first on narrow phones */}
+                <span className={cn("flex shrink-0 flex-col items-end font-signage text-base font-bold uppercase leading-tight", !done && !progress && "max-[359px]:hidden")}>
+                  {status}
+                  {/* The time so far sits under "Continue", so the sign stays narrow */}
+                  {progress && <span className="text-[13px] font-semibold tabular-nums opacity-90">{formatTime(progress.elapsedTime)}</span>}
+                </span>
+              </button>
+            </div>
+          )
+        })}
+      </div>
+    </div>
   )
 }

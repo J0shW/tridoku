@@ -136,7 +136,7 @@ export default function HowToPlayPage() {
           <h2 id="difficulty" className="text-2xl font-bold text-foreground">Easy, Medium and Hard</h2>
           <ul className="list-disc space-y-1 pl-5 text-muted-foreground leading-relaxed">
             <li><strong className="text-foreground">Easy</strong> is a great first puzzle.</li>
-            <li><strong className="text-foreground">Medium</strong> needs one trick, like the tip above.</li>
+            <li><strong className="text-foreground">Medium</strong> is a step up.</li>
             <li><strong className="text-foreground">Hard</strong> is for Sudoku regulars.</li>
           </ul>
           <p className="text-muted-foreground leading-relaxed">
