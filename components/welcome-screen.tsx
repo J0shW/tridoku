@@ -74,16 +74,16 @@ export function WelcomeScreen({
           </div>
         </div>
 
+        {/* What it is, first (TRI-026): the name, then one line. Same words on both themes (Josh, 20 Nov) */}
         {mountain ? (
-          // What it is, first (TRI-026): the name, then one line (Josh, 20 Nov)
           <div className="space-y-1">
             <h2 className="font-signage text-5xl font-extrabold uppercase tracking-[0.04em] text-foreground">Tridoku</h2>
             <p className="text-lg text-muted-foreground text-pretty">It&apos;s Sudoku on a triangle. 3 challenges per day.</p>
           </div>
         ) : (
         <div className="space-y-2">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-balance">Sudoku on a triangle</h2>
-          <p className="text-muted-foreground text-pretty">81 cells, 4 rules, a new puzzle every day.</p>
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">Tridoku</h2>
+          <p className="text-lg text-muted-foreground text-pretty">It&apos;s Sudoku on a triangle. 3 challenges per day.</p>
         </div>
         )}
 

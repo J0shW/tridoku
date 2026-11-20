@@ -22,7 +22,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 
 **Done when**
 - [x] The welcome hero shows a static preview of today's board.
-- [x] One line explains the game, e.g. "Sudoku on a triangle. 81 cells, 4 rules, a new puzzle every day."
+- [x] One line explains the game, e.g. "Sudoku on a triangle. 81 cells, 4 rules, a new puzzle every day." *Changed (Josh, 20 Nov): the heading is "Tridoku", with "It's Sudoku on a triangle. 3 challenges per day." under it, on both themes.*
 
 **Check it in a preview.** Dev tools → Clear all saved data, then view the first screen on a phone.
 
