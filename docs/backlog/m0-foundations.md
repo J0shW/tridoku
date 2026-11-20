@@ -82,7 +82,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] Existing saved stats in both date formats are read correctly (no player loses their history).
 - [x] Unit tests cover 1–9 Nov, 31 Dec → 1 Jan and a missed day.
 
-**Check it in a preview.** Dev tools → Seed 5-day streak → Fill all but 3 → finish: streak reads 6. Then +1 day, solve again: 7.
+**Check it in a preview.** Dev tools → Seed 5-day streak → Fill all but 1 → finish: streak reads 6. Then +1 day, solve again: 7.
 
 <a id="tri-006"></a>
 ## TRI-006 · Credit each completion to the puzzle's own date

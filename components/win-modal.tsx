@@ -50,7 +50,7 @@ export function WinModal({ open, onOpenChange, mountain = false, ...props }: Win
         // a shadow that follows the notched outline
         <DialogContent
           showCloseButton={false}
-          className="block gap-0 overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none [filter:drop-shadow(0_24px_28px_rgb(10_18_28/0.35))]"
+          className="z-60 block gap-0 overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none [filter:drop-shadow(0_24px_28px_rgb(10_18_28/0.35))]"
         >
           <LiftTicketBody {...props} />
         </DialogContent>

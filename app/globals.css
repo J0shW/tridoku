@@ -165,6 +165,8 @@
   --run-medium: #1d5bb8;
   --run-hard: #15171c;
   --segment-on: #ffffff;
+  /* Fresh snow over the board in the ride up and run down (TRI-107) */
+  --snow-cover: #fbfdff;
   /* Text on a solid run colour (trailhead signs): white by day, 5.4:1 or better */
   --on-run: #ffffff;
 }
@@ -194,6 +196,7 @@
   --run-hard: #e6edf5;
   /* Lighter than the switch around it (the navy page colour disappeared, TRI-101 review) */
   --segment-on: #2a4163;
+  --snow-cover: #eef3f8;
   --on-run: #0f1a2a;
 }
 /* Toggles that are on: a pale tint of the run with its colour as border and text (4.6:1 or better) */
@@ -204,6 +207,19 @@
 .dark[data-look="mountain"][data-run="medium"] { --toggle-on: #1d3150; --toggle-on-fg: #8fb4ef; }
 .dark[data-look="mountain"][data-run="hard"] { --toggle-on: #2a3a52; --toggle-on-fg: #e6edf5; }
 [data-look="mountain"] { --toggle-on-border: var(--toggle-on-fg); }
+/* TRI-107: the splash of snow from the skier's hard stop, drawn on canvases. The back one
+   sits above the dialog backdrop (z-50) and below the ticket (z-60); the front one above it. */
+.snow-splash {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .snow-splash { display: none; }
+}
+
 /* TRI-104: while you play, the hills and pines flatten into one dim tone (the board, signs
    and keys keep their colours). Instant with reduced motion. */
 .mountain-scenery * { transition: fill var(--dur-scene, 600ms) ease, opacity var(--dur-scene, 600ms) ease; }
