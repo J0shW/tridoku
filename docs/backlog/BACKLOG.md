@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**108 items** · 37 todo · 2 in progress · 6 in review · 59 done · 4 won't do · plus 13 [research items](research.md)
+**108 items** · 36 todo · 2 in progress · 6 in review · 60 done · 4 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -143,8 +143,8 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | [TRI-102](m5-design-system.md#tri-102) | Dual-tone run boards | High | H | M | TRI-088 | Done |
 | [TRI-103](m5-design-system.md#tri-103) | Selected cell: the dashed border, and no neighbour outline | Medium | M | S | — | Done |
 | [TRI-104](m5-design-system.md#tri-104) | The mountain falls into shadow while you play | Medium | M | S | TRI-101 | Done |
-| [TRI-105](m5-design-system.md#tri-105) | Run complete: the lift ticket and your finished board | Medium | H | M | TRI-101, TRI-094 | In review |
-| [TRI-106](m5-design-system.md#tri-106) | Share it like a lift ticket | Medium | M | S | TRI-105 | Todo |
+| [TRI-105](m5-design-system.md#tri-105) | Run complete: the lift ticket and your finished board | Medium | H | M | TRI-101, TRI-094 | Done |
+| [TRI-106](m5-design-system.md#tri-106) | Share it like a lift ticket | Medium | M | S | TRI-105 | In review |
 | [TRI-107](m5-design-system.md#tri-107) | Ride up and ski down | Low | M | M | TRI-101, TRI-104, TRI-105 | Todo |
 | [TRI-108](m5-design-system.md#tri-108) | Season pass | Low | M | M | TRI-101 | Todo |
 | [TRI-094](m5-design-system.md#tri-094) | Dialogs and menus on the system | Medium | M | M | TRI-089 | Done |

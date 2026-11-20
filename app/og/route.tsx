@@ -7,7 +7,8 @@ import { ImageResponse } from "next/og"
 import { dateKeyInZone, fromDateKey, normalizeDateKey } from "@/lib/dates"
 import { PRODUCTION_ORIGIN } from "@/lib/app-env"
 import { BACKUP_PUZZLES } from "@/lib/puzzle-service"
-import { getPuzzleNumber, loadPuzzle, TRIDOKU_BOARD } from "@/lib/tridoku"
+import { getPuzzleNumber } from "@/lib/tridoku"
+import { OgBoard, puzzleFor } from "@/lib/og-board"
 import { OG_IMAGE_SIZE, OG_TIME_ZONE } from "@/lib/og"
 
 const COLORS = {
@@ -23,52 +24,15 @@ const COLORS = {
   bold: "#2b2420",
 }
 
-const H = Math.sqrt(3) // row height in board units (a cell is 2 units wide)
 const SCALE = 31 // px per board unit: 18 × 31 = 558 wide, 9√3 × 31 ≈ 483 tall
-
-async function easyPuzzleFor(date: string, origin: string): Promise<string | null> {
-  try {
-    const res = await fetch(`${origin}/puzzles/${date.slice(0, 4)}.json`, { next: { revalidate: 3600 } })
-    if (!res.ok) return null
-    const all = await res.json()
-    return typeof all?.[date]?.easy?.puzzle === "string" ? all[date].easy.puzzle : null
-  } catch {
-    return null
-  }
-}
-
-function trianglePoints(row: number, col: number, up: boolean): string {
-  const pts = up
-    ? [[col, (row + 1) * H], [col + 1, row * H], [col + 2, (row + 1) * H]]
-    : [[col, row * H], [col + 2, row * H], [col + 1, (row + 1) * H]]
-  return pts.map(([x, y]) => `${x * SCALE},${y * SCALE}`).join(" ")
-}
-
-// The 6 upward 3×3 macro-triangles; their outlines are every bold region edge.
-function regionOutlines(): string[] {
-  const out: string[] = []
-  for (let m = 0; m < 3; m++) {
-    for (let p = 0; p <= m; p++) {
-      const x = 9 - 3 * m + 6 * p
-      const y = 3 * m * H
-      out.push([[x, y], [x - 3, y + 3 * H], [x + 3, y + 3 * H]].map(([a, b]) => `${a * SCALE},${b * SCALE}`).join(" "))
-    }
-  }
-  return out
-}
 
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const requested = normalizeDateKey(url.searchParams.get("date"))
   const date = requested ?? dateKeyInZone(new Date(), OG_TIME_ZONE)
   // Previews may not have this date's puzzles yet; production does.
-  const found = (await easyPuzzleFor(date, url.origin)) ?? (await easyPuzzleFor(date, PRODUCTION_ORIGIN))
+  const found = (await puzzleFor(date, url.origin)) ?? (await puzzleFor(date, PRODUCTION_ORIGIN))
   const puzzle = found ?? BACKUP_PUZZLES.easy
-  const board = loadPuzzle(puzzle)
-  const cells = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
-
-  const width = 18 * SCALE
-  const height = 9 * H * SCALE
   const dateLabel = fromDateKey(date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
 
   const image = new ImageResponse(
@@ -107,48 +71,13 @@ export async function GET(request: Request) {
           <div style={{ display: "flex", marginTop: 48, fontSize: 28, color: COLORS.muted }}>tridokupuzzle.com</div>
         </div>
 
-        <div style={{ display: "flex", position: "relative", width, height }}>
-          <svg width={width} height={height} viewBox={`-2 -2 ${width + 4} ${height + 4}`} style={{ position: "absolute", left: 0, top: 0 }}>
-            {cells.map((c) => (
-              <polygon
-                key={c.id}
-                points={trianglePoints(c.row, c.col, c.direction === "up")}
-                fill={COLORS[c.color]}
-                stroke={COLORS.line}
-                strokeWidth={1}
-              />
-            ))}
-            {regionOutlines().map((pts) => (
-              <polygon key={pts} points={pts} fill="none" stroke={COLORS.bold} strokeWidth={3.5} strokeLinejoin="round" />
-            ))}
-          </svg>
-          {cells.map((c) => {
-            const v = board[c.row][c.col].value
-            if (!v) return null
-            const cx = (c.col + 1) * SCALE
-            const cy = (c.row * H + (c.direction === "up" ? (2 * H) / 3 : H / 3)) * SCALE
-            const box = 30
-            return (
-              <div
-                key={c.id}
-                style={{
-                  position: "absolute",
-                  left: cx - box / 2,
-                  top: cy - box / 2,
-                  width: box,
-                  height: box,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 22,
-                  color: COLORS.foreground,
-                }}
-              >
-                {String(v)}
-              </div>
-            )
-          })}
-        </div>
+        <OgBoard
+          puzzle={puzzle}
+          scale={SCALE}
+          fontSize={22}
+          digitBox={30}
+          colors={{ outer: COLORS.outer, inner: COLORS.inner, overlap: COLORS.overlap, none: COLORS.none, line: COLORS.line, bold: COLORS.bold, digit: COLORS.foreground }}
+        />
       </div>
     ),
     OG_IMAGE_SIZE,

@@ -315,10 +315,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** The share text and link preview should carry the mountain.
 
 **Done when**
-- [ ] The link preview (1200×630) is a lift ticket with the day's three run times and the solved board.
-- [ ] The share text uses the run shapes as plain text characters, for example `● 3:12  ■ 6:40  ◆ 8:41`. A run you skipped doesn't appear.
-- [ ] The share text changes only after Josh tests it on iMessage, Notes, WhatsApp and Discord. The indent stays as it is unless he tests that too.
-- [ ] `result_shared` still fires through `trackEvent`.
+**Decided (Josh, 20 Nov):** the preview shows the board with only its given digits (a solved board would spoil the puzzle for anyone who hasn't played); the shared link carries the player's times, so each shared result gets its own preview; Mountain shares a one-line day summary, and Classic's share text is unchanged.
+
+- [x] The link preview (1200×630) is a lift ticket with the day's three run times and ~~the solved board~~ that day's board with its givens only. *`/og/ticket?date=…&t=e192-m400-h521`, set Barlow Condensed (fetched from Google Fonts once per server; the default font if that fails). The board is the hardest run shown, in its Mountain colours.*
+- [x] The share text uses the run shapes as plain text characters, for example `● 3:12  ■ 6:40  ◆ 8:41`. A run you skipped doesn't appear. *Mountain only: "Daily Tridoku #324", the runs line, the streak when it's over a day, and the link `tridokupuzzle.com/r/<date>/<times>`, whose page carries the ticket preview and sends people on to the game.*
+- [ ] The share text changes only after Josh tests it on iMessage, Notes, WhatsApp and Discord. The indent stays as it is unless he tests that too. *Classic's text and indent are unchanged. Mountain's new text is waiting for Josh's test in the preview.*
+- [x] `result_shared` still fires through `trackEvent`.
 
 **Check it in a preview.** Finish a run, tap Share, and paste into Notes and one chat app. Paste the preview link into a chat and check the ticket image.
 

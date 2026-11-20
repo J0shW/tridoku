@@ -52,6 +52,63 @@ export function buildShareText({ puzzleNumber, difficulty, time, streak, regionE
   ].join("\n")
 }
 
+// ── Mountain theme (TRI-106) ─────────────────────────────────────────────────────────
+
+/** The run shapes as plain text characters, so they paste anywhere. */
+export const RUN_SHAPE: Record<Difficulty, string> = { easy: "●", medium: "■", hard: "◆" }
+
+export type RunTimes = Partial<Record<Difficulty, number>>
+
+const CODE_LETTER: Record<Difficulty, string> = { easy: "e", medium: "m", hard: "h" }
+const MAX_TIME = 24 * 60 * 60
+
+/** "e192-m400-h521": each run done that day and its time in seconds. Runs not done are left out. */
+export function encodeRunTimes(times: RunTimes): string {
+  return DIFFICULTIES.filter((d) => times[d] != null).map((d) => `${CODE_LETTER[d]}${Math.round(times[d]!)}`).join("-")
+}
+
+/** Reads a code made by encodeRunTimes. Anything malformed or out of range is ignored. */
+export function decodeRunTimes(code: string | null | undefined): RunTimes {
+  const out: RunTimes = {}
+  for (const part of (code ?? "").split("-")) {
+    const m = /^([emh])(\d{1,5})$/.exec(part)
+    if (!m) continue
+    const d = DIFFICULTIES.find((k) => CODE_LETTER[k] === m[1])!
+    const t = Number(m[2])
+    if (t <= MAX_TIME && out[d] == null) out[d] = t
+  }
+  return out
+}
+
+/** The link a Mountain result shares: its own preview ticket, and it opens the game. */
+export function mountainShareUrl(date: DateKey, times: RunTimes): string {
+  return `${SITE_URL}r/${date}/${encodeRunTimes(times)}`
+}
+
+export interface MountainShareResult {
+  puzzleNumber: number
+  date: DateKey
+  times: RunTimes
+  streak: number
+}
+
+/**
+ * One line for the whole day, with the run shapes:
+ *   Daily Tridoku #324
+ *   ● 3:12  ■ 6:40  ◆ 8:41
+ *   7-day streak
+ *   https://www.tridokupuzzle.com/r/2026-11-20/e192-m400-h521
+ */
+export function buildMountainShareText({ puzzleNumber, date, times, streak }: MountainShareResult): string {
+  const runs = DIFFICULTIES.filter((d) => times[d] != null).map((d) => `${RUN_SHAPE[d]} ${formatTime(times[d]!)}`)
+  return [
+    `Daily Tridoku #${puzzleNumber}`,
+    runs.join("  "),
+    ...(streak > 1 ? [`${streak}-day streak`] : []),
+    mountainShareUrl(date, times),
+  ].join("\n")
+}
+
 export type BestComparison =
   | { kind: "first" }
   | { kind: "new_best"; by: number }
