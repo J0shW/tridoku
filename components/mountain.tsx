@@ -95,11 +95,11 @@ export function MountainScenery({ className }: { className?: string }) {
       {STARS.map(([x, y, r]) => (
         <circle key={`${x}-${y}`} cx={x} cy={y} r={r} style={{ fill: "var(--scene-star)" }} />
       ))}
-      <polygon points="-10,300 -10,190 40,150 85,182 130,128 175,176 175,300" style={{ fill: "var(--scene-far)" }} />
-      <polygon points="215,300 215,170 262,120 300,160 345,112 400,168 400,300" style={{ fill: "var(--scene-far)" }} />
-      <polygon points="-10,300 -10,236 30,214 70,240 112,200 150,236 150,300" style={{ fill: "var(--scene-near)" }} />
-      <polygon points="240,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
-      {/* A low ridge across the bottom, so no gap shows below the board */}
+      <polygon points="-10,300 -10,190 40,150 85,182 130,128 175,176 230,300" style={{ fill: "var(--scene-far)" }} />
+      <polygon points="160,300 215,170 262,120 300,160 345,112 400,168 400,300" style={{ fill: "var(--scene-far)" }} />
+      <polygon points="-10,300 -10,236 30,214 70,240 112,200 150,236 200,300" style={{ fill: "var(--scene-near)" }} />
+      <polygon points="190,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
+      {/* A low ridge across the bottom, so no gap shows below the board; the hills above slope into it */}
       <polygon points="-10,300 -10,262 195,252 400,262 400,300" style={{ fill: "var(--scene-near)" }} />
       {TREES.map((pts) => (
         <polygon key={pts} points={pts} style={{ fill: "var(--scene-tree)" }} />

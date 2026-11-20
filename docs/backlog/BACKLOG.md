@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**108 items** · 40 todo · 2 in progress · 6 in review · 56 done · 4 won't do · plus 13 [research items](research.md)
+**108 items** · 40 todo · 2 in progress · 5 in review · 57 done · 4 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -139,7 +139,7 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | Todo |
 | [TRI-099](m5-design-system.md#tri-099) | Tonal board palettes | High | H | M | TRI-088 | Won't do |
 | [TRI-092](m5-design-system.md#tri-092) | Difficulty folders | High | H | M | TRI-089, TRI-099 | Won't do |
-| [TRI-101](m5-design-system.md#tri-101) | Mountain look: run signs and scenery | High | H | M | TRI-089, TRI-102 | In review |
+| [TRI-101](m5-design-system.md#tri-101) | Mountain look: run signs and scenery | High | H | M | TRI-089, TRI-102 | Done |
 | [TRI-102](m5-design-system.md#tri-102) | Dual-tone run boards | High | H | M | TRI-088 | Done |
 | [TRI-103](m5-design-system.md#tri-103) | Selected cell: the dashed border, and no neighbour outline | Medium | M | S | — | Done |
 | [TRI-104](m5-design-system.md#tri-104) | The mountain falls into shadow while you play | Medium | M | S | TRI-101 | Todo |
