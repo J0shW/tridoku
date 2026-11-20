@@ -1,5 +1,6 @@
 "use client"
 
+import { StatTile } from "@/components/ui/badge"
 import { GameStats, type DifficultyStats as DifficultyStatsData } from "@/hooks/use-tridoku"
 import { Difficulty } from "@/lib/tridoku"
 import {
@@ -25,7 +26,7 @@ export function StatsModal({ open, onOpenChange, stats }: StatsModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center text-2xl font-bold">Statistics</DialogTitle>
+          <DialogTitle className="text-center">Statistics</DialogTitle>
           <DialogDescription className="text-center">Your Tridoku progress by difficulty</DialogDescription>
         </DialogHeader>
         
@@ -77,17 +78,18 @@ function DifficultyStats({ stats, difficulty }: { stats: DifficultyStatsData; di
         )}
       </div>
       
-      <div className="grid grid-cols-4 gap-4 py-6">
-        <StatItem value={stats.gamesPlayed} label="Played" />
-        <StatItem value={winPercent} label="Win %" />
-        <StatItem value={stats.currentStreak} label="Current Streak" />
-        <StatItem value={stats.maxStreak} label="Max Streak" />
+      {/* 2×2 on phones, one row of four on wider screens (TRI-094) */}
+      <div className="grid grid-cols-2 gap-2 pb-4 sm:grid-cols-4">
+        <StatTile value={stats.gamesPlayed} label="Played" />
+        <StatTile value={winPercent} label="Win %" />
+        <StatTile value={stats.currentStreak} label="Current streak" />
+        <StatTile value={stats.maxStreak} label="Max streak" />
       </div>
 
       {stats.bestTime != null && (
         <div className="text-center py-4 border-t border-border">
           <p className="text-muted-foreground text-sm mb-1">Best Time</p>
-          <p className="text-3xl font-bold text-primary">{formatTime(stats.bestTime)}</p>
+          <p className="text-display-sm font-bold tabular-nums text-fg">{formatTime(stats.bestTime)}</p>
         </div>
       )}
       
@@ -100,11 +102,4 @@ function DifficultyStats({ stats, difficulty }: { stats: DifficultyStatsData; di
   )
 }
 
-function StatItem({ value, label }: { value: number; label: string }) {
-  return (
-    <div className="text-center">
-      <p className="text-3xl font-bold">{value}</p>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </div>
-  )
-}
+

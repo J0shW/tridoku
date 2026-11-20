@@ -391,12 +391,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** Dialog titles come in three sizes and the close button is small. Reset confirms with a teal button. Focus isn't returned after closing. The win modal shows a focus ring on open on touch. The Ko-fi dialog is offset, and the rules step dots are hidden from screen readers but focusable.
 
 **Done when**
-- [ ] Win, Statistics, Rules, Reset and Ko-fi follow the design system §3.7: one title scale, 44 px close, focus to the title on open, and focus returned to the trigger on close.
-- [ ] Reset is an AlertDialog with a destructive "Reset puzzle" button.
-- [ ] The win modal uses StatTiles, one primary action and a segmented rating.
-- [ ] Statistics uses a 2×2 tile grid on phones with tabular numbers.
-- [ ] The Ko-fi dialog is centred.
-- [ ] The rules step dots are either decorative and unfocusable or a labelled tablist. The credit shows on both tabs.
+- [x] Win, Statistics, Rules, Reset and Ko-fi follow the design system §3.7: one title scale, 44 px close, focus to the title on open, and focus returned to the trigger on close. *All in the shared `DialogContent`: `surface-raised`, `rounded-dialog`, `shadow-dialog`, scrolls inside when tall. Titles are `text-heading` ("Solved!" is `display-sm`, AlertDialog titles `text-title`). Focus returns to whatever had it, since none of these use `DialogTrigger`; Reset returns to the ⋯ button because its menu item is gone.*
+- [x] Reset is an AlertDialog with a destructive "Reset puzzle" button. *"Reset this puzzle?" / "Everything you've entered on this puzzle will be cleared." / Cancel, Reset puzzle (`danger-solid`).*
+- [x] The win modal uses StatTiles, one primary action and a segmented rating. *Streak, Best streak, Solved tiles; Share is the only filled button.*
+- [x] Statistics uses a 2×2 tile grid on phones with tabular numbers. *One row of four from 640 px.*
+- [x] The Ko-fi dialog is centred. *16 px each side on a 390 px phone, with a 44 px close inside the frame.*
+- [x] The rules step dots are either decorative and unfocusable or a labelled tablist. The credit shows on both tabs. *Decorative: hidden from screen readers and out of the tab order; a tap still jumps.*
 
 **Check it in a preview.** Win a puzzle and share. Open Statistics, How to play and ⋯ → Reset puzzle. Each closes with the ✕, Escape or a tap outside, and looks like the same family.
 

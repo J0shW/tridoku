@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/legacy-button"
+import { StatTile } from "@/components/ui/badge"
 import { KofiDialog } from "@/components/kofi-widget"
 import { trackEvent } from "@/lib/analytics"
 import { msUntilNextDay, todayKey, type DateKey } from "@/lib/dates"
@@ -41,7 +42,7 @@ interface WinModalProps {
 export function WinModal({ open, onOpenChange, ...props }: WinModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto gap-3">
+      <DialogContent className="gap-3">
         {/* Mounted on each open, so the prompts below are decided once per showing */}
         <WinBody {...props} />
       </DialogContent>
@@ -150,7 +151,7 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
   return (
     <>
       <DialogHeader>
-        <DialogTitle className="text-center text-3xl font-bold">Solved!</DialogTitle>
+        <DialogTitle className="text-center text-display-sm">Solved!</DialogTitle>
         <DialogDescription className="text-center text-base">
           Daily Tridoku #{puzzleNumber} · {DIFFICULTY_EMOJI[difficulty]} {DIFFICULTY_LABEL[difficulty]}
         </DialogDescription>
@@ -167,19 +168,10 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-4 border-t border-border pt-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{diffStats.currentStreak}</p>
-            <p className="text-xs text-muted-foreground">Current Streak</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{diffStats.maxStreak}</p>
-            <p className="text-xs text-muted-foreground">Max Streak</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-foreground">{diffStats.gamesWon}</p>
-            <p className="text-xs text-muted-foreground">Games Won</p>
-          </div>
+        <div className="grid grid-cols-3 gap-2">
+          <StatTile value={diffStats.currentStreak} label="Streak" />
+          <StatTile value={diffStats.maxStreak} label="Best streak" />
+          <StatTile value={diffStats.gamesWon} label="Solved" />
         </div>
 
         <div className="flex gap-3">
@@ -200,7 +192,7 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
         )}
 
         {/* One-tap difficulty rating (TRI-042) */}
-        <div className="rounded-lg bg-muted/50 px-3 py-2.5 text-center">
+        <div className="text-center">
           {rating ? (
             <p className="text-sm text-muted-foreground" role="status">
               Thanks! You rated this puzzle {RATINGS.find((r) => r.value === rating)?.label.toLowerCase()}.
@@ -208,11 +200,17 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
           ) : (
             <>
               <p className="mb-2 text-sm text-muted-foreground">How did this puzzle feel?</p>
-              <div className="flex justify-center gap-2" role="group" aria-label="Rate this puzzle's difficulty">
+              {/* One segmented row (TRI-094) */}
+              <div className="flex gap-1 rounded-control border border-border bg-surface-sunken p-1" role="group" aria-label="Rate this puzzle's difficulty">
                 {RATINGS.map((r) => (
-                  <Button key={r.value} variant="outline" size="sm" className="flex-1" onClick={() => rate(r.value)}>
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => rate(r.value)}
+                    className="h-11 flex-1 rounded-[calc(var(--radius-control)-4px)] text-label font-medium text-fg-muted transition-colors hover:bg-surface-raised hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  >
                     {r.label}
-                  </Button>
+                  </button>
                 ))}
               </div>
             </>

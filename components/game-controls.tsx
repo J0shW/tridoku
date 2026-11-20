@@ -128,6 +128,7 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
   const [menuOpen, setMenuOpen] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const moreRef = useRef<HTMLButtonElement>(null)
 
   // Close the menu on a tap outside it or on Escape
   useEffect(() => {
@@ -169,6 +170,7 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
       <div ref={menuRef} className="relative">
         <button
           type="button"
+          ref={moreRef}
           onClick={() => setMenuOpen((o) => !o)}
           disabled={disabled}
           aria-label="More"
@@ -221,22 +223,27 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
       </div>
 
       <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
-        <AlertDialogContent>
+        {/* The menu item that opened it is gone, so focus goes back to the More button (TRI-094) */}
+        <AlertDialogContent
+          onCloseAutoFocus={(e) => {
+            e.preventDefault()
+            moreRef.current?.focus({ preventScroll: true })
+          }}
+        >
           <AlertDialogHeader>
-            <AlertDialogTitle>Reset Puzzle?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will reset the puzzle to its starting state. Your current progress will be lost. This action cannot be undone.
-            </AlertDialogDescription>
+            <AlertDialogTitle>Reset this puzzle?</AlertDialogTitle>
+            <AlertDialogDescription>Everything you&apos;ve entered on this puzzle will be cleared.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              className="bg-danger-solid text-on-danger-solid hover:bg-danger-solid/90"
               onClick={() => {
                 onReset()
                 setShowResetConfirm(false)
               }}
             >
-              Reset Puzzle
+              Reset puzzle
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
