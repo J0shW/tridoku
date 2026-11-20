@@ -334,15 +334,15 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** Josh wants a small story for each day's run. The "A day on the mountain" row on the [canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL) is a **storyboard, not a spec**: improve the drawing, timing and motion while building it.
 
 **Done when**
-- [ ] **Opening a run:** fresh snow covers the board and a chair lift runs up the mountain. A skier rides the chair to the peak (about 2 seconds) and steps off. The snow fades to show today's board, then the scenery falls into shadow (TRI-104).
-- [ ] **Finishing:** fresh snow settles over the solved board, and the skier zigzags down the face, leaving tracks and throwing up powder. Then the lift ticket appears (TRI-105). Closing it clears the snow from the finished board.
-- [ ] The ride up plays the first time you open a run each day. Coming back to a run you've started goes straight to the board.
-- [ ] A tap anywhere skips to the end of an animation.
-- [ ] The clock only counts the puzzle: it starts when the board is shown and stops on the last correct digit.
-- [ ] With reduced motion on, there's no ride and no zigzag: the snow simply fades out or in.
-- [ ] Snow, lift and skier are drawn over the board, and the board never moves.
-- [ ] It runs smoothly on a mid-range phone (checked with 4× CPU slowdown in DevTools).
-- [ ] `intro_skipped` and `outro_skipped` events through `trackEvent`, listed in `docs/metrics.md`, so we know whether people skip it.
+- [x] **Opening a run:** fresh snow covers the board and a chair lift runs up the mountain. A skier rides the chair to the peak (about 2 seconds) and steps off. The snow fades to show today's board, then the scenery falls into shadow (TRI-104). *Rough pass in `components/mountain-story.tsx`: 3.2 s in all; the shadow's 4 s wait starts once the board shows.*
+- [x] **Finishing:** fresh snow settles over the solved board, and the skier zigzags down the face, leaving tracks and throwing up powder. Then the lift ticket appears (TRI-105). Closing it clears the snow from the finished board. *3 s. Only for a run you've just finished; reopening a solved run goes straight to the ticket, as before.*
+- [x] The ride up plays the first time you open a run each day. Coming back to a run you've started goes straight to the board. *Remembered per run and date in `tridoku-rides-seen`.*
+- [x] A tap anywhere skips to the end of an animation. *Anywhere on the board area.*
+- [x] The clock only counts the puzzle: it starts when the board is shown and stops on the last correct digit. *The game hook has a clock hold (`setClockHeld`) that doesn't pause the game.*
+- [x] With reduced motion on, there's no ride and no zigzag: the snow simply fades out or in. *0.35 s.*
+- [x] Snow, lift and skier are drawn over the board, and the board never moves.
+- [x] It runs smoothly on a mid-range phone (checked with 4× CPU slowdown in DevTools). *61 fps during the ride at 4× slowdown, worst frame 17 ms.*
+- [x] `intro_skipped` and `outro_skipped` events through `trackEvent`, listed in `docs/metrics.md`, so we know whether people skip it.
 - [ ] Josh signs off a rough prototype in the preview before it's polished.
 
 **Check it in a preview.** Open a run you haven't played today: watch the ride up, then play. Finish it and watch the run down. Reload and open the same run: the ride doesn't play again. Turn on reduced motion and try once more.

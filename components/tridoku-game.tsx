@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef, useSyncExternalStore } from "react"
 import { useTridoku } from "@/hooks/use-tridoku"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { NumberPad } from "@/components/number-pad"
@@ -22,7 +22,8 @@ import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
-import { applyLook, readBoardTheme, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
+import { applyLook, boardThemeStore, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
+import { MountainStory } from "@/components/mountain-story"
 import { MountainScenery, RUN_CLASS, RunShape, RunSigns } from "@/components/mountain"
 import { RunCompleteCard } from "@/components/lift-ticket"
 import Link from "next/link"
@@ -82,6 +83,7 @@ export function TridokuGame() {
     resetPuzzle,
     getShareText: getClassicShareText,
     getMountainShareText,
+    setClockHeld,
     generateNewPuzzle,
     changeDifficulty,
     setInputMode,
@@ -91,7 +93,7 @@ export function TridokuGame() {
 
   // TRI-102, TRI-101: put the board palette for this theme, run and light or dark mode on
   // <html>, and mark it with the theme and run for the Mountain styles.
-  const [boardTheme, setBoardTheme] = useState<BoardTheme>(readBoardTheme)
+  const boardTheme = useSyncExternalStore(boardThemeStore.subscribe, boardThemeStore.get, boardThemeStore.getServer)
   const mountain = boardTheme === "mountain"
   // Mountain shares the whole day with run shapes and a ticket preview (TRI-106); Classic is unchanged
   const getShareText = mountain ? getMountainShareText : getClassicShareText
@@ -105,11 +107,42 @@ export function TridokuGame() {
   const runKey = `${difficulty ?? ""}-${puzzleDate ?? ""}`
   const [shadowFor, setShadowFor] = useState<string | null>(null)
   const playing = mountain && hasStarted && !isComplete && !isViewMode
+
+  // TRI-107: the ride up plays the first time you open a run each day (a fresh puzzle, on
+  // Mountain). The clock is held until the board shows, so it only counts the puzzle.
+  const [ridesSeen, setRidesSeen] = useState<string[]>(() => {
+    if (typeof window === "undefined") return []
+    try {
+      return JSON.parse(localStorage.getItem("tridoku-rides-seen") || "[]")
+    } catch {
+      return []
+    }
+  })
+  const showIntro = playing && elapsedTime === 0 && !!puzzleDate && !ridesSeen.includes(runKey)
   useEffect(() => {
-    if (!playing) return
+    setClockHeld(showIntro)
+  }, [showIntro, setClockHeld])
+  const finishIntro = useCallback(
+    (skipped: boolean) => {
+      setRidesSeen((prev) => {
+        const next = [...prev.filter((k) => k !== runKey), runKey].slice(-9)
+        try {
+          localStorage.setItem("tridoku-rides-seen", JSON.stringify(next))
+        } catch {
+          // Private mode: it plays again next visit
+        }
+        return next
+      })
+      if (skipped) trackEvent("intro_skipped", { difficulty: difficulty ?? "unknown" })
+    },
+    [runKey, difficulty],
+  )
+
+  useEffect(() => {
+    if (!playing || showIntro) return
     const t = setTimeout(() => setShadowFor(runKey), 4000)
     return () => clearTimeout(t)
-  }, [playing, runKey])
+  }, [playing, showIntro, runKey])
   const inShadow = playing && shadowFor === runKey
   const tapCell = useCallback(
     (id: string) => {
@@ -120,7 +153,6 @@ export function TridokuGame() {
   )
 
   const changeBoardTheme = useCallback((next: BoardTheme) => {
-    setBoardTheme(next)
     saveBoardTheme(next)
     trackEvent("board_theme_changed", { theme: next })
   }, [])
@@ -233,13 +265,30 @@ export function TridokuGame() {
   }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
 
-  // Show win modal when complete
+  // Show win modal when complete. On Mountain, a run you just finished first gets the run
+  // down (TRI-107); the snow stays over the board until the ticket closes.
+  const solvingRef = useRef<string | null>(null)
   useEffect(() => {
-    if (isComplete) {
-      const timer = setTimeout(() => setShowWin(true), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [isComplete])
+    if (hasStarted && !isComplete) solvingRef.current = runKey
+  }, [hasStarted, isComplete, runKey])
+  const [outroFor, setOutroFor] = useState<string | null>(null)
+  const [settledFor, setSettledFor] = useState<string | null>(null)
+  useEffect(() => {
+    if (!isComplete) return
+    const justSolved = solvingRef.current === runKey
+    const timer = setTimeout(() => (mountain && justSolved ? setOutroFor(runKey) : setShowWin(true)), mountain && justSolved ? 250 : 500)
+    return () => clearTimeout(timer)
+  }, [isComplete, mountain, runKey])
+  const finishOutro = useCallback(
+    (skipped: boolean) => {
+      setOutroFor(null)
+      setSettledFor(runKey)
+      setShowWin(true)
+      if (skipped) trackEvent("outro_skipped", { difficulty: difficulty ?? "unknown" })
+    },
+    [runKey, difficulty],
+  )
+  const story = !mountain ? null : outroFor === runKey ? "outro" : settledFor === runKey && showWin ? "settled" : showIntro ? "intro" : null
 
   // Keyboard support
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -447,6 +496,9 @@ export function TridokuGame() {
                   onResume={togglePause}
                   flash={undoFeedback}
                 />
+                {story && (
+                  <MountainStory key={`${story}-${runKey}`} kind={story} onDone={story === "intro" ? finishIntro : finishOutro} />
+                )}
               </div>
             </div>
             </div>

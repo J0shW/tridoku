@@ -165,6 +165,8 @@
   --run-medium: #1d5bb8;
   --run-hard: #15171c;
   --segment-on: #ffffff;
+  /* Fresh snow over the board in the ride up and run down (TRI-107) */
+  --snow-cover: #fbfdff;
   /* Text on a solid run colour (trailhead signs): white by day, 5.4:1 or better */
   --on-run: #ffffff;
 }
@@ -194,6 +196,7 @@
   --run-hard: #e6edf5;
   /* Lighter than the switch around it (the navy page colour disappeared, TRI-101 review) */
   --segment-on: #2a4163;
+  --snow-cover: #eef3f8;
   --on-run: #0f1a2a;
 }
 /* Toggles that are on: a pale tint of the run with its colour as border and text (4.6:1 or better) */

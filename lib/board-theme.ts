@@ -23,12 +23,35 @@ export function readBoardTheme(): BoardTheme {
   }
 }
 
+let current: BoardTheme | null = null
+const listeners = new Set<() => void>()
+
 export function saveBoardTheme(theme: BoardTheme): void {
+  current = theme
   try {
     localStorage.setItem(BOARD_THEME_KEY, theme)
   } catch {
     // Private mode: the choice lasts for this visit only
   }
+  listeners.forEach((l) => l())
+}
+
+/**
+ * The theme as a store for useSyncExternalStore: the server and the first client render
+ * both see Classic (so hydration matches), then the client switches to the saved theme.
+ */
+export const boardThemeStore = {
+  subscribe(listener: () => void) {
+    listeners.add(listener)
+    return () => listeners.delete(listener)
+  },
+  get(): BoardTheme {
+    current ??= readBoardTheme()
+    return current
+  },
+  getServer(): BoardTheme {
+    return "classic"
+  },
 }
 
 /** Marks <html> with the theme and run, which the Mountain styles in globals.css key off. */
