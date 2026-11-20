@@ -291,15 +291,17 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** The win card becomes a lift ticket, and after you close it the solved board should stay on screen to look at.
 
 **Done when**
-- [ ] The win dialog is a lift ticket:
+- [x] The win dialog is a lift ticket:
   - a band in the run's colour reading "Day ticket", the date and the puzzle number;
   - the run's shape, the difficulty and "Green · Run complete";
   - your time, large, with a line if it's your fastest;
   - this week's streak as hole punches;
   - Share ticket, Next run and "Lifts reopen in …".
-- [ ] Closing the ticket leaves the solved board on screen, read only. The number pad is replaced by a card with your time, Share ticket and Next run.
-- [ ] The dialog traps focus and returns it when closed (TRI-094).
-- [ ] Today's win stats (streak, best streak, solved) are all still available, on the ticket or in the season pass.
+
+  *Mountain only (`components/lift-ticket.tsx`); Classic keeps its "Solved!" card. The button says "Share" until TRI-106 makes the shared result a ticket. The rating row and the weekly Ko-fi line are on the ticket too. Punches mark the days of this week (Monday to Sunday) inside the run's current streak. A half-circle notch is cut out of each side at the perforation (a mask, so the dimmed page shows through), and it follows the perforation when the ticket scrolls.*
+- [x] Closing the ticket leaves the solved board on screen, read only. The number pad is replaced by a card with your time, Share ticket and Next run. *Tapping the card's title opens the ticket again.*
+- [x] The dialog traps focus and returns it when closed (TRI-094).
+- [x] Today's win stats (streak, best streak, solved) are all still available, on the ticket or in the season pass. *On the ticket: "3-day streak", "Best 9 · 31 solved".*
 
 **Check it in a preview.** Finish a run. The ticket appears; close it. The board stays with your digits on it and can't be edited, and the card below offers Share and Next run.
 

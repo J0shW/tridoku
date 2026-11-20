@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/legacy-button"
 import { StatTile } from "@/components/ui/badge"
 import { KofiDialog } from "@/components/kofi-widget"
+import { LiftTicketBody } from "@/components/lift-ticket"
 import { trackEvent } from "@/lib/analytics"
 import { msUntilNextDay, todayKey, type DateKey } from "@/lib/dates"
 import {
@@ -26,7 +27,7 @@ import {
 } from "@/lib/share"
 import { claimKofiPrompt, getRating, RATINGS, saveRating, type Rating } from "@/lib/win-prompts"
 
-interface WinModalProps {
+export interface WinModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stats: GameStats
@@ -37,16 +38,102 @@ interface WinModalProps {
   getShareText: () => string
   /** Start another difficulty from the modal (TRI-034). */
   onPlayNext: (difficulty: Difficulty) => void
+  /** Mountain theme: the result is a lift ticket (TRI-105) */
+  mountain?: boolean
 }
 
-export function WinModal({ open, onOpenChange, ...props }: WinModalProps) {
+export function WinModal({ open, onOpenChange, mountain = false, ...props }: WinModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="gap-3">
-        {/* Mounted on each open, so the prompts below are decided once per showing */}
-        <WinBody {...props} />
-      </DialogContent>
+      {mountain ? (
+        // The ticket draws its own paper (with notches); the dialog only positions it and casts
+        // a shadow that follows the notched outline
+        <DialogContent
+          showCloseButton={false}
+          className="block gap-0 overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none [filter:drop-shadow(0_24px_28px_rgb(10_18_28/0.35))]"
+        >
+          <LiftTicketBody {...props} />
+        </DialogContent>
+      ) : (
+        <DialogContent className="gap-3">
+          {/* Mounted on each open, so the prompts below are decided once per showing */}
+          <WinBody {...props} />
+        </DialogContent>
+      )}
     </Dialog>
+  )
+}
+
+/** Share and Copy for a result, tracked by outcome (TRI-018). Used by both win cards and the finished-run card. */
+export function useShareResult(difficulty: Difficulty, getShareText: () => string) {
+  const [copied, setCopied] = useState(false)
+  const flash = () => {
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  const share = async () => {
+    const text = getShareText()
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: "Daily Tridoku", text })
+        trackEvent("result_shared", { difficulty, method: "native_share", outcome: "shared" })
+      } catch (error) {
+        const cancelled = error instanceof DOMException && error.name === "AbortError"
+        trackEvent("result_shared", { difficulty, method: "native_share", outcome: cancelled ? "cancelled" : "failed" })
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text)
+        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "copied" })
+        flash()
+      } catch {
+        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "failed" })
+      }
+    }
+  }
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(getShareText())
+      trackEvent("result_copied", { difficulty })
+      flash()
+    } catch {
+      // Clipboard blocked; nothing to undo
+    }
+  }
+  return { share, copy, copied }
+}
+
+/** The one-tap difficulty rating (TRI-042), as one segmented row (TRI-094). */
+export function RatingRow({ difficulty, date, elapsedTime }: { difficulty: Difficulty; date: DateKey; elapsedTime: number }) {
+  const [rating, setRating] = useState<Rating | null>(() => getRating(difficulty, date))
+  const rate = (value: Rating) => {
+    setRating(value)
+    saveRating(difficulty, date, value)
+    trackEvent("difficulty_rated", { difficulty, rating: value, time: elapsedTime })
+  }
+  if (rating) {
+    return (
+      <p className="text-center text-sm text-muted-foreground" role="status">
+        Thanks! You rated this puzzle {RATINGS.find((r) => r.value === rating)?.label.toLowerCase()}.
+      </p>
+    )
+  }
+  return (
+    <div className="text-center">
+      <p className="mb-2 text-sm text-muted-foreground">How did this puzzle feel?</p>
+      <div className="flex gap-1 rounded-control border border-border bg-surface-sunken p-1" role="group" aria-label="Rate this puzzle's difficulty">
+        {RATINGS.map((r) => (
+          <button
+            key={r.value}
+            type="button"
+            onClick={() => rate(r.value)}
+            className="h-11 flex-1 rounded-[calc(var(--radius-control)-4px)] text-label font-medium text-fg-muted transition-colors hover:bg-surface-raised hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+          >
+            {r.label}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -69,7 +156,7 @@ function BestLine({ comparison, difficulty }: { comparison: BestComparison; diff
   }
 }
 
-function Countdown({ puzzleDate }: { puzzleDate: DateKey | null }) {
+export function Countdown({ puzzleDate, label = "Next puzzle in" }: { puzzleDate: DateKey | null; label?: string }) {
   const [now, setNow] = useState(() => new Date())
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000)
@@ -81,7 +168,7 @@ function Countdown({ puzzleDate }: { puzzleDate: DateKey | null }) {
   }
   return (
     <p className="text-center text-sm text-muted-foreground" role="timer" aria-live="off">
-      Next puzzle in <span className="font-mono font-semibold text-foreground tabular-nums">{formatCountdown(msUntilNextDay(now))}</span>
+      {label} <span className="font-mono font-semibold text-foreground tabular-nums">{formatCountdown(msUntilNextDay(now))}</span>
     </p>
   )
 }
@@ -90,7 +177,7 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
   // Show the result this card opened with. Without this, "Next: Medium" would switch the
   // closing card to Medium's numbers (and log its prompts) while it fades out.
   const [{ stats, difficulty, elapsedTime, puzzleNumber, puzzleDate, getShareText, onPlayNext }] = useState(props)
-  const [copied, setCopied] = useState(false)
+  const { share: handleShare, copy: handleCopy, copied } = useShareResult(difficulty, getShareText)
   const diffStats = stats[difficulty]
   const date = puzzleDate ?? todayKey()
 
@@ -100,53 +187,11 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
 
   // Decided once per opening; both are idempotent, so a double call in development is harmless.
   const [showKofi] = useState(() => claimKofiPrompt(difficulty, date, todayKey()))
-  const [rating, setRating] = useState<Rating | null>(() => getRating(difficulty, date))
   const [kofiOpen, setKofiOpen] = useState(false)
 
   useEffect(() => {
     if (showKofi) trackEvent("kofi_prompt_shown", { difficulty })
   }, [showKofi, difficulty])
-
-  const rate = (value: Rating) => {
-    setRating(value)
-    saveRating(difficulty, date, value)
-    trackEvent("difficulty_rated", { difficulty, rating: value, time: elapsedTime })
-  }
-
-  const handleShare = async () => {
-    const text = getShareText()
-
-    // Track the outcome, not the tap, so cancelled shares don't count (TRI-018)
-    if (typeof navigator.share === "function") {
-      try {
-        await navigator.share({ title: "Daily Tridoku", text })
-        trackEvent("result_shared", { difficulty, method: "native_share", outcome: "shared" })
-      } catch (error) {
-        const cancelled = error instanceof DOMException && error.name === "AbortError"
-        trackEvent("result_shared", { difficulty, method: "native_share", outcome: cancelled ? "cancelled" : "failed" })
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(text)
-        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "copied" })
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      } catch {
-        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "failed" })
-      }
-    }
-  }
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(getShareText())
-      trackEvent("result_copied", { difficulty })
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Clipboard blocked; nothing to undo
-    }
-  }
 
   return (
     <>
@@ -192,30 +237,7 @@ function WinBody(props: Omit<WinModalProps, "open" | "onOpenChange">) {
         )}
 
         {/* One-tap difficulty rating (TRI-042) */}
-        <div className="text-center">
-          {rating ? (
-            <p className="text-sm text-muted-foreground" role="status">
-              Thanks! You rated this puzzle {RATINGS.find((r) => r.value === rating)?.label.toLowerCase()}.
-            </p>
-          ) : (
-            <>
-              <p className="mb-2 text-sm text-muted-foreground">How did this puzzle feel?</p>
-              {/* One segmented row (TRI-094) */}
-              <div className="flex gap-1 rounded-control border border-border bg-surface-sunken p-1" role="group" aria-label="Rate this puzzle's difficulty">
-                {RATINGS.map((r) => (
-                  <button
-                    key={r.value}
-                    type="button"
-                    onClick={() => rate(r.value)}
-                    className="h-11 flex-1 rounded-[calc(var(--radius-control)-4px)] text-label font-medium text-fg-muted transition-colors hover:bg-surface-raised hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        <RatingRow difficulty={difficulty} date={date} elapsedTime={elapsedTime} />
 
         <Countdown puzzleDate={puzzleDate} />
 
