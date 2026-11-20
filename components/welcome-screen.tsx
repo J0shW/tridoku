@@ -57,12 +57,14 @@ export function WelcomeScreen({
     Object.keys(progressToday).length === 0
 
   return (
-    <div className="flex-1 flex items-center justify-center">
+    // On Mountain the page starts at the top, so the scenery can run up to the header
+    <div className={`flex-1 flex justify-center ${mountain ? "items-start" : "items-center"}`}>
       <div className="max-w-md w-full space-y-6 text-center">
         {/* Today's board, as a picture of what the game is (TRI-026) */}
-        <div className="relative pointer-events-none select-none" aria-hidden="true">
+        <div className={`relative pointer-events-none select-none ${mountain ? "pb-5" : ""}`} aria-hidden="true">
           {/* On Mountain, today's board is the peak at the trailhead (TRI-101) */}
-          {mountain && <MountainScenery className="absolute inset-y-0 -left-4 -right-4 h-full w-[calc(100%+2rem)]" />}
+          {/* From the header (through the page's top padding) to a little below the board (Josh, 20 Nov) */}
+          {mountain && <MountainScenery className="absolute -top-6 bottom-0 left-1/2 h-[calc(100%+1.5rem)] w-screen -translate-x-1/2" />}
           <div className="relative mx-auto w-full max-w-[15rem]">
             {previewCells ? (
               <TridokuBoard cells={previewCells} selectedCellId={null} onCellClick={() => {}} isPaused={false} />
@@ -72,16 +74,16 @@ export function WelcomeScreen({
           </div>
         </div>
 
+        {/* What it is, first (TRI-026): the name, then one line. Same words on both themes (Josh, 20 Nov) */}
         {mountain ? (
-          // What it is, first (TRI-026): the name, then one line (Josh, 20 Nov)
           <div className="space-y-1">
             <h2 className="font-signage text-5xl font-extrabold uppercase tracking-[0.04em] text-foreground">Tridoku</h2>
             <p className="text-lg text-muted-foreground text-pretty">It&apos;s Sudoku on a triangle. 3 challenges per day.</p>
           </div>
         ) : (
         <div className="space-y-2">
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground text-balance">Sudoku on a triangle</h2>
-          <p className="text-muted-foreground text-pretty">81 cells, 4 rules, a new puzzle every day.</p>
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground">Tridoku</h2>
+          <p className="text-lg text-muted-foreground text-pretty">It&apos;s Sudoku on a triangle. 3 challenges per day.</p>
         </div>
         )}
 
