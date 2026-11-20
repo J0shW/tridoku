@@ -80,7 +80,8 @@ export function TridokuGame() {
     toggleErrors,
     togglePause,
     resetPuzzle,
-    getShareText,
+    getShareText: getClassicShareText,
+    getMountainShareText,
     generateNewPuzzle,
     changeDifficulty,
     setInputMode,
@@ -92,6 +93,8 @@ export function TridokuGame() {
   // <html>, and mark it with the theme and run for the Mountain styles.
   const [boardTheme, setBoardTheme] = useState<BoardTheme>(readBoardTheme)
   const mountain = boardTheme === "mountain"
+  // Mountain shares the whole day with run shapes and a ticket preview (TRI-106); Classic is unchanged
+  const getShareText = mountain ? getMountainShareText : getClassicShareText
   useEffect(() => {
     applyPalette(getPalette(boardTheme, difficulty ?? "easy", resolvedTheme === "dark"))
     applyLook(boardTheme, difficulty ?? "easy")

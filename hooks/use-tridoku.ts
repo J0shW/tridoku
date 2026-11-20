@@ -15,8 +15,8 @@ import { getDailyPuzzle, PuzzleLoadError, type DailyPuzzle } from "@/lib/puzzle-
 import { trackEvent } from "@/lib/analytics"
 import { bumpCounter, getCounters } from "@/lib/play-counters"
 import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
-import { defaultStats, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
-import { buildShareText } from "@/lib/share"
+import { defaultStats, DIFFICULTIES, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
+import { buildMountainShareText, buildShareText, type RunTimes } from "@/lib/share"
 import { watchDateChange } from "@/lib/date-watch"
 import { createLocalStore, hydrated } from "@/lib/local-store"
 import { describeUndo, parseUndoHistory, pushStep, snapshot, type CellSnapshot, type UndoStep } from "@/lib/undo"
@@ -649,6 +649,21 @@ export function useTridoku() {
     })
   }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.puzzleDate, stats])
 
+  // Mountain theme (TRI-106): one line for the whole day, every run done on this puzzle's
+  // date with its shape and time, and a link whose preview is a lift ticket of those times.
+  const getMountainShareText = useCallback(() => {
+    if (!gameState.isComplete || !gameState.difficulty) return ""
+    const date = gameState.puzzleDate ?? todayKey()
+    const times: RunTimes = {}
+    for (const d of DIFFICULTIES) {
+      const s = stats[d]
+      if (s.lastPlayedDate === date && s.todaysTime != null) times[d] = s.todaysTime
+    }
+    times[gameState.difficulty] = gameState.elapsedTime
+    const streak = Math.max(...DIFFICULTIES.filter((d) => times[d] != null).map((d) => stats[d].currentStreak))
+    return buildMountainShareText({ puzzleNumber: getPuzzleNumber(date), date, times, streak })
+  }, [gameState.isComplete, gameState.elapsedTime, gameState.difficulty, gameState.puzzleDate, stats])
+
   // Reset puzzle
   const resetPuzzle = useCallback(() => {
     const current = gameStateRef.current
@@ -700,6 +715,7 @@ export function useTridoku() {
     togglePause,
     resetPuzzle,
     getShareText,
+    getMountainShareText,
     generateNewPuzzle,
     changeDifficulty,
     setInputMode,
