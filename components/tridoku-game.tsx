@@ -24,6 +24,7 @@ import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
 import { applyLook, readBoardTheme, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
 import { MountainScenery, RUN_CLASS, RunShape, RunSigns } from "@/components/mountain"
+import { RunCompleteCard } from "@/components/lift-ticket"
 import Link from "next/link"
 import { trackEvent } from "@/lib/analytics"
 import dynamic from "next/dynamic"
@@ -447,8 +448,20 @@ export function TridokuGame() {
             </div>
             </div>
 
+            {/* Mountain: the finished board stays, with your time, Share and Next run (TRI-105) */}
+            {isViewMode && mountain && difficulty && (
+              <RunCompleteCard
+                difficulty={difficulty}
+                elapsedTime={elapsedTime}
+                stats={stats}
+                puzzleDate={puzzleDate}
+                getShareText={getShareText}
+                onPlayNext={changeDifficulty}
+                onShowTicket={() => setShowWin(true)}
+              />
+            )}
             {/* View mode indicator, with a way back to the result card (TRI-035) */}
-            {isViewMode && (
+            {isViewMode && !mountain && (
               <div className="bg-[#bfdde2]/60 dark:bg-[#bfdde2]/90 border-2 border-[#98ac8b] rounded-lg p-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-3">
                 <div className="flex items-center gap-2">
                   <Eye className="h-5 w-5 shrink-0 text-[#2d5a3a]" />
@@ -528,6 +541,7 @@ export function TridokuGame() {
         puzzleNumber={puzzleNumber}
         puzzleDate={puzzleDate}
         getShareText={getShareText}
+        mountain={mountain}
         onPlayNext={(d) => {
           setShowWin(false)
           changeDifficulty(d)

@@ -64,7 +64,8 @@ export function RunSigns({ current, stats, inProgress = {}, onChange, disabled }
             style={active ? { borderColor: `var(--run-${run})`, boxShadow: `inset 0 -3px 0 var(--run-${run})` } : undefined}
             className={cn(
               "relative flex h-11 items-center justify-center gap-1.5 rounded-lg border-[1.5px] bg-surface-raised font-signage text-[17px] font-bold uppercase tracking-[0.04em] transition-colors disabled:opacity-50",
-              active ? "text-fg" : "border-border text-fg-muted hover:bg-hover",
+              // The hover tint sits over the solid sign, so scenery never shows through
+              active ? "text-fg" : "border-border text-fg-muted hover:shadow-[inset_0_0_0_100px_var(--hover)]",
             )}
           >
             <RunShape run={run} className={active ? undefined : "opacity-60"} />
