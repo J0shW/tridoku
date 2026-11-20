@@ -95,6 +95,26 @@ export function TridokuGame() {
     applyPalette(getPalette(boardTheme, difficulty ?? "easy", resolvedTheme === "dark"))
     applyLook(boardTheme, difficulty ?? "easy")
   }, [boardTheme, difficulty, resolvedTheme])
+  // TRI-104: on Mountain the scenery falls into shadow on your first tap on the board, or
+  // after 4 s, and comes back out when you finish. Keyed to the run, so switching runs or
+  // loading a new day starts in sunshine again.
+  const runKey = `${difficulty ?? ""}-${puzzleDate ?? ""}`
+  const [shadowFor, setShadowFor] = useState<string | null>(null)
+  const playing = mountain && hasStarted && !isComplete && !isViewMode
+  useEffect(() => {
+    if (!playing) return
+    const t = setTimeout(() => setShadowFor(runKey), 4000)
+    return () => clearTimeout(t)
+  }, [playing, runKey])
+  const inShadow = playing && shadowFor === runKey
+  const tapCell = useCallback(
+    (id: string) => {
+      setShadowFor(runKey)
+      selectCell(id)
+    },
+    [runKey, selectCell],
+  )
+
   const changeBoardTheme = useCallback((next: BoardTheme) => {
     setBoardTheme(next)
     saveBoardTheme(next)
@@ -356,7 +376,7 @@ export function TridokuGame() {
             {/* The run picker and the board share one backdrop on Mountain: the scenery starts
                 behind the signs and ends a little below the board (TRI-101) */}
             <div className={`relative flex flex-col gap-2 ${mountain ? "pb-3" : ""}`}>
-            {mountain && <MountainScenery className="absolute -top-4 bottom-0 left-1/2 h-[calc(100%+1rem)] w-screen -translate-x-1/2" />}
+            {mountain && <MountainScenery shadow={inShadow} className="absolute -top-4 bottom-0 left-1/2 h-[calc(100%+1rem)] w-screen -translate-x-1/2" />}
             {/* Difficulty selector: trail signs on the Mountain theme (TRI-101) */}
             <div className="relative flex justify-center mb-3">
               {mountain ? (
@@ -416,7 +436,7 @@ export function TridokuGame() {
                 <TridokuBoard
                   cells={cells}
                   selectedCellId={selectedCellId}
-                  onCellClick={selectCell}
+                  onCellClick={tapCell}
                   isPaused={isPaused}
                   highlightedValue={highlightedValue}
                   showErrors={showErrors}

@@ -87,10 +87,17 @@ const STARS = [[24, 30, 1.2], [70, 64, 0.9], [118, 22, 1.4], [160, 52, 0.8], [20
 /**
  * Sky, two ranges of hills and pines, drawn behind the board. Pale and flat on purpose
  * (pines 1.5:1 against the sky). Stretches to fill its box; nothing is drawn under the board.
+ * `shadow` dims it while you play (TRI-104); the colours fade over 600 ms.
  */
-export function MountainScenery({ className }: { className?: string }) {
+export function MountainScenery({ className, shadow = false }: { className?: string; shadow?: boolean }) {
   return (
-    <svg viewBox="0 0 390 300" preserveAspectRatio="none" className={cn("pointer-events-none", className)} aria-hidden="true">
+    <svg
+      viewBox="0 0 390 300"
+      preserveAspectRatio="none"
+      className={cn("mountain-scenery pointer-events-none", shadow && "scene-shadow", className)}
+      data-shadow={shadow || undefined}
+      aria-hidden="true"
+    >
       <rect x="0" y="0" width="390" height="300" style={{ fill: "var(--scene-sky)" }} />
       {STARS.map(([x, y, r]) => (
         <circle key={`${x}-${y}`} cx={x} cy={y} r={r} style={{ fill: "var(--scene-star)" }} />

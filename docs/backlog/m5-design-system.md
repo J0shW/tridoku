@@ -272,12 +272,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** The scenery is part of the welcome, but you shouldn't be looking at it while you solve. The review suggested the mountain dims once you start playing.
 
 **Done when**
-- [ ] On arrival, the full scene shows.
-- [ ] On your first tap on the board, or after 4 seconds without input, the sky, hills and pines fade over 600 ms to the shadow colours. Day: sky `#dce6f0`, hills `#d3dde8` and `#c8d4e1`, pines `#c4d0de`, page `#e6edf4`. Night: sky and page `#0c1625`, hills `#142238` and `#192a42`, and the stars go out.
-- [ ] The board, signs and keys keep their colours. Nothing moves or resizes.
-- [ ] The sun comes back when you finish.
-- [ ] With reduced motion on, the change is instant.
-- [ ] Every label stays at 4.5:1 or better in shadow (grey text is 6.0:1).
+- [x] On arrival, the full scene shows.
+- [x] On your first tap on the board, or after 4 seconds without input, the sky, hills and pines fade over 600 ms to the shadow colours. Day: sky `#dce6f0`, hills `#d3dde8` and `#c8d4e1`, pines `#c4d0de`, page `#e6edf4`. Night: sky and page `#0c1625`, hills `#142238` and `#192a42`, and the stars go out. *The scenery dims; the page colour around it stays as it is, so the number pad and its surroundings don't change. Switching runs or a new day starts in sunshine again.*
+- [x] The board, signs and keys keep their colours. Nothing moves or resizes.
+- [x] The sun comes back when you finish.
+- [x] With reduced motion on, the change is instant. *Checked: 8 animation frames with motion on, 1 step with reduced motion.*
+- [x] Every label stays at 4.5:1 or better in shadow (grey text is 6.0:1). *Labels sit on the signs, pills and keys, which don't change.*
 
 **Check it in a preview.** Open a run and wait 4 seconds: the hills and trees go quiet and the board stays bright. Reload and tap a cell straight away: the same happens at once.
 

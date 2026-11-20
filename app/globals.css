@@ -204,6 +204,23 @@
 .dark[data-look="mountain"][data-run="medium"] { --toggle-on: #1d3150; --toggle-on-fg: #8fb4ef; }
 .dark[data-look="mountain"][data-run="hard"] { --toggle-on: #2a3a52; --toggle-on-fg: #e6edf5; }
 [data-look="mountain"] { --toggle-on-border: var(--toggle-on-fg); }
+/* TRI-104: while you play, the hills and pines flatten into one dim tone (the board, signs
+   and keys keep their colours). Instant with reduced motion. */
+.mountain-scenery * { transition: fill var(--dur-scene, 600ms) ease, opacity var(--dur-scene, 600ms) ease; }
+@media (prefers-reduced-motion: reduce) { .mountain-scenery * { transition: none; } }
+[data-look="mountain"] .scene-shadow {
+  --scene-sky: #dce6f0;
+  --scene-far: #d3dde8;
+  --scene-near: #c8d4e1;
+  --scene-tree: #c4d0de;
+}
+.dark[data-look="mountain"] .scene-shadow {
+  --scene-sky: #0c1625;
+  --scene-far: #142238;
+  --scene-near: #192a42;
+  --scene-tree: #142238;
+  --scene-star: transparent;
+}
 [data-look="mountain"] body {
   font-family: var(--font-barlow), 'Geist', system-ui, sans-serif;
 }
