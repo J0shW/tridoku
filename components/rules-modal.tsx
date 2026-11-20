@@ -318,7 +318,7 @@ export function RulesModal({ open, onOpenChange, initialTab = "rules", initialSt
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col gap-0 p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-lg max-h-[85dvh] flex flex-col gap-0 p-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4 border-b border-border space-y-3">
           <div className="mx-auto inline-flex rounded-lg border border-border bg-muted p-1 gap-1" role="tablist" aria-label="How to play">
             {(["rules", "tips"] as const).map((t) => (
@@ -337,7 +337,7 @@ export function RulesModal({ open, onOpenChange, initialTab = "rules", initialSt
               </button>
             ))}
           </div>
-          <DialogTitle className="text-center text-2xl font-bold text-balance">{current.title}</DialogTitle>
+          <DialogTitle className="text-center">{current.title}</DialogTitle>
           <DialogDescription className="text-center">{current.subtitle}</DialogDescription>
         </DialogHeader>
 
@@ -359,8 +359,9 @@ export function RulesModal({ open, onOpenChange, initialTab = "rules", initialSt
               <button
                 key={i}
                 type="button"
+                // Decorative for keyboards and screen readers (Back and Next do the job); a tap still jumps (TRI-094)
+                tabIndex={-1}
                 onClick={() => goTo(i)}
-                aria-label={`Go to step ${i + 1}`}
                 className={cn(
                   "h-2 rounded-full transition-all",
                   i === step ? "w-5 bg-primary" : "w-2 bg-border hover:bg-muted-foreground/50",
@@ -378,11 +379,9 @@ export function RulesModal({ open, onOpenChange, initialTab = "rules", initialSt
             </Button>
           )}
         </div>
-        {tab === "rules" && (
-          <p className="pb-3 -mt-1 text-center text-xs text-muted-foreground">
-            Tridoku was created by Japheth J. Light.
-          </p>
-        )}
+        <p className="pb-3 -mt-1 text-center text-xs text-muted-foreground">
+          Tridoku was created by Japheth J. Light.
+        </p>
       </DialogContent>
     </Dialog>
   )
