@@ -21,7 +21,7 @@ Previews are kept out of search engines, and Umami only counts visits on the pro
 Previews (and `pnpm dev`) show an amber **Preview** button in the bottom-left corner. It never appears in production. It opens a panel with:
 
 - **Clock.** Move the app's clock by a day either way, or jump to 23:58 tonight. The whole app (the daily puzzle, puzzle number, streaks and saved progress) behaves as if it's that time. The button shows the simulated date while the clock is shifted. Use **Real time** to undo.
-- **Fill all but 3 cells.** Solves the open puzzle except three cells near the bottom, so you can reach the win screen in a few taps.
+- **Fill all but 1 cell.** Solves the open puzzle except the last cell on the board, so you can reach the win screen in one tap.
 - **Seed 5-day streak.** Sets a 5-day streak ending yesterday for the current difficulty. Solve today's puzzle and the streak should read 6.
 - **Clear all saved data and reload.** Starts over as a first-time player.
 
@@ -31,7 +31,7 @@ Everything in the panel changes only this browser's saved data.
 
 1. Open the PR's preview and choose a difficulty.
 2. Open **Preview → Seed 5-day streak**.
-3. Choose the same difficulty again, then **Fill all but 3 cells** and finish the puzzle.
+3. Choose the same difficulty again, then **Fill all but 1 cell** and finish the puzzle.
 4. The win screen should show a current streak of 6.
 5. Press **+1 day** and solve again. It should show 7.
 

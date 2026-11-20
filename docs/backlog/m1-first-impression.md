@@ -142,7 +142,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 - [x] A "Next: Medium →" button when another tier is unfinished.
 - [x] Time compared with the player's best for that tier.
 
-**Check it in a preview.** Dev tools → Fill all but 3 → finish.
+**Check it in a preview.** Dev tools → Fill all but 1 → finish.
 
 <a id="tri-035"></a>
 ## TRI-035 · Share button stays available after winning

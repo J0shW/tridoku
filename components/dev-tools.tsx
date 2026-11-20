@@ -13,7 +13,7 @@ import { toDateKey } from "@/lib/dates"
 const DAY_MS = 24 * 60 * 60 * 1000
 const STORAGE_PREFIX = "tridoku-"
 
-// ── Solver (used by "Fill all but 3 cells") ───────────────────────────────────
+// ── Solver (used by "Fill all but 1 cell") ───────────────────────────────────
 
 const CELLS = TRIDOKU_BOARD.flat().filter((c) => !c.hidden)
 const INDEX = new Map(CELLS.map((c, i) => [c.id, i]))
@@ -109,7 +109,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
     setOffsetAndReload(offset + (target.getTime() - Date.now()))
   }
 
-  const fillAllButThree = () => {
+  const fillAllButOne = () => {
     if (!difficulty) return
     const givens = CELLS.map((c) => {
       const cell = cells[c.row][c.col]
@@ -121,7 +121,8 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
       return
     }
     const empties = CELLS.map((_, i) => i).filter((i) => !givens[i])
-    const leave = new Set(empties.slice(-3))
+    // Leave one cell, the last on the board, so the finish is one tap away
+    const leave = new Set(empties.slice(-1))
     const userCells = empties
       .filter((i) => !leave.has(i))
       .map((i) => ({ row: CELLS[i].row, col: CELLS[i].col, value: solution[i], pencilMarks: [] as number[] }))
@@ -141,7 +142,7 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
       return
     }
     onReloadPuzzle(difficulty)
-    setMessage("Filled. 3 cells left, at the bottom of the board.")
+    setMessage("Filled. 1 cell left, at the bottom of the board.")
   }
 
   const seedStreak = () => {
@@ -227,8 +228,8 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
           <section className="space-y-2">
             <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Puzzle</p>
             <div className="flex flex-wrap gap-1.5">
-              <button className={btn} onClick={fillAllButThree} disabled={!difficulty || isViewMode}>
-                Fill all but 3 cells
+              <button className={btn} onClick={fillAllButOne} disabled={!difficulty || isViewMode}>
+                Fill all but 1 cell
               </button>
               <button className={btn} onClick={seedStreak}>
                 Seed 5-day streak ({difficulty ?? "medium"})

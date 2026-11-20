@@ -151,7 +151,7 @@ Items are listed in the suggested order of work. Status lives in [BACKLOG.md](BA
 **Done when**
 - [ ] A toast says "Something's off. Turn on error check?" with a button that turns it on.
 
-**Check it in a preview.** Dev tools → Fill all but 3 → enter one wrong digit and two right ones.
+**Check it in a preview.** Dev tools → Fill all but 1 → enter a wrong digit, then the right one.
 
 <a id="tri-056"></a>
 ## TRI-056 · Dim digits that are fully placed
