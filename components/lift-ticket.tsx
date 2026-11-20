@@ -4,7 +4,7 @@
 // the solved board stays on screen with a card for your time, Share and Next run.
 // Classic keeps the "Solved!" card in win-modal.tsx; both share its logic.
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 import { format } from "date-fns"
 import { ArrowRight, Check, Copy, Share2, Trophy, X } from "lucide-react"
 import { DialogClose, DialogDescription, DialogTitle } from "@/components/ui/dialog"
@@ -67,8 +67,35 @@ export function LiftTicketBody(props: Omit<WinModalProps, "open" | "onOpenChange
     if (showKofi) trackEvent("kofi_prompt_shown", { difficulty })
   }, [showKofi, difficulty])
 
+  // A half-circle notch is cut out of each side at the perforation, like a real ticket.
+  // The cut is a mask, so the dimmed page shows through; it follows the perforation when
+  // the ticket scrolls on a short screen.
+  const paperRef = useRef<HTMLDivElement>(null)
+  const perfRef = useRef<HTMLDivElement>(null)
+  const placeNotches = useCallback(() => {
+    const paper = paperRef.current
+    const perf = perfRef.current
+    if (!paper || !perf) return
+    const y = perf.offsetTop + perf.offsetHeight / 2 - paper.scrollTop
+    paper.style.setProperty("--notch-y", `${y}px`)
+  }, [])
+  useLayoutEffect(() => {
+    placeNotches()
+    const ro = new ResizeObserver(placeNotches)
+    if (paperRef.current) ro.observe(paperRef.current)
+    return () => ro.disconnect()
+  }, [placeNotches])
+
+  const NOTCH = "radial-gradient(circle 11px at {x} var(--notch-y, -50px), transparent 10.5px, #000 11px)"
+  const mask = `${NOTCH.replace("{x}", "0")}, ${NOTCH.replace("{x}", "100%")}`
+
   return (
-    <>
+    <div
+      ref={paperRef}
+      onScroll={placeNotches}
+      className="relative max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-dialog bg-surface-raised"
+      style={{ maskImage: mask, WebkitMaskImage: mask, maskComposite: "intersect", WebkitMaskComposite: "source-in" }}
+    >
       {/* The band in the run's colour */}
       <div
         className="flex items-center justify-between gap-3 py-3.5 pl-5 pr-2 font-signage uppercase"
@@ -113,9 +140,9 @@ export function LiftTicketBody(props: Omit<WinModalProps, "open" | "onOpenChange
         )}
       </div>
 
-      {/* Perforation */}
-      <div className="relative h-5" aria-hidden="true">
-        <div className="absolute inset-x-4 top-1/2 border-t-2 border-dashed border-border" />
+      {/* Perforation, between the two notches */}
+      <div ref={perfRef} className="relative h-6" aria-hidden="true">
+        <div className="absolute inset-x-5 top-1/2 border-t-2 border-dashed border-border" />
       </div>
 
       <div className="flex flex-col gap-4 px-5 pt-2 pb-5">
@@ -186,7 +213,7 @@ export function LiftTicketBody(props: Omit<WinModalProps, "open" | "onOpenChange
       </div>
 
       <KofiDialog open={kofiOpen} onOpenChange={setKofiOpen} />
-    </>
+    </div>
   )
 }
 

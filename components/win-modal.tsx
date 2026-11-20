@@ -46,7 +46,12 @@ export function WinModal({ open, onOpenChange, mountain = false, ...props }: Win
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       {mountain ? (
-        <DialogContent showCloseButton={false} className="gap-0 overflow-y-auto p-0">
+        // The ticket draws its own paper (with notches); the dialog only positions it and casts
+        // a shadow that follows the notched outline
+        <DialogContent
+          showCloseButton={false}
+          className="block gap-0 overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none [filter:drop-shadow(0_24px_28px_rgb(10_18_28/0.35))]"
+        >
           <LiftTicketBody {...props} />
         </DialogContent>
       ) : (
