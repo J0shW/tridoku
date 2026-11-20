@@ -7,10 +7,14 @@
 // Drawn over the board in the board's own units (18 wide), so the board never moves.
 // A tap skips to the end. With reduced motion there's no ride or zigzag: the snow just fades.
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 
 export const INTRO_MS = 3200
-export const OUTRO_MS = 3000
+// The run down: zigzag to the bottom (0.5–2.7 s), a hard stop that kicks up a cloud of snow
+// filling the screen (2.7–3.15 s); the ticket opens inside the cloud, which then clears.
+export const OUTRO_MS = 3150
+const CLOUD_DELAY_MS = 2580
 const FADE_MS = 350
 
 const VIEWBOX = "-0.2 -0.2 18.4 15.988"
@@ -72,8 +76,47 @@ interface MountainStoryProps {
   onDone: (skipped: boolean) => void
 }
 
+/** Puffs of the snow cloud: where each drifts to (in vmax) and how big it grows */
+const PUFFS: [number, number, number][] = [
+  [0, -18, 1.3], [-22, -10, 1.1], [22, -12, 1.15], [-40, -26, 1], [40, -28, 1.05], [-10, -40, 1.2], [14, -46, 1.1],
+  [-34, -52, 0.95], [34, -56, 1], [0, -66, 1.25], [-52, -6, 0.9], [52, -4, 0.9], [-18, 6, 0.85], [20, 8, 0.85],
+  [-58, -40, 0.9], [58, -44, 0.9], [-26, -78, 1], [28, -80, 1], [0, -92, 1.1], [-60, -80, 0.95], [60, -82, 0.95],
+  // Low and wide, so the bottom of the screen fills too
+  [-48, 24, 1], [48, 26, 1], [0, 30, 1.1], [-80, -20, 1], [80, -22, 1],
+]
+
+/**
+ * The cloud of snow from the skier's hard stop: rolls out from the bottom of the board and
+ * fills the screen in about half a second, then clears once the ticket is up. It sits above
+ * the dialog's dimmed backdrop and below the ticket, so the ticket appears in clean snow.
+ */
+function SnowCloud({ origin }: { origin: { x: number; y: number } }) {
+  return createPortal(
+    <div className="snow-cloud" style={{ ["--ox" as string]: `${origin.x}px`, ["--oy" as string]: `${origin.y}px` }} aria-hidden="true">
+      {PUFFS.map(([dx, dy, s], i) => (
+        <span
+          key={i}
+          className="snow-puff"
+          style={{ ["--dx" as string]: `${dx}vmax`, ["--dy" as string]: `${dy}vmax`, ["--s" as string]: s, animationDelay: `${CLOUD_DELAY_MS + (i % 5) * 25}ms` }}
+        />
+      ))}
+    </div>,
+    document.body,
+  )
+}
+
 export function MountainStory({ kind, onDone }: MountainStoryProps) {
   const reduce = useReducedMotion()
+  // The cloud only follows a run down that played through (not a skip, not reduced motion)
+  const [skipped, setSkipped] = useState(false)
+  const svgRef = useRef<SVGSVGElement>(null)
+  const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null)
+  useEffect(() => {
+    if (kind !== "outro" || reduce) return
+    const r = svgRef.current?.getBoundingClientRect()
+    // The bottom of the board, where the skier stops
+    if (r) setOrigin({ x: r.left + r.width * (9.2 / 18.4), y: r.top + r.height * (15.5 / 15.988) })
+  }, [kind, reduce])
   const length = kind === "intro" ? (reduce ? FADE_MS : INTRO_MS) : kind === "outro" ? (reduce ? FADE_MS : OUTRO_MS) : 0
   useEffect(() => {
     if (!length) return
@@ -81,7 +124,10 @@ export function MountainStory({ kind, onDone }: MountainStoryProps) {
     return () => clearTimeout(t)
   }, [length, onDone])
 
-  const skip = kind === "settled" ? undefined : () => onDone(true)
+  const skip = kind === "settled" ? undefined : () => {
+    setSkipped(true)
+    onDone(true)
+  }
   const snowStyle = { fill: "var(--snow-cover)", stroke: "var(--snow-cover)", strokeWidth: 0.3, strokeLinejoin: "round" as const }
 
   return (
@@ -93,7 +139,8 @@ export function MountainStory({ kind, onDone }: MountainStoryProps) {
       className="absolute inset-0 z-20 cursor-pointer"
       style={{ pointerEvents: kind === "settled" ? "none" : undefined }}
     >
-      <svg viewBox={VIEWBOX} className="h-full w-full overflow-visible" aria-hidden="true">
+      {origin && !skipped && (kind === "outro" || kind === "settled") && <SnowCloud origin={origin} />}
+      <svg ref={svgRef} viewBox={VIEWBOX} className="h-full w-full overflow-visible" aria-hidden="true">
         {kind === "intro" && (
           <g>
             {/* Snow and lift, fading out at the end */}
@@ -173,12 +220,26 @@ export function MountainStory({ kind, onDone }: MountainStoryProps) {
                   </g>
                 ))}
                 {kind === "outro" && (
-                  <g opacity={0}>
-                    <Skier />
-                    <animateMotion path={ZIGZAG_PATH} begin="0.5s" dur="2.2s" fill="freeze" />
-                    <animate attributeName="opacity" from="0" to="1" begin="0.5s" dur="0.1s" fill="freeze" />
-                    <animate attributeName="opacity" from="1" to="0" begin="2.7s" dur="0.3s" fill="freeze" />
-                  </g>
+                  <>
+                    <g opacity={0}>
+                      {/* A hard corner at the bottom: the skier swings sideways to stop */}
+                      <g>
+                        <Skier />
+                        <animateTransform attributeName="transform" type="rotate" from="0" to="-80" begin="2.6s" dur="0.14s" fill="freeze" />
+                      </g>
+                      <animateMotion path={ZIGZAG_PATH} begin="0.5s" dur="2.2s" fill="freeze" />
+                      <animate attributeName="opacity" from="0" to="1" begin="0.5s" dur="0.1s" fill="freeze" />
+                    </g>
+                    {/* The spray off the skis as they stop */}
+                    <g fill="#ffffff" stroke="#c9d6e3" strokeWidth={0.05} opacity={0}>
+                      {[[-1.4, -0.6, 0.8], [-2.4, -1.6, 0.6], [-0.6, -1.8, 0.7], [-3, -0.2, 0.5], [0.4, -0.8, 0.55]].map(([dx, dy, r]) => (
+                        <circle key={`${dx}-${dy}`} cx={ZIGZAG[ZIGZAG.length - 1][0] + dx} cy={ZIGZAG[ZIGZAG.length - 1][1] + dy} r={r}>
+                          <animate attributeName="r" from="0.1" to={String(r * 2.2)} begin="2.68s" dur="0.4s" fill="freeze" />
+                        </circle>
+                      ))}
+                      <animate attributeName="opacity" from="0" to="1" begin="2.66s" dur="0.08s" fill="freeze" />
+                    </g>
+                  </>
                 )}
               </>
             )}

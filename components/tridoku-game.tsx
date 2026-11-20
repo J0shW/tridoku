@@ -497,7 +497,12 @@ export function TridokuGame() {
                   flash={undoFeedback}
                 />
                 {story && (
-                  <MountainStory key={`${story}-${runKey}`} kind={story} onDone={story === "intro" ? finishIntro : finishOutro} />
+                  <MountainStory
+                    // The run down and the settled snow are one piece, so the snow cloud carries on while the ticket opens
+                    key={`${story === "intro" ? "intro" : "end"}-${runKey}`}
+                    kind={story}
+                    onDone={story === "intro" ? finishIntro : finishOutro}
+                  />
                 )}
               </div>
             </div>
