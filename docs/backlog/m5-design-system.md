@@ -335,13 +335,13 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 
 **Done when**
 - [x] **Opening a run:** fresh snow covers the board and a chair lift runs up the mountain. A skier rides the chair to the peak (about 2 seconds) and steps off. The snow fades to show today's board, then the scenery falls into shadow (TRI-104). *Rough pass in `components/mountain-story.tsx`: 3.2 s in all; the shadow's 4 s wait starts once the board shows.*
-- [x] **Finishing:** fresh snow settles over the solved board, and the skier zigzags down the face, leaving tracks and throwing up powder. Then the lift ticket appears (TRI-105). Closing it clears the snow from the finished board. *Only for a run you've just finished; reopening a solved run goes straight to the ticket, as before. Josh (20 Nov): at the bottom the skier makes a hard sideways stop that kicks up a cloud of snow, which fills the whole screen in about half a second; the ticket opens inside the cloud, which then clears (about 4.5 s in all). The cloud sits between the dialog's backdrop and the ticket. No cloud after a skip or with reduced motion.*
+- [x] **Finishing:** fresh snow settles over the solved board, and the skier zigzags down the face, leaving tracks and throwing up powder. Then the lift ticket appears (TRI-105). Closing it clears the snow from the finished board. *Only for a run you've just finished; reopening a solved run goes straight to the ticket, as before. Josh (20 Nov): at the bottom the skier makes a hard sideways stop that kicks up a big splash of snow particles (not a solid fill, Josh): about 380 soft flakes and 18 puffs billow up and out across the screen, the ticket pops up among them, and they drift down and fade. Drawn on canvases, most behind the ticket and some small ones in front. No splash after a skip or with reduced motion.*
 - [x] The ride up plays the first time you open a run each day. Coming back to a run you've started goes straight to the board. *Remembered per run and date in `tridoku-rides-seen`.*
 - [x] A tap anywhere skips to the end of an animation. *Anywhere on the board area.*
 - [x] The clock only counts the puzzle: it starts when the board is shown and stops on the last correct digit. *The game hook has a clock hold (`setClockHeld`) that doesn't pause the game.*
 - [x] With reduced motion on, there's no ride and no zigzag: the snow simply fades out or in. *0.35 s.*
 - [x] Snow, lift and skier are drawn over the board, and the board never moves.
-- [x] It runs smoothly on a mid-range phone (checked with 4× CPU slowdown in DevTools). *61 fps during the ride at 4× slowdown, worst frame 17 ms.*
+- [ ] It runs smoothly on a mid-range phone (checked with 4× CPU slowdown in DevTools). *The ride: 61 fps at 4× slowdown. The splash: 57 fps normally and 46 fps at 4× in a headless browser that draws in software, so it needs checking on a real phone during the polish pass.*
 - [x] `intro_skipped` and `outro_skipped` events through `trackEvent`, listed in `docs/metrics.md`, so we know whether people skip it.
 - [ ] Josh signs off a rough prototype in the preview before it's polished.
 

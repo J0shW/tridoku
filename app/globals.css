@@ -207,40 +207,17 @@
 .dark[data-look="mountain"][data-run="medium"] { --toggle-on: #1d3150; --toggle-on-fg: #8fb4ef; }
 .dark[data-look="mountain"][data-run="hard"] { --toggle-on: #2a3a52; --toggle-on-fg: #e6edf5; }
 [data-look="mountain"] { --toggle-on-border: var(--toggle-on-fg); }
-/* TRI-107: the cloud of snow from the skier's hard stop. Each puff grows from the stop point
-   (--ox, --oy) and drifts out to (--dx, --dy); together they cover the screen, then the whole
-   cloud clears once the ticket is up. Between the dialog backdrop (z-50) and the ticket (z-60). */
-.snow-cloud {
+/* TRI-107: the splash of snow from the skier's hard stop, drawn on canvases. The back one
+   sits above the dialog backdrop (z-50) and below the ticket (z-60); the front one above it. */
+.snow-splash {
   position: fixed;
   inset: 0;
-  z-index: 55;
+  width: 100vw;
+  height: 100dvh;
   pointer-events: none;
-  overflow: hidden;
-  animation: snow-cloud-clear 900ms ease-in 3.45s forwards;
-}
-.snow-puff {
-  position: absolute;
-  left: var(--ox);
-  top: var(--oy);
-  width: 90vmax;
-  height: 90vmax;
-  margin: -45vmax 0 0 -45vmax;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--snow-cover) 0 50%, color-mix(in srgb, var(--snow-cover) 85%, transparent) 60%, transparent 70%);
-  opacity: 0;
-  transform: translate(0, 0) scale(0.04);
-  animation: snow-puff 480ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
-}
-@keyframes snow-puff {
-  0% { opacity: 0; transform: translate(0, 0) scale(0.04); }
-  20% { opacity: 1; }
-  100% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(var(--s)); }
-}
-@keyframes snow-cloud-clear {
-  to { opacity: 0; visibility: hidden; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .snow-cloud { display: none; }
+  .snow-splash { display: none; }
 }
 
 /* TRI-104: while you play, the hills and pines flatten into one dim tone (the board, signs
