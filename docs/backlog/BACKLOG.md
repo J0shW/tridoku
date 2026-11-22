@@ -145,7 +145,7 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | [TRI-104](m5-design-system.md#tri-104) | The mountain falls into shadow while you play | Medium | M | S | TRI-101 | Done |
 | [TRI-105](m5-design-system.md#tri-105) | Run complete: the lift ticket and your finished board | Medium | H | M | TRI-101, TRI-094 | Done |
 | [TRI-106](m5-design-system.md#tri-106) | Share it like a lift ticket | Medium | M | S | TRI-105 | In review |
-| [TRI-107](m5-design-system.md#tri-107) | Ride up and ski down | Low | M | M | TRI-101, TRI-104, TRI-105 | In progress |
+| [TRI-107](m5-design-system.md#tri-107) | Ski down on a win | Low | M | M | TRI-101, TRI-104, TRI-105 | In progress |
 | [TRI-108](m5-design-system.md#tri-108) | Season pass | Low | M | M | TRI-101 | Todo |
 | [TRI-094](m5-design-system.md#tri-094) | Dialogs and menus on the system | Medium | M | M | TRI-089 | Done |
 | [TRI-095](m5-design-system.md#tri-095) | System and secondary pages | Medium | M | S | TRI-089 | Todo |

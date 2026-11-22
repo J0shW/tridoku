@@ -241,9 +241,6 @@ function withCell(prev: GameState, cellId: CellId, next: CellSnapshot): GameStat
 
 export function useTridoku() {
   const [gameState, setGameState] = useState<GameState>(INITIAL_STATE)
-  // Holds the clock without pausing the game, while an animation plays (TRI-107): the clock
-  // only counts the puzzle.
-  const [clockHeld, setClockHeld] = useState(false)
   const stats = useSyncExternalStore(statsStore.subscribe, statsStore.get, statsStore.getServer)
   const progressToday = useSyncExternalStore(progressStore.subscribe, progressStore.get, progressStore.getServer)
   // localStorage can only be read in the browser, so the server renders the loading screen
@@ -306,12 +303,12 @@ export function useTridoku() {
 
   // Timer
   useEffect(() => {
-    if (!gameState.hasStarted || gameState.isComplete || gameState.isPaused || clockHeld) return
+    if (!gameState.hasStarted || gameState.isComplete || gameState.isPaused) return
     const interval = setInterval(() => {
       update(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }))
     }, 1000)
     return () => clearInterval(interval)
-  }, [gameState.hasStarted, gameState.isComplete, gameState.isPaused, clockHeld, update])
+  }, [gameState.hasStarted, gameState.isComplete, gameState.isPaused, update])
 
   // Record a win: called by the action that solved the puzzle (TRI-080)
   const recordCompletion = useCallback((g: GameState) => {
@@ -719,7 +716,6 @@ export function useTridoku() {
     resetPuzzle,
     getShareText,
     getMountainShareText,
-    setClockHeld,
     generateNewPuzzle,
     changeDifficulty,
     setInputMode,

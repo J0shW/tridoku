@@ -165,8 +165,6 @@
   --run-medium: #1d5bb8;
   --run-hard: #15171c;
   --segment-on: #ffffff;
-  /* Fresh snow over the board in the ride up and run down (TRI-107) */
-  --snow-cover: #fbfdff;
   /* Text on a solid run colour (trailhead signs): white by day, 5.4:1 or better */
   --on-run: #ffffff;
 }
@@ -196,7 +194,6 @@
   --run-hard: #e6edf5;
   /* Lighter than the switch around it (the navy page colour disappeared, TRI-101 review) */
   --segment-on: #2a4163;
-  --snow-cover: #eef3f8;
   --on-run: #0f1a2a;
 }
 /* Toggles that are on: a pale tint of the run with its colour as border and text (4.6:1 or better) */
@@ -207,17 +204,60 @@
 .dark[data-look="mountain"][data-run="medium"] { --toggle-on: #1d3150; --toggle-on-fg: #8fb4ef; }
 .dark[data-look="mountain"][data-run="hard"] { --toggle-on: #2a3a52; --toggle-on-fg: #e6edf5; }
 [data-look="mountain"] { --toggle-on-border: var(--toggle-on-fg); }
-/* TRI-107: the splash of snow from the skier's hard stop, drawn on canvases. The back one
-   sits above the dialog backdrop (z-50) and below the ticket (z-60); the front one above it. */
-.snow-splash {
+/* TRI-107: the Mountain finish. The board turns into a snowy mountain (lit and shaded faces),
+   a skier races down, and a burst of snowballs fills the screen around the ticket. The burst
+   sits above the dialog's dimmed backdrop (z-50) and below the ticket (z-60). */
+.mountain-finish {
+  --mf-snow-top: #ffffff;
+  --mf-snow-base: #e4edf6;
+  --mf-shade-top: #d6e1ee;
+  --mf-shade-base: #a9bdd4;
+  --mf-ridge: #a3b7ce;
+  --mf-edge: #8aa1bb;
+  --mf-track: #8da4bf;
+}
+.dark .mountain-finish {
+  --mf-snow-top: #f3f6fa;
+  --mf-snow-base: #cfdbe8;
+  --mf-shade-top: #c7d5e5;
+  --mf-shade-base: #93a8c2;
+  --mf-ridge: #8ea3bd;
+  --mf-edge: #6f86a3;
+  --mf-track: #7c93b0;
+}
+.snow-burst {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100dvh;
+  z-index: 55;
+  pointer-events: none;
+  overflow: hidden;
+}
+.finish-skier {
+  position: fixed;
+  z-index: 56;
   pointer-events: none;
 }
+.snowball {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+  /* Round and soft: a bright highlight up and to the left, a cool shadow underneath */
+  background: radial-gradient(circle at 35% 30%, #ffffff 0 38%, #f1f5fa 58%, #d9e3ee 100%);
+  box-shadow: 0 0.6vmax 1.6vmax rgb(16 26 40 / 0.14);
+}
+/* The ticket springs up in front of the snow */
+[data-slot="dialog-content"].ticket-enter[data-state="open"] {
+  animation: ticket-enter 560ms cubic-bezier(0.18, 1.25, 0.35, 1) both;
+}
+/* The dialog is centred with the separate `translate` property, so this only adds a rise and scale */
+@keyframes ticket-enter {
+  from { opacity: 0; transform: translateY(7%) scale(0.86); }
+  60% { opacity: 1; }
+  to { opacity: 1; transform: none; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .snow-splash { display: none; }
+  [data-slot="dialog-content"].ticket-enter[data-state="open"] { animation-duration: 1ms; }
 }
 
 /* TRI-104: while you play, the hills and pines flatten into one dim tone (the board, signs

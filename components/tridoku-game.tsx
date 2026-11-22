@@ -23,7 +23,7 @@ import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
 import { applyLook, boardThemeStore, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
-import { MountainStory } from "@/components/mountain-story"
+import { MountainFinish } from "@/components/mountain-finish"
 import { MountainScenery, RUN_CLASS, RunShape, RunSigns } from "@/components/mountain"
 import { RunCompleteCard } from "@/components/lift-ticket"
 import Link from "next/link"
@@ -83,7 +83,6 @@ export function TridokuGame() {
     resetPuzzle,
     getShareText: getClassicShareText,
     getMountainShareText,
-    setClockHeld,
     generateNewPuzzle,
     changeDifficulty,
     setInputMode,
@@ -108,41 +107,11 @@ export function TridokuGame() {
   const [shadowFor, setShadowFor] = useState<string | null>(null)
   const playing = mountain && hasStarted && !isComplete && !isViewMode
 
-  // TRI-107: the ride up plays the first time you open a run each day (a fresh puzzle, on
-  // Mountain). The clock is held until the board shows, so it only counts the puzzle.
-  const [ridesSeen, setRidesSeen] = useState<string[]>(() => {
-    if (typeof window === "undefined") return []
-    try {
-      return JSON.parse(localStorage.getItem("tridoku-rides-seen") || "[]")
-    } catch {
-      return []
-    }
-  })
-  const showIntro = playing && elapsedTime === 0 && !!puzzleDate && !ridesSeen.includes(runKey)
   useEffect(() => {
-    setClockHeld(showIntro)
-  }, [showIntro, setClockHeld])
-  const finishIntro = useCallback(
-    (skipped: boolean) => {
-      setRidesSeen((prev) => {
-        const next = [...prev.filter((k) => k !== runKey), runKey].slice(-9)
-        try {
-          localStorage.setItem("tridoku-rides-seen", JSON.stringify(next))
-        } catch {
-          // Private mode: it plays again next visit
-        }
-        return next
-      })
-      if (skipped) trackEvent("intro_skipped", { difficulty: difficulty ?? "unknown" })
-    },
-    [runKey, difficulty],
-  )
-
-  useEffect(() => {
-    if (!playing || showIntro) return
+    if (!playing) return
     const t = setTimeout(() => setShadowFor(runKey), 4000)
     return () => clearTimeout(t)
-  }, [playing, showIntro, runKey])
+  }, [playing, runKey])
   const inShadow = playing && shadowFor === runKey
   const tapCell = useCallback(
     (id: string) => {
@@ -265,30 +234,33 @@ export function TridokuGame() {
   }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
 
-  // Show win modal when complete. On Mountain, a run you just finished first gets the run
-  // down (TRI-107); the snow stays over the board until the ticket closes.
+  // Show the result when complete. On Mountain, a run you've just finished first gets the
+  // finish (TRI-107): the board becomes a mountain, a skier races down and turns off to the
+  // right, a burst of snow fills the screen and the ticket springs up in it. The mountain
+  // stays over the board until the ticket closes. Reduced motion skips straight to the ticket.
   const solvingRef = useRef<string | null>(null)
   useEffect(() => {
     if (hasStarted && !isComplete) solvingRef.current = runKey
   }, [hasStarted, isComplete, runKey])
-  const [outroFor, setOutroFor] = useState<string | null>(null)
-  const [settledFor, setSettledFor] = useState<string | null>(null)
+  const [finishFor, setFinishFor] = useState<string | null>(null)
   useEffect(() => {
     if (!isComplete) return
-    const justSolved = solvingRef.current === runKey
-    const timer = setTimeout(() => (mountain && justSolved ? setOutroFor(runKey) : setShowWin(true)), mountain && justSolved ? 250 : 500)
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const finishing = mountain && !reduce && solvingRef.current === runKey
+    const timer = setTimeout(() => (finishing ? setFinishFor(runKey) : setShowWin(true)), finishing ? 150 : 500)
     return () => clearTimeout(timer)
   }, [isComplete, mountain, runKey])
-  const finishOutro = useCallback(
+  const [ticketOpenedFor, setTicketOpenedFor] = useState<string | null>(null)
+  const openTicket = useCallback(
     (skipped: boolean) => {
-      setOutroFor(null)
-      setSettledFor(runKey)
+      setTicketOpenedFor(runKey)
       setShowWin(true)
-      if (skipped) trackEvent("outro_skipped", { difficulty: difficulty ?? "unknown" })
+      if (skipped) trackEvent("finish_skipped", { difficulty: difficulty ?? "unknown" })
     },
     [runKey, difficulty],
   )
-  const story = !mountain ? null : outroFor === runKey ? "outro" : settledFor === runKey && showWin ? "settled" : showIntro ? "intro" : null
+  // Shown from the finish until the ticket closes
+  const finishing = mountain && finishFor === runKey && (ticketOpenedFor !== runKey || showWin)
 
   // Keyboard support
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -496,14 +468,7 @@ export function TridokuGame() {
                   onResume={togglePause}
                   flash={undoFeedback}
                 />
-                {story && (
-                  <MountainStory
-                    // The run down and the settled snow are one piece, so the snow cloud carries on while the ticket opens
-                    key={`${story === "intro" ? "intro" : "end"}-${runKey}`}
-                    kind={story}
-                    onDone={story === "intro" ? finishIntro : finishOutro}
-                  />
-                )}
+                {finishing && <MountainFinish key={runKey} run={difficulty ?? "easy"} onTicket={openTicket} />}
               </div>
             </div>
             </div>
