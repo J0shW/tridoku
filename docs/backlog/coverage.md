@@ -208,6 +208,7 @@ Every numbered finding and recommendation in the [baseline review](../reviews/20
 | Owner decision (11 Nov) | Difficulty folders, tonal boards always, ink buttons, theme days | [TRI-092](m5-design-system.md#tri-092), [TRI-099](m5-design-system.md#tri-099), [TRI-091](m5-design-system.md#tri-091), [TRI-100](m5-design-system.md#tri-100) |
 | Designer review (18 Nov) | Board must be the boldest thing; folder panels, solid signs and toggles, and dark trees pull the eye; scenery should dim while playing; Christmas mountain | [TRI-101](m5-design-system.md#tri-101), [TRI-104](m5-design-system.md#tri-104), [TRI-100](m5-design-system.md#tri-100) |
 | Owner decision (19 Nov) | Mountain direction replaces folders and tonal palettes (TRI-092, TRI-099 won't do); dual-tone boards; dashed selection, no neighbour outline; lift ticket; ride up and ski down | [TRI-101](m5-design-system.md#tri-101) to [TRI-108](m5-design-system.md#tri-108) |
+| Owner idea (25 Nov) | A full pin lineup for the season pass, reviewed again before it's built | [TRI-109](m5-design-system.md#tri-109) |
 | Found in M3 prototyping (9 Nov) | Timer and pause are separate; eye icon unclear for error checking; Reset has equal weight | [TRI-087](m3-mobile-accessibility.md#tri-087) |
 
 ## UI audit (9 Nov)

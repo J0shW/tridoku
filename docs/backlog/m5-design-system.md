@@ -359,7 +359,7 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [x] Statistics is a season pass: runs finished and best time for each shape, day streak and longest streak, and this week as a grid of shapes. *`components/season-pass.tsx`, Mountain only; Classic keeps the tabbed statistics. The day streak counts a day when any run was solved. Each run keeps only its current streak, so "this week" shows the streak's days (as the lift ticket does), and an older gap can't be filled in.*
 - [x] It uses only data we already store. No new tracking. *Earned pins are kept on the device in `tridoku-pins` so they stay earned. Nothing new goes to analytics.*
 - [x] **[Decision]** Pins to collect. *Josh (25 Nov): build them. First tracks: finish your first run. Off piste: finish a run with no pencil notes. Triple run: all three runs in a day. Double black: Hard two days in a row. Pins already proven by saved stats count as earned (with no date). A run that earns a pin shows "New pin" on its lift ticket.*
-- [ ] Josh signs it off in the preview.
+- [x] Josh signs it off in the preview. *25 Nov: merged as is; the full pin lineup is [TRI-109](#tri-109).*
 
 **Check it in a preview.** Open Statistics after finishing a run: your counts, best times and this week's runs match what you've played.
 
@@ -471,3 +471,53 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [ ] The design system's definition of done is linked from the PR template, if one exists, or from `docs/backlog/README.md`.
 
 **Check it in a preview.** No visible change. CI shows the new check.
+
+<a id="tri-109"></a>
+## TRI-109 · The full pin lineup
+
+| Severity | Impact | Effort | Moves | Depends on | Review |
+|---|---|---|---|---|---|
+| Low | M | M | Return visits | [TRI-108](#tri-108) | Owner idea 25 Nov |
+
+**Problem.** The season pass ships with four pins (TRI-108). A fuller set paced over a season gives players a reason to come back. Build this once the rest of M5 is done.
+
+**Josh reviews this list again before it's built.** It's a proposal (25 Nov), not a spec.
+
+**Proposed lineup (16).** ✓ = already built in TRI-108. "Retro" = can be granted from stats saved before the pin existed.
+
+| Group | Pin | Earned by | Tiers | Retro |
+|---|---|---|---|---|
+| Getting started | First tracks ✓ | Finish your first run | | Yes |
+| | Triple run ✓ | All three runs in a day | | Yes |
+| Volume | Season regular | Runs finished | 10 / 50 / 100 | Yes |
+| Streaks | Week pass | Days in a row, any run | 7 / 30 / 100 | Partly |
+| | Double black ✓ | Hard two days in a row | | Yes |
+| | Black week | Hard 7 days in a row | | Yes |
+| | Full mountain | All three runs, 7 days in a row | | Yes |
+| Clean skiing | Off piste ✓ | No pencil notes | | No |
+| | Corduroy | No wrong entries | | No |
+| | No falls | Hard with no wrong entries and no undo | | No |
+| Speed | Personal best | Beat your best time | 1 / 5 / 20 times | No |
+| | Schuss | Finish a run under a target time | | No |
+| Time of day | First chair | Finish before 8 am | | No |
+| | Night skiing | Finish after 10 pm | | No |
+| | Last chair | Finish in the final hour before the lifts reopen | | No |
+| Social | Après | Share a result | | No |
+
+**Principles.**
+- Pace: a couple in the first week, most within a month, a few that take a season.
+- Tiers (bronze, silver and gold rims) instead of more pins, so the set stays small.
+- Only what the game knows at the finish: difficulty, time, wrong entries, notes, undos, resets, streaks, best times and the device clock.
+- The pass shows earned pins and the next few to chase; the full set sits behind "See all pins".
+
+**Done when**
+- [ ] **[Decision]** Josh reviews the lineup above: which pins to keep, cut or add.
+- [ ] **[Decision]** Schuss target times per run, set from real solve times in analytics (for example, faster than about 3 in 4 players).
+- [ ] **[Decision]** Theme-day pins tied to [TRI-100](#tri-100) (for example, Christmas Day): a strong reason to return, but missable.
+- [ ] **[Decision]** Whether one or two pins stay hidden until earned.
+- [ ] **[Decision]** Whether to add a `pin_earned` event through `trackEvent` (listed in `docs/metrics.md`) to see if pins bring people back. TRI-108 added no new tracking.
+- [ ] A design pass on the pin art and tier rims before building.
+- [ ] Pins are defined in `lib/pins.ts`, kept in `tridoku-pins`, and granted retroactively where the stats allow.
+- [ ] The season pass shows earned pins and the next to chase, with "See all pins" for the rest, in light and dark at 390 px.
+
+**Check it in a preview.** Finish a run in a way that earns a new pin: the ticket shows it, and Statistics lists it as earned with today's date.
