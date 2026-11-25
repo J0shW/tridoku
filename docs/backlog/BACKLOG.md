@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**109 items** · 34 todo · 2 in progress · 7 in review · 62 done · 4 won't do · plus 13 [research items](research.md)
+**109 items** · 34 todo · 2 in progress · 6 in review · 63 done · 4 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -136,7 +136,7 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | [TRI-088](m5-design-system.md#tri-088) | Design tokens in globals.css | Medium | M | S | — | Done |
 | [TRI-091](m5-design-system.md#tri-091) | Accessible colour values | High | H | S | TRI-088 | Done |
 | [TRI-089](m5-design-system.md#tri-089) | Core components | Medium | H | M | TRI-088 | Done |
-| [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | In review |
+| [TRI-093](m5-design-system.md#tri-093) | Game screen on the system | Medium | H | M | TRI-089, TRI-090, TRI-091 | Done |
 | [TRI-099](m5-design-system.md#tri-099) | Tonal board palettes | High | H | M | TRI-088 | Won't do |
 | [TRI-092](m5-design-system.md#tri-092) | Difficulty folders | High | H | M | TRI-089, TRI-099 | Won't do |
 | [TRI-101](m5-design-system.md#tri-101) | Mountain look: run signs and scenery | High | H | M | TRI-089, TRI-102 | Done |

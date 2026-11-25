@@ -127,7 +127,7 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 - [x] The ⋯ menu is a Radix DropdownMenu with keyboard navigation, and Reset is in danger text. *`components/ui/dropdown-menu.tsx`, not modal so the Reset dialog keeps focus; closing the dialog returns focus to ⋯.*
 - [x] Starting a game scrolls to the top. *From the welcome screen.*
 - [x] The TRI-087 corner layout, the TRI-058 fit, and the Undo label hiding under 350 px all stay as they are. The play-through pad-fit check passes at 360×640 and 390×664.
-- [ ] Josh signs it off in the preview.
+- [x] Josh signs it off in the preview. *25 Nov.*
 
 **Check it in a preview.** Play a few moves on your phone. Try Undo, Check, ⋯ → Reset puzzle → Cancel, Pencil with its tip, and pause. Then finish and look at the solved view. Repeat in dark mode.
 
