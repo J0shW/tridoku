@@ -228,17 +228,20 @@
 .snow-burst {
   position: fixed;
   inset: 0;
-  z-index: 55;
+  /* Above the ticket (60): the wave sweeps in front of everything, and its tail reveals the ticket */
+  z-index: 65;
   pointer-events: none;
   overflow: hidden;
 }
 .finish-skier {
   position: fixed;
-  z-index: 56;
+  z-index: 66;
   pointer-events: none;
 }
 .snowball {
   position: absolute;
+  left: 0;
+  top: 0;
   border-radius: 50%;
   opacity: 0;
   will-change: transform, opacity;
@@ -246,7 +249,7 @@
   background: radial-gradient(circle at 35% 30%, #ffffff 0 38%, #f1f5fa 58%, #d9e3ee 100%);
   box-shadow: 0 0.6vmax 1.6vmax rgb(16 26 40 / 0.14);
 }
-/* The ticket springs up in front of the snow */
+/* The ticket springs up as the snow wave clears it */
 [data-slot="dialog-content"].ticket-enter[data-state="open"] {
   animation: ticket-enter 560ms cubic-bezier(0.18, 1.25, 0.35, 1) both;
 }

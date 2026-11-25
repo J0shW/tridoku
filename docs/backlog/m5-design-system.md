@@ -335,12 +335,12 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 
 **Done when**
 - [x] **Finishing:** the solved board turns into a snowy peak, a skier tucks and zooms down the face, then cuts a short, hard turn to the right and skis off screen right. *`components/mountain-finish.tsx`, Web Animations on transform and opacity only. The board itself never moves.*
-- [x] As the skier turns, big round snowballs burst from the turn and fill the screen, then the lift ticket (TRI-105) springs in while the snow drifts down and melts. *56 snowballs; ticket at 1.6 s.*
+- [x] As the skier turns, big round snowballs spray off the left of the screen, then swoop back in as one wave across the whole screen, left to right, in front of everything. The lift ticket (TRI-105) springs in as the wave's tail sweeps past it. *Josh (25 Nov). 80 snowballs; the wave arrives at about 1.5 s, the ticket at about 1.9 s.*
 - [x] Only for a run you've just finished. Reopening a solved run goes straight to the ticket, as before. Classic has no finish.
 - [x] A tap anywhere skips to the ticket.
 - [x] With reduced motion on, there's no finish: the ticket opens as in Classic.
 - [x] The start-of-run ride up is removed for now, and the clock is back to the original.
-- [ ] It runs smoothly on a mid-range phone. *60 fps in a headless browser, 56 fps at 4× CPU slowdown (one long frame at the win itself). Worth a look on a real phone.*
+- [ ] It runs smoothly on a mid-range phone. *60 fps in a headless browser, 55 fps at 4× CPU slowdown (one long frame at the win itself). Worth a look on a real phone.*
 - [x] A `finish_skipped` event through `trackEvent`, listed in `docs/metrics.md`.
 - [ ] Josh signs it off in the preview.
 

@@ -4,8 +4,9 @@
 //   0.00 s  the board turns into a snowy mountain: a lit face, a shaded face and a ridge
 //   0.35 s  a skier drops from the peak and accelerates hard down the face, carving a track
 //   1.15 s  a short, sharp turn to the right near the bottom, then off the right of the screen
-//   1.20 s  the turn throws a burst of big round snowballs that fills the screen
-//   1.60 s  the lift ticket springs up in front of the snow, which settles and clears
+//   1.17 s  the turn sprays big round snowballs off to the left of the screen
+//   1.48 s  the snow swoops back in from the left, a wave across the whole screen
+//   1.93 s  the lift ticket springs up as the wave sweeps past it and off to the right
 // Everything moves with transform and opacity only (the Web Animations API), so phones run
 // it on the compositor. A tap skips straight to the ticket. Reduced motion never mounts this.
 
@@ -19,9 +20,14 @@ const T = {
   descent: 780, // peak to the turn, accelerating
   turn: 160, // the short, sharp turn to the right
   exit: 240, // a fast whip off the right of the screen
-  ticket: 1600,
+  spray: 440, // snow flung off the left of the screen
+  swoopAfter: 310, // the wave starts back while the last of the spray leaves
+  swoop: 1000, // the wave across the screen, left to right
 }
 const BURST_AT = T.skierStart + T.descent + 40
+const SWOOP_AT = BURST_AT + T.swoopAfter
+// The ticket springs in while the wave covers the screen, so its tail reveals it
+const TICKET_AT = SWOOP_AT + T.swoop * 0.45
 
 // Board units: the board is 18 wide, the triangle's base is at y = 15.588
 const VB = { x: -0.2, y: -0.2, w: 18.4, h: 15.988 }
@@ -39,7 +45,7 @@ const DROP: [Pt, Pt, Pt, Pt] = [PEAK, [8.7, 4.2], [6.5, 8.6], [7.2, 12.6]]
 const HOOK: [Pt, Pt, Pt, Pt] = [[7.2, 12.6], [7.6, 14.2], [9.2, 14.5], [11.2, 14.1]]
 const TURN_POINT: Pt = [7.6, 13.6]
 
-const SNOWBALLS = 56
+const SNOWBALLS = 80
 
 function seeded(seed: number) {
   let t = seed
@@ -164,7 +170,9 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
       play(path, [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: T.descent + T.turn, delay: T.skierStart, easing: "cubic-bezier(0.55, 0, 0.9, 0.55)" })
     }
 
-    // 3. The burst of snowballs from the turn, filling the screen
+    // 3. The snow. The skier turns right, so the carve flings snow the other way: up and
+    // off the left of the screen. Then it swoops back in as one wave, left to right, in
+    // front of everything, and the ticket appears behind its tail.
     const origin = toPx(TURN_POINT)
     const ox = box.left + origin[0]
     const oy = box.top + origin[1]
@@ -172,32 +180,48 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
     const H = window.innerHeight
     const rand = seeded(11)
     const balls = Array.from(burst.children) as HTMLElement[]
+    const at = (x: number, y: number, size: number, scale: number) =>
+      `translate(${x - size / 2}px, ${y - size / 2}px) scale(${scale})`
+    const band = W * 1.5 // how deep the wave is, front to tail
     balls.forEach((ball) => {
-      // Spread over the whole screen, a little denser near the turn
-      const tx = rand() * (W + 120) - 60
-      const ty = rand() < 0.3 ? oy + (rand() - 0.5) * H * 0.5 : rand() * (H + 120) - 60
-      const size = Math.max(W, H) * (0.07 + rand() * 0.13)
+      const size = Math.max(W, H) * (0.08 + rand() * 0.13)
       ball.style.width = ball.style.height = `${size}px`
-      ball.style.left = `${ox - size / 2}px`
-      ball.style.top = `${oy - size / 2}px`
-      const dx = tx - ox
-      const dy = ty - oy
-      const delay = BURST_AT + rand() * 90
-      const fly = 420 + rand() * 180
-      play(ball, [
-        { transform: "translate(0, 0) scale(0.12)", opacity: 0 },
-        { transform: `translate(${dx * 0.18}px, ${dy * 0.18}px) scale(0.6)`, opacity: 1, offset: 0.12 },
-        { transform: `translate(${dx}px, ${dy}px) scale(1)`, opacity: 1 },
-      ], { duration: fly, delay, easing: "cubic-bezier(0.12, 0.75, 0.25, 1)" })
-      // Then it settles: drifts down, shrinks a touch and melts away behind the ticket
+
+      // Spray: a fast fling up and to the left, arcing off screen, growing as it nears us
+      const ex = -size * 0.6 - rand() * W * 0.3
+      const ey = oy - H * (rand() * 0.7 - 0.1)
+      const cx = ox - (ox - ex) * (0.25 + rand() * 0.2)
+      const cy = ey - H * (0.1 + rand() * 0.2)
+      const spray: Keyframe[] = []
+      for (let i = 0; i <= 6; i++) {
+        const s = i / 6
+        const u = 1 - s
+        const x = u * u * ox + 2 * u * s * cx + s * s * ex
+        const y = u * u * oy + 2 * u * s * cy + s * s * ey
+        spray.push({ offset: s, transform: at(x, y, size, 0.12 + 0.7 * s), opacity: s === 0 ? 0 : 1 })
+      }
+      const sprayDelay = BURST_AT + rand() * 60
+      const sprayFor = T.spray - rand() * 120
+      play(ball, spray, { duration: sprayFor, delay: sprayDelay, easing: "cubic-bezier(0.15, 0.7, 0.4, 1)" })
+
+      // Swoop: back in from the left as a wave that fills the screen, then away to the right.
+      // Every ball travels the same distance, so the wave holds its shape; the middle leads,
+      // giving the front a bow, and the whole wave rises in a gentle arc as it crosses.
+      const lane = -0.06 * H + rand() * 1.12 * H
+      const depth = rand() * band
+      const x0 = -size / 2 - depth - 10
+      const x1 = x0 + W + band + size + 60
+      const lead = (Math.abs(lane - H / 2) / H) * 140
+      const swoop: Keyframe[] = []
+      for (let i = 0; i <= 10; i++) {
+        const s = i / 10
+        const x = x0 + (x1 - x0) * s
+        const y = lane - H * 0.07 * Math.sin(Math.PI * s)
+        swoop.push({ offset: s, transform: at(x, y, size, 0.9 + 0.15 * Math.sin(Math.PI * s)), opacity: 1 })
+      }
       anims.current.push(
-        ball.animate(
-          [
-            { transform: `translate(${dx}px, ${dy}px) scale(1)`, opacity: 1 },
-            { transform: `translate(${dx + (rand() - 0.5) * 30}px, ${dy + 50 + rand() * 60}px) scale(0.82)`, opacity: 0 },
-          ],
-          { duration: 700 + rand() * 300, delay: T.ticket + 150 + rand() * 250, easing: "cubic-bezier(0.4, 0, 0.7, 0.2)", fill: "forwards" },
-        ),
+        // Never before this ball's own spray has left the screen
+        ball.animate(swoop, { duration: T.swoop, delay: Math.max(SWOOP_AT + lead, sprayDelay + sprayFor + 16), easing: "cubic-bezier(0.3, 0.15, 0.4, 1)", fill: "forwards" }),
       )
     })
 
@@ -205,7 +229,7 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
       if (done.current) return
       done.current = true
       onTicketRef.current(false)
-    }, T.ticket)
+    }, TICKET_AT)
     const all = anims.current
     return () => {
       clearTimeout(t)
