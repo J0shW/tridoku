@@ -249,6 +249,10 @@
   background: radial-gradient(circle at 35% 30%, #ffffff 0 38%, #f1f5fa 58%, #d9e3ee 100%);
   box-shadow: 0 0.6vmax 1.6vmax rgb(16 26 40 / 0.14);
 }
+/* Spray off the ski tails: small, so only a soft shadow */
+.snowball.ski-spray {
+  box-shadow: 0 1px 3px rgb(16 26 40 / 0.12);
+}
 /* The ticket springs up as the snow wave clears it */
 [data-slot="dialog-content"].ticket-enter[data-state="open"] {
   animation: ticket-enter 560ms cubic-bezier(0.18, 1.25, 0.35, 1) both;
