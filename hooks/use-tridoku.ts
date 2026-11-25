@@ -14,6 +14,7 @@ import {
 import { getDailyPuzzle, PuzzleLoadError, type DailyPuzzle } from "@/lib/puzzle-service"
 import { trackEvent } from "@/lib/analytics"
 import { bumpCounter, getCounters } from "@/lib/play-counters"
+import { awardPins, pinsForWin, runId } from "@/lib/pins"
 import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
 import { defaultStats, DIFFICULTIES, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
 import { buildMountainShareText, buildShareText, type RunTimes } from "@/lib/share"
@@ -344,7 +345,10 @@ export function useTridoku() {
       undos: counters.undos,
       undo_reentries: counters.undoReentries,
     })
-    setStats({ ...all, [difficulty]: newDiffStats })
+    const next = { ...all, [difficulty]: newDiffStats }
+    setStats(next)
+    // Pins for the season pass (TRI-108), kept on this device only
+    awardPins(pinsForWin(next, { notes: counters.notes }), puzzleDate, runId(difficulty, puzzleDate))
   }, [])
 
   // Change one cell, record the step for Undo, and finish the puzzle if that solved it

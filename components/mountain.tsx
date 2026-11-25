@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils"
 import { formatTime, type Difficulty } from "@/lib/tridoku"
 import type { DifficultyStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 
-const SHAPE_PATH: Record<Difficulty, string> = {
+export const SHAPE_PATH: Record<Difficulty, string> = {
   easy: "M12 3.5a8.5 8.5 0 1 1 0 17a8.5 8.5 0 1 1 0-17Z",
   medium: "M4.5 4.5h15v15h-15Z",
   hard: "M12 2.2 21.8 12 12 21.8 2.2 12Z",

@@ -555,6 +555,7 @@ export function TridokuGame() {
         open={showStats}
         onOpenChange={setShowStats}
         stats={stats}
+        mountain={mountain}
       />
 
       <WinModal
