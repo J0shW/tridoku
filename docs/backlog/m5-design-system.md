@@ -325,27 +325,26 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Check it in a preview.** Finish a run, tap Share, and paste into Notes and one chat app. Paste the preview link into a chat and check the ticket image.
 
 <a id="tri-107"></a>
-## TRI-107 · Ride up and ski down
+## TRI-107 · Ski down on a win
 
 | Severity | Impact | Effort | Moves | Depends on | Review |
 |---|---|---|---|---|---|
 | Low | M | M | Delight, return visits | [TRI-101](#tri-101), [TRI-104](#tri-104), [TRI-105](#tri-105) | Owner idea 19 Nov |
 
-**Problem.** Josh wants a small story for each day's run. The "A day on the mountain" row on the [canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL) is a **storyboard, not a spec**: improve the drawing, timing and motion while building it.
+**Problem.** Josh wants finishing a run to feel like a run. The "A day on the mountain" row on the [canvas](https://claude.ai/artifact/Qm7p2A7CNaFZ9F4bMhzkAL) is a **storyboard, not a spec**. *Josh (21 Nov): start over. No animation at the start of a game for now; only the finish.*
 
 **Done when**
-- [ ] **Opening a run:** fresh snow covers the board and a chair lift runs up the mountain. A skier rides the chair to the peak (about 2 seconds) and steps off. The snow fades to show today's board, then the scenery falls into shadow (TRI-104).
-- [ ] **Finishing:** fresh snow settles over the solved board, and the skier zigzags down the face, leaving tracks and throwing up powder. Then the lift ticket appears (TRI-105). Closing it clears the snow from the finished board.
-- [ ] The ride up plays the first time you open a run each day. Coming back to a run you've started goes straight to the board.
-- [ ] A tap anywhere skips to the end of an animation.
-- [ ] The clock only counts the puzzle: it starts when the board is shown and stops on the last correct digit.
-- [ ] With reduced motion on, there's no ride and no zigzag: the snow simply fades out or in.
-- [ ] Snow, lift and skier are drawn over the board, and the board never moves.
-- [ ] It runs smoothly on a mid-range phone (checked with 4× CPU slowdown in DevTools).
-- [ ] `intro_skipped` and `outro_skipped` events through `trackEvent`, listed in `docs/metrics.md`, so we know whether people skip it.
-- [ ] Josh signs off a rough prototype in the preview before it's polished.
+- [x] **Finishing:** the solved board turns into a snowy peak, a skier tucks and zooms down the face, then cuts a short, hard turn to the right and skis off screen right. *Josh (25 Nov): the turn changes the skier's stance, not just their angle: they sink and set their edges, switch to a carving pose (skis on edge, knees driven into the hill, inside pole planting), then rise into a tuck to exit.* *`components/mountain-finish.tsx`, Web Animations on transform and opacity only. The board itself never moves.*
+- [x] Snow sprays off the ski tails through the turn (48 small flakes, most at the apex), building into big round snowballs that spray off the left of the screen, then swoop back in as one wave across the whole screen, left to right, in front of everything. The lift ticket (TRI-105) springs in as the wave's tail sweeps past it. *Josh (25 Nov). 80 snowballs; the wave arrives at about 1.5 s, the ticket at about 1.9 s.*
+- [x] Only for a run you've just finished. Reopening a solved run goes straight to the ticket, as before. Classic has no finish.
+- [x] A tap anywhere skips to the ticket.
+- [x] With reduced motion on, there's no finish: the ticket opens as in Classic.
+- [x] The start-of-run ride up is removed for now, and the clock is back to the original.
+- [ ] It runs smoothly on a mid-range phone. *60 fps in a headless browser, 55 fps at 4× CPU slowdown (one long frame at the win itself). Still to check on a real phone; it doesn't block Done.*
+- [x] A `finish_skipped` event through `trackEvent`, listed in `docs/metrics.md`.
+- [x] Josh signs it off in the preview. *25 Nov: "good for now".*
 
-**Check it in a preview.** Open a run you haven't played today: watch the ride up, then play. Finish it and watch the run down. Reload and open the same run: the ride doesn't play again. Turn on reduced motion and try once more.
+**Check it in a preview.** Pick Mountain in ⋯ → Look. Use Preview → Fill all but 1 cell, then enter the last digit: watch the finish. Try it in night mode, tap to skip once, and turn on reduced motion and try once more.
 
 <a id="tri-108"></a>
 ## TRI-108 · Season pass

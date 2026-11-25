@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react"
+import { useState, useEffect, useCallback, useMemo, useRef, useSyncExternalStore } from "react"
 import { useTridoku } from "@/hooks/use-tridoku"
 import { TridokuBoard } from "@/components/tridoku-board"
 import { NumberPad } from "@/components/number-pad"
@@ -22,7 +22,8 @@ import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
-import { applyLook, readBoardTheme, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
+import { applyLook, boardThemeStore, saveBoardTheme, THEME_PICKER_ENABLED } from "@/lib/board-theme"
+import { MountainFinish } from "@/components/mountain-finish"
 import { MountainScenery, RUN_CLASS, RunShape, RunSigns } from "@/components/mountain"
 import { RunCompleteCard } from "@/components/lift-ticket"
 import Link from "next/link"
@@ -91,7 +92,7 @@ export function TridokuGame() {
 
   // TRI-102, TRI-101: put the board palette for this theme, run and light or dark mode on
   // <html>, and mark it with the theme and run for the Mountain styles.
-  const [boardTheme, setBoardTheme] = useState<BoardTheme>(readBoardTheme)
+  const boardTheme = useSyncExternalStore(boardThemeStore.subscribe, boardThemeStore.get, boardThemeStore.getServer)
   const mountain = boardTheme === "mountain"
   // Mountain shares the whole day with run shapes and a ticket preview (TRI-106); Classic is unchanged
   const getShareText = mountain ? getMountainShareText : getClassicShareText
@@ -105,6 +106,7 @@ export function TridokuGame() {
   const runKey = `${difficulty ?? ""}-${puzzleDate ?? ""}`
   const [shadowFor, setShadowFor] = useState<string | null>(null)
   const playing = mountain && hasStarted && !isComplete && !isViewMode
+
   useEffect(() => {
     if (!playing) return
     const t = setTimeout(() => setShadowFor(runKey), 4000)
@@ -120,7 +122,6 @@ export function TridokuGame() {
   )
 
   const changeBoardTheme = useCallback((next: BoardTheme) => {
-    setBoardTheme(next)
     saveBoardTheme(next)
     trackEvent("board_theme_changed", { theme: next })
   }, [])
@@ -233,13 +234,33 @@ export function TridokuGame() {
   }, [hasStarted, isViewMode, isComplete, isPaused, difficulty])
 
 
-  // Show win modal when complete
+  // Show the result when complete. On Mountain, a run you've just finished first gets the
+  // finish (TRI-107): the board becomes a mountain, a skier races down and turns off to the
+  // right, a burst of snow fills the screen and the ticket springs up in it. The mountain
+  // stays over the board until the ticket closes. Reduced motion skips straight to the ticket.
+  const solvingRef = useRef<string | null>(null)
   useEffect(() => {
-    if (isComplete) {
-      const timer = setTimeout(() => setShowWin(true), 500)
-      return () => clearTimeout(timer)
-    }
-  }, [isComplete])
+    if (hasStarted && !isComplete) solvingRef.current = runKey
+  }, [hasStarted, isComplete, runKey])
+  const [finishFor, setFinishFor] = useState<string | null>(null)
+  useEffect(() => {
+    if (!isComplete) return
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    const finishing = mountain && !reduce && solvingRef.current === runKey
+    const timer = setTimeout(() => (finishing ? setFinishFor(runKey) : setShowWin(true)), finishing ? 150 : 500)
+    return () => clearTimeout(timer)
+  }, [isComplete, mountain, runKey])
+  const [ticketOpenedFor, setTicketOpenedFor] = useState<string | null>(null)
+  const openTicket = useCallback(
+    (skipped: boolean) => {
+      setTicketOpenedFor(runKey)
+      setShowWin(true)
+      if (skipped) trackEvent("finish_skipped", { difficulty: difficulty ?? "unknown" })
+    },
+    [runKey, difficulty],
+  )
+  // Shown from the finish until the ticket closes
+  const finishing = mountain && finishFor === runKey && (ticketOpenedFor !== runKey || showWin)
 
   // Keyboard support
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -447,6 +468,7 @@ export function TridokuGame() {
                   onResume={togglePause}
                   flash={undoFeedback}
                 />
+                {finishing && <MountainFinish key={runKey} run={difficulty ?? "easy"} onTicket={openTicket} />}
               </div>
             </div>
             </div>
