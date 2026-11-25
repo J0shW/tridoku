@@ -340,9 +340,9 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 - [x] A tap anywhere skips to the ticket.
 - [x] With reduced motion on, there's no finish: the ticket opens as in Classic.
 - [x] The start-of-run ride up is removed for now, and the clock is back to the original.
-- [ ] It runs smoothly on a mid-range phone. *60 fps in a headless browser, 55 fps at 4× CPU slowdown (one long frame at the win itself). Worth a look on a real phone.*
+- [ ] It runs smoothly on a mid-range phone. *60 fps in a headless browser, 55 fps at 4× CPU slowdown (one long frame at the win itself). Still to check on a real phone; it doesn't block Done.*
 - [x] A `finish_skipped` event through `trackEvent`, listed in `docs/metrics.md`.
-- [ ] Josh signs it off in the preview.
+- [x] Josh signs it off in the preview. *25 Nov: "good for now".*
 
 **Check it in a preview.** Pick Mountain in ⋯ → Look. Use Preview → Fill all but 1 cell, then enter the last digit: watch the finish. Try it in night mode, tap to skip once, and turn on reduced motion and try once more.
 
