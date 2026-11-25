@@ -14,9 +14,10 @@ import { TallyWidget } from "@/components/tally-widget"
 import { InputModeToggle } from "@/components/input-mode-toggle"
 import { TipBanner } from "@/components/tip-banner"
 import { WelcomeScreen } from "@/components/welcome-screen"
-import { Button } from "@/components/ui/legacy-button"
+import { Button, IconButton } from "@/components/ui/button"
+import { Notice } from "@/components/ui/notice"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
-import { HelpCircle, BarChart3, Triangle, Eye, Moon, Sun, RotateCw, Share2 } from "lucide-react"
+import { HelpCircle, BarChart3, Triangle, Moon, Sun, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
 import { fromDateKey } from "@/lib/dates"
 import { Spinner } from "@/components/ui/spinner"
@@ -37,15 +38,17 @@ const DevTools = dynamic(() => import("@/components/dev-tools").then((m) => m.De
 
 function LoadErrorNotice({ onRetry }: { onRetry: () => void }) {
   return (
-    <div role="alert" className="flex flex-col items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-4 text-center">
-      <p className="text-sm text-foreground">
-        Couldn&apos;t load today&apos;s puzzle. Check your connection and try again.
-      </p>
-      <Button size="sm" onClick={onRetry} className="gap-2">
-        <RotateCw className="h-4 w-4" />
-        Retry
-      </Button>
-    </div>
+    <Notice
+      tone="danger"
+      action={
+        <Button size="sm" variant="secondary" onClick={onRetry}>
+          <RotateCw aria-hidden="true" />
+          Retry
+        </Button>
+      }
+    >
+      Couldn&apos;t load today&apos;s puzzle. Check your connection and try again.
+    </Notice>
   )
 }
 
@@ -160,6 +163,23 @@ export function TridokuGame() {
     [showPencilHint, dismissPencilTip, setValue],
   )
 
+  // TRI-093: the pad looks tappable before a cell is picked; a tap then says what to do,
+  // over the middle of the pad, where you're looking
+  const [pickCellHint, setPickCellHint] = useState(0)
+  useEffect(() => {
+    if (!pickCellHint) return
+    const t = setTimeout(() => setPickCellHint(0), 1800)
+    return () => clearTimeout(t)
+  }, [pickCellHint])
+  const padDigit = useCallback(
+    (n: number) => (selectedCellId === null ? setPickCellHint(Date.now()) : enterDigit(n)),
+    [selectedCellId, enterDigit],
+  )
+  const padClear = useCallback(
+    () => (selectedCellId === null ? setPickCellHint(Date.now()) : clearCell()),
+    [selectedCellId, clearCell],
+  )
+
   // The backup-puzzle explanation shows once per puzzle as a banner; the header keeps a short label.
   const fallbackKey = fallback ? (fallback.sourceDate ?? "backup") : null
   const [fallbackDismissed, setFallbackDismissed] = useState<string | null>(null)
@@ -202,6 +222,8 @@ export function TridokuGame() {
         Object.keys(progressToday).length === 0
       if (firstVisit) openRulesAt("rules", 0, true)
       changeDifficulty(d)
+      // The welcome screen can be scrolled; the game starts at the top (TRI-093)
+      window.scrollTo({ top: 0 })
     },
     [stats, progressToday, changeDifficulty, openRulesAt],
   )
@@ -331,10 +353,11 @@ export function TridokuGame() {
     <div className="min-h-screen bg-background flex flex-col overflow-x-clip">
       {/* Header */}
       <header className="border-b border-border">
-        <div className="container max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        {/* Under 360 px the edges and title spacing tighten, so the icons keep full hit areas */}
+        <div className="container max-w-2xl mx-auto px-4 max-[359px]:px-3 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2 max-[359px]:gap-1.5">
             <Triangle className="h-5 w-5 text-primary fill-primary/20" />
-            <h1 className={`whitespace-nowrap font-bold text-foreground ${mountain ? "font-signage text-xl font-extrabold uppercase tracking-[0.05em]" : "text-[17px]"}`}>Daily Tridoku</h1>
+            <h1 className={`whitespace-nowrap font-bold text-foreground ${mountain ? "font-signage text-xl font-extrabold uppercase tracking-[0.05em] max-[359px]:tracking-[0.03em]" : "text-[17px]"}`}>Daily Tridoku</h1>
             <p className="whitespace-nowrap text-xs text-muted-foreground">
               {fallbackKey && hasStarted && !isViewMode ? (
                 <button
@@ -351,32 +374,18 @@ export function TridokuGame() {
             </p>
           </div>
 
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              aria-label="Toggle theme"
-            >
-              <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={openRules}
-              aria-label="How to play"
-            >
-              <HelpCircle className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowStats(true)}
-              aria-label="Statistics"
-            >
-              <BarChart3 className="h-5 w-5" />
-            </Button>
+          {/* 36 px icons with 44 px hit areas, 8 px apart so they don't overlap (TRI-093) */}
+          <div className="flex items-center gap-2">
+            <IconButton label="Toggle theme" size="compact" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+              <Sun className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" aria-hidden="true" />
+              <Moon className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" aria-hidden="true" />
+            </IconButton>
+            <IconButton label="How to play" size="compact" onClick={openRules}>
+              <HelpCircle aria-hidden="true" />
+            </IconButton>
+            <IconButton label="Statistics" size="compact" onClick={() => setShowStats(true)}>
+              <BarChart3 aria-hidden="true" />
+            </IconButton>
           </div>
         </div>
       </header>
@@ -487,18 +496,17 @@ export function TridokuGame() {
             )}
             {/* View mode indicator, with a way back to the result card (TRI-035) */}
             {isViewMode && !mountain && (
-              <div className="bg-[#bfdde2]/60 dark:bg-[#bfdde2]/90 border-2 border-[#98ac8b] rounded-lg p-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-3">
-                <div className="flex items-center gap-2">
-                  <Eye className="h-5 w-5 shrink-0 text-[#2d5a3a]" />
-                  <p className="text-[#2d5a3a] font-semibold">
-                    You completed this puzzle today!
-                  </p>
-                </div>
-                <Button size="sm" className="gap-2" onClick={() => setShowWin(true)}>
-                  <Share2 className="h-4 w-4" />
-                  Share result
-                </Button>
-              </div>
+              <Notice
+                tone="success"
+                action={
+                  <Button size="sm" onClick={() => setShowWin(true)}>
+                    <Share2 aria-hidden="true" />
+                    Share result
+                  </Button>
+                }
+              >
+                <span className="font-semibold">You completed this puzzle today!</span>
+              </Notice>
             )}
             {/* Input mode toggle and number pad */}
             {!isViewMode && (
@@ -530,11 +538,21 @@ export function TridokuGame() {
                   />
                   </div>
                 </div>
+                <div className="relative">
+                {pickCellHint > 0 && (
+                  <p
+                    key={pickCellHint}
+                    role="status"
+                    className="pointer-events-none absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-background shadow-lg motion-safe:animate-in motion-safe:fade-in-0 motion-safe:zoom-in-95"
+                  >
+                    Pick a cell first
+                  </p>
+                )}
                 <NumberPad
-                  onNumberClick={enterDigit}
+                  onNumberClick={padDigit}
                   mode={inputMode}
-                  onClear={clearCell}
-                  disabled={isPaused || isComplete || selectedCellId === null || isViewMode}
+                  onClear={padClear}
+                  disabled={isPaused || isComplete || isViewMode}
                   activePencilMarks={
                     inputMode === 'pencil' && selectedCellId
                       ? (() => {
@@ -544,6 +562,7 @@ export function TridokuGame() {
                       : undefined
                   }
                 />
+                </div>
               </div>
             )}
           </>

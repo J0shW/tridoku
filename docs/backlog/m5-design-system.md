@@ -117,15 +117,17 @@ Also, every ghost or outline hover turns green, and the digit highlight is an op
 
 **Problem.** The header, corner controls, Pen/Pencil, number pad, notices and view-mode banner each have their own styling. Sixteen controls are under 44 px. The game opens scrolled down on 320 px phones.
 
+*Trimmed 25 Nov against the code, with Josh: the floating tips already use theme colours and float on purpose (TRI-090), so notices are dropped; the only hard-coded colours left were Classic's solved banner. Mountain's finished view is the Run complete card (TRI-105).*
+
 **Done when**
-- [ ] Header icons, corner pills, Pen/Pencil, pad keys and notices use the TRI-089 components, with 44 px hit areas.
-- [ ] Undo's note changes only its label, so it no longer looks like Check on.
-- [ ] The pad looks tappable before a cell is selected; tapping a key then says "Pick a cell first".
-- [ ] The view-mode banner is a `success` Notice.
-- [ ] The ⋯ menu is a Radix DropdownMenu with keyboard navigation, and Reset is in danger text.
-- [ ] Starting a game scrolls to the top.
-- [ ] The TRI-087 corner layout, the TRI-058 fit, and the Undo label hiding under 350 px all stay as they are. The play-through pad-fit check passes at 360×640 and 390×664.
-- [ ] No hex values or palette colours remain in `tridoku-game.tsx`, `tridoku-board.tsx`, `game-controls.tsx`, `input-mode-toggle.tsx` or `number-pad.tsx`.
+- [x] Header icons, corner pills, ⋯ menu items and Pen/Pencil have 44 px hit areas. *Header icons are `IconButton size="compact"` and the pills keep their 36 px look: an invisible margin takes the tap, and 8 px gaps keep neighbours from overlapping. Pen/Pencil is the shared `SegmentedControl`, with Pencil's strong "on" look kept through a new `selectedClassName`. Pad keys were already 56 px. Under 360 px the header's edges, title spacing and Mountain title tracking tighten so it fits at 320 px.*
+- [x] Undo's note changes only its label, so it no longer looks like Check on.
+- [x] The pad looks tappable before a cell is selected; tapping a key then says "Pick a cell first". *Over the middle of the pad for 1.8 s.*
+- [x] Classic's solved banner is a `success` Notice. *The load error is a `danger` Notice too. No hex values or palette colours remain in the game files.*
+- [x] The ⋯ menu is a Radix DropdownMenu with keyboard navigation, and Reset is in danger text. *`components/ui/dropdown-menu.tsx`, not modal so the Reset dialog keeps focus; closing the dialog returns focus to ⋯.*
+- [x] Starting a game scrolls to the top. *From the welcome screen.*
+- [x] The TRI-087 corner layout, the TRI-058 fit, and the Undo label hiding under 350 px all stay as they are. The play-through pad-fit check passes at 360×640 and 390×664.
+- [ ] Josh signs it off in the preview.
 
 **Check it in a preview.** Play a few moves on your phone. Try Undo, Check, ⋯ → Reset puzzle → Cancel, Pencil with its tip, and pause. Then finish and look at the solved view. Repeat in dark mode.
 
