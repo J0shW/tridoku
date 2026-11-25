@@ -14,14 +14,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatTime } from "@/lib/tridoku"
 import { winRate } from "@/lib/stats"
 import { Check, X } from "lucide-react"
+import { SeasonPassBody } from "@/components/season-pass"
 
 interface StatsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   stats: GameStats
+  /** Mountain theme: statistics are a season pass (TRI-108) */
+  mountain?: boolean
 }
 
-export function StatsModal({ open, onOpenChange, stats }: StatsModalProps) {
+export function StatsModal({ open, onOpenChange, stats, mountain = false }: StatsModalProps) {
+  if (mountain) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          showCloseButton={false}
+          className="ticket-enter block gap-0 overflow-visible rounded-none border-0 bg-transparent p-0 shadow-none [filter:drop-shadow(0_24px_28px_rgb(10_18_28/0.35))]"
+        >
+          <SeasonPassBody stats={stats} />
+        </DialogContent>
+      </Dialog>
+    )
+  }
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">

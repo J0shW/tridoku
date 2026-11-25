@@ -16,6 +16,8 @@ import { addDays, daysBetween, fromDateKey, todayKey, type DateKey } from "@/lib
 import { compareWithBest, DIFFICULTY_LABEL, nextUnfinished } from "@/lib/share"
 import { formatTime, type Difficulty } from "@/lib/tridoku"
 import { claimKofiPrompt } from "@/lib/win-prompts"
+import { PINS, readPins, runId } from "@/lib/pins"
+import { PinBadge } from "@/components/season-pass"
 import { cn } from "@/lib/utils"
 import type { GameStats } from "@/hooks/use-tridoku"
 
@@ -63,6 +65,11 @@ export function LiftTicketBody(props: Omit<WinModalProps, "open" | "onOpenChange
   const comparison = solvedOnDate ? compareWithBest(elapsedTime, s.previousBestTime) : null
   const [showKofi] = useState(() => claimKofiPrompt(difficulty, date, todayKey()))
   const [kofiOpen, setKofiOpen] = useState(false)
+  // Pins this run just earned (TRI-108)
+  const [newPins] = useState(() => {
+    const book = readPins()
+    return PINS.filter((p) => book[p.id]?.run === runId(difficulty, date))
+  })
   useEffect(() => {
     if (showKofi) trackEvent("kofi_prompt_shown", { difficulty })
   }, [showKofi, difficulty])
@@ -137,6 +144,16 @@ export function LiftTicketBody(props: Omit<WinModalProps, "open" | "onOpenChange
               <>Your fastest: {formatTime(comparison.best)}</>
             )}
           </p>
+        )}
+        {newPins.length > 0 && (
+          <ul className="mt-3 flex flex-wrap justify-center gap-2" aria-label="New pins">
+            {newPins.map((pin) => (
+              <li key={pin.id} className="flex items-center gap-1.5 rounded-full border-[1.5px] border-border py-1 pl-1 pr-3">
+                <PinBadge id={pin.id} earned className="size-7" />
+                <span className="font-signage text-[15px] font-bold uppercase tracking-[0.04em]">New pin · {pin.name}</span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 

@@ -2,7 +2,7 @@
 
 The list of everything we plan to do, built from the [baseline review](../reviews/2026-11-06-baseline.md). How it works: [README](README.md).
 
-**108 items** · 35 todo · 2 in progress · 6 in review · 61 done · 4 won't do · plus 13 [research items](research.md)
+**108 items** · 34 todo · 2 in progress · 7 in review · 61 done · 4 won't do · plus 13 [research items](research.md)
 
 ## [M0 · Foundations and critical fixes](m0-foundations.md)
 
@@ -146,7 +146,7 @@ One look and one way of building every screen, from the [UI audit](../reviews/20
 | [TRI-105](m5-design-system.md#tri-105) | Run complete: the lift ticket and your finished board | Medium | H | M | TRI-101, TRI-094 | Done |
 | [TRI-106](m5-design-system.md#tri-106) | Share it like a lift ticket | Medium | M | S | TRI-105 | In review |
 | [TRI-107](m5-design-system.md#tri-107) | Ski down on a win | Low | M | M | TRI-101, TRI-104, TRI-105 | Done |
-| [TRI-108](m5-design-system.md#tri-108) | Season pass | Low | M | M | TRI-101 | Todo |
+| [TRI-108](m5-design-system.md#tri-108) | Season pass | Low | M | M | TRI-101 | In review |
 | [TRI-094](m5-design-system.md#tri-094) | Dialogs and menus on the system | Medium | M | M | TRI-089 | Done |
 | [TRI-095](m5-design-system.md#tri-095) | System and secondary pages | Medium | M | S | TRI-089 | Todo |
 | [TRI-098](m5-design-system.md#tri-098) | Content pass | Medium | M | S | — | Todo |

@@ -356,9 +356,10 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 **Problem.** The statistics screen should feel like part of the mountain.
 
 **Done when**
-- [ ] Statistics is a season pass: runs finished and best time for each shape, day streak and longest streak, and this week as a grid of shapes.
-- [ ] It uses only data we already store. No new tracking.
-- [ ] **[Decision]** Pins to collect (First tracks, Off piste, Triple run, Double black). Josh decides whether they're worth building.
+- [x] Statistics is a season pass: runs finished and best time for each shape, day streak and longest streak, and this week as a grid of shapes. *`components/season-pass.tsx`, Mountain only; Classic keeps the tabbed statistics. The day streak counts a day when any run was solved. Each run keeps only its current streak, so "this week" shows the streak's days (as the lift ticket does), and an older gap can't be filled in.*
+- [x] It uses only data we already store. No new tracking. *Earned pins are kept on the device in `tridoku-pins` so they stay earned. Nothing new goes to analytics.*
+- [x] **[Decision]** Pins to collect. *Josh (25 Nov): build them. First tracks: finish your first run. Off piste: finish a run with no pencil notes. Triple run: all three runs in a day. Double black: Hard two days in a row. Pins already proven by saved stats count as earned (with no date). A run that earns a pin shows "New pin" on its lift ticket.*
+- [ ] Josh signs it off in the preview.
 
 **Check it in a preview.** Open Statistics after finishing a run: your counts, best times and this week's runs match what you've played.
 
