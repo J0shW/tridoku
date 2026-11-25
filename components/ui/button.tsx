@@ -82,6 +82,8 @@ const iconButtonVariants = cva(
       },
       size: {
         md: "size-11",
+        // 36 px to see (the header icons), 44 px to touch: keep 8 px between them
+        compact: "size-9 before:absolute before:-inset-1 before:content-['']",
         // 32 px to see (dismiss buttons), 44 px to touch
         sm: "size-8 before:absolute before:-inset-1.5 before:content-[''] [&_svg]:size-4",
       },

@@ -3,12 +3,24 @@
 // The controls that sit in the empty top corners beside the board (TRI-087):
 // the timer, which pauses when tapped, and Undo under it on the left (TRI-052);
 // Check and a "More" menu holding Reset on the right.
+// Each pill is 36 px to see and 44 px to touch (TRI-093): an invisible margin round it takes
+// the tap, and the 8 px gaps between pills keep neighbouring hit areas from overlapping.
 
 import { useEffect, useRef, useState } from "react"
 import { Check, Clock, MoreHorizontal, Pause, Play, RotateCcw, Undo2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatTime } from "@/lib/tridoku"
 import type { BoardTheme } from "@/lib/palettes"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,7 +33,7 @@ import {
 } from "@/components/ui/alert-dialog"
 
 const PILL =
-  "inline-flex h-9 items-center rounded-full border border-border bg-secondary text-foreground transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+  "relative inline-flex h-9 items-center before:absolute before:-inset-y-1 before:-inset-x-1 before:content-[''] rounded-full border border-border bg-secondary text-foreground transition-colors hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
 
 interface TimerButtonProps {
   seconds: number
@@ -89,11 +101,9 @@ export function UndoButton({ canUndo, onUndo, feedback }: UndoButtonProps) {
         aria-label="Undo"
         aria-keyshortcuts="Control+Z Meta+Z"
         title="Undo (Ctrl/⌘ Z)"
-        className={cn(
-          PILL,
-          "gap-1.5 whitespace-nowrap pl-2.5 pr-3 text-sm font-semibold",
-          note && "border-primary bg-primary text-primary-foreground hover:bg-primary/90",
-        )}
+        // While it says what it put back, only the label changes: a filled pill would look
+        // like a toggle that's on, like Check (TRI-093)
+        className={cn(PILL, "gap-1.5 whitespace-nowrap pl-2.5 pr-3 text-sm font-semibold")}
       >
         <Undo2 className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
         {/* A narrow board's corner only has room for "Undo"; the cell flash still shows what changed */}
@@ -125,27 +135,9 @@ const THEME_OPTIONS: { value: BoardTheme; label: string }[] = [
 
 /** Check (error checking on/off) and a More menu with Reset. */
 export function GameControls({ showErrors, onToggleErrors, onReset, disabled = false, boardTheme, onBoardThemeChange }: GameControlsProps) {
-  const [menuOpen, setMenuOpen] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
-  const menuRef = useRef<HTMLDivElement>(null)
   const moreRef = useRef<HTMLButtonElement>(null)
-
-  // Close the menu on a tap outside it or on Escape
-  useEffect(() => {
-    if (!menuOpen) return
-    const onPointer = (e: PointerEvent) => {
-      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false)
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false)
-    }
-    document.addEventListener("pointerdown", onPointer)
-    document.addEventListener("keydown", onKey)
-    return () => {
-      document.removeEventListener("pointerdown", onPointer)
-      document.removeEventListener("keydown", onKey)
-    }
-  }, [menuOpen])
+  const resettingRef = useRef(false)
 
   return (
     // Check, with the More menu under it to mirror the timer and Undo on the left
@@ -167,66 +159,51 @@ export function GameControls({ showErrors, onToggleErrors, onReset, disabled = f
         <span>Check</span>
       </button>
 
-      <div ref={menuRef} className="relative">
-        <button
-          type="button"
-          ref={moreRef}
-          onClick={() => setMenuOpen((o) => !o)}
-          disabled={disabled}
-          aria-label="More"
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          className={cn(PILL, "w-9 justify-center")}
+      {/* Not modal, so opening the Reset dialog from it doesn't fight over focus */}
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild disabled={disabled}>
+          <button type="button" ref={moreRef} aria-label="More" className={cn(PILL, "w-9 justify-center")}>
+            <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden="true" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          // The Reset dialog takes focus from here; it hands it back to More when it closes
+          onCloseAutoFocus={(e) => {
+            if (resettingRef.current) e.preventDefault()
+          }}
         >
-          <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden="true" />
-        </button>
-        {menuOpen && (
-          <div
-            role="menu"
-            className="absolute right-0 top-11 z-30 w-52 rounded-xl border border-border bg-popover p-1.5 text-popover-foreground shadow-lg"
+          <DropdownMenuItem
+            tone="danger"
+            onSelect={() => {
+              resettingRef.current = true
+              setShowResetConfirm(true)
+            }}
           >
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                setMenuOpen(false)
-                setShowResetConfirm(true)
-              }}
-              className="flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-sm font-medium hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none"
-            >
-              <RotateCcw className="h-[18px] w-[18px]" aria-hidden="true" />
-              Reset puzzle
-            </button>
-            {boardTheme && onBoardThemeChange && (
-              <div role="group" aria-label="Look" className="mt-1 border-t border-border pt-1.5">
-                <p className="px-2.5 pb-1 text-xs font-medium text-muted-foreground">Look</p>
+            <RotateCcw aria-hidden="true" />
+            Reset puzzle
+          </DropdownMenuItem>
+          {boardTheme && onBoardThemeChange && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Look</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={boardTheme} onValueChange={(v) => onBoardThemeChange(v as BoardTheme)}>
                 {THEME_OPTIONS.map((o) => (
-                  <button
-                    key={o.value}
-                    type="button"
-                    role="menuitemradio"
-                    aria-checked={boardTheme === o.value}
-                    onClick={() => {
-                      setMenuOpen(false)
-                      onBoardThemeChange(o.value)
-                    }}
-                    className="flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-left text-sm font-medium hover:bg-secondary focus-visible:bg-secondary focus-visible:outline-none"
-                  >
-                    <Check className={cn("h-[18px] w-[18px]", boardTheme !== o.value && "invisible")} aria-hidden="true" />
+                  <DropdownMenuRadioItem key={o.value} value={o.value}>
                     {o.label}
-                  </button>
+                  </DropdownMenuRadioItem>
                 ))}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+              </DropdownMenuRadioGroup>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <AlertDialog open={showResetConfirm} onOpenChange={setShowResetConfirm}>
         {/* The menu item that opened it is gone, so focus goes back to the More button (TRI-094) */}
         <AlertDialogContent
           onCloseAutoFocus={(e) => {
             e.preventDefault()
+            resettingRef.current = false
             moreRef.current?.focus({ preventScroll: true })
           }}
         >

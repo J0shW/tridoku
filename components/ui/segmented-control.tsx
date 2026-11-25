@@ -14,6 +14,8 @@ export interface Segment<T extends string> {
   icon?: React.ReactNode
   /** Accessible name when the label isn't plain text */
   ariaLabel?: string
+  /** Replaces the selected style, for a mode that should stand out when on (Pencil) */
+  selectedClassName?: string
 }
 
 interface SegmentedControlProps<T extends string> {
@@ -95,7 +97,7 @@ export function SegmentedControl<T extends string>({
               "[&_svg]:size-4 [&_svg]:shrink-0",
               fill && "flex-1",
               selected
-                ? "bg-surface-raised text-fg shadow-thumb ring-1 ring-border"
+                ? (s.selectedClassName ?? "bg-surface-raised text-fg shadow-thumb ring-1 ring-border")
                 : "text-fg-muted hover:text-fg",
             )}
           >
