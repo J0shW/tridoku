@@ -8,6 +8,7 @@
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { formatTime, type Difficulty } from "@/lib/tridoku"
+import type { ThemeDay } from "@/lib/theme-days"
 import type { DifficultyStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 
 export const SHAPE_PATH: Record<Difficulty, string> = {
@@ -85,34 +86,99 @@ const tree = (x: number, b: number, h: number) =>
 const TREES = [[14, 300, 34], [36, 300, 26], [56, 300, 40], [78, 300, 22], [312, 300, 24], [334, 300, 38], [356, 300, 28], [378, 300, 34]].map(([x, b, h]) => tree(x, b, h))
 const STARS = [[24, 30, 1.2], [70, 64, 0.9], [118, 22, 1.4], [160, 52, 0.8], [206, 18, 1], [250, 70, 1.1], [286, 26, 0.9], [372, 96, 1.2], [96, 104, 0.8], [190, 92, 0.9]]
 
+// Theme day extras (TRI-100). Snow caps on the far peaks: [peak, left foot, right foot]
+const PEAKS: [number, number, number, number, number, number][] = [
+  [40, 150, -10, 190, 85, 182],
+  [130, 128, 85, 182, 175, 176],
+  [262, 120, 215, 170, 300, 160],
+  [345, 112, 300, 160, 400, 168],
+]
+function peakCap([px, py, lx, ly, rx, ry]: (typeof PEAKS)[number], depth = 13) {
+  const at = (fx: number, fy: number) => px + (fx - px) * (depth / (fy - py))
+  const l = at(lx, ly)
+  const r = at(rx, ry)
+  const y = py + depth
+  const w = r - l
+  return `${px},${py} ${r},${y} ${l + w * 0.72},${y - 3} ${l + w * 0.5},${y + 1.5} ${l + w * 0.26},${y - 2.5} ${l},${y}`
+}
+const PINES: [number, number, number][] = [[14, 300, 34], [36, 300, 26], [56, 300, 40], [78, 300, 22], [312, 300, 24], [334, 300, 38], [356, 300, 28], [378, 300, 34]]
+const pineCap = ([x, b, h]: [number, number, number]) =>
+  `${x},${b - h} ${x + h * 0.17},${b - h * 0.71} ${x + h * 0.06},${b - h * 0.68} ${x - h * 0.05},${b - h * 0.73} ${x - h * 0.17},${b - h * 0.71}`
+const LIGHT_COLOURS = ["#e5484d", "#f2b33d", "#3fae6a", "#4a8fe7"]
+const pineLights = ([x, b, h]: [number, number, number], i: number) =>
+  [[-0.12, 0.6], [0.14, 0.5], [-0.24, 0.3], [0.08, 0.24], [0.3, 0.1], [-0.32, 0.06]].map(([dx, dy], j) => ({
+    cx: x + dx * h,
+    cy: b - h * dy - 2,
+    fill: LIGHT_COLOURS[(i + j) % LIGHT_COLOURS.length],
+  }))
+// Falling flakes: left %, size px, seconds to fall, delay (negative: already falling)
+const FLAKES = Array.from({ length: 26 }, (_, i) => {
+  const r = (n: number) => ((Math.sin(i * 12.9898 + n * 78.233) * 43758.5453) % 1 + 1) % 1
+  return { left: r(1) * 100, size: 2 + r(2) * 3.5, dur: 7 + r(3) * 6, delay: -r(4) * 13, sway: (r(5) - 0.5) * 30 }
+})
+const sparkle = (x: number, y: number, r: number) => {
+  const k = r * 3.2
+  return `M${x} ${y - k}L${x + k * 0.22} ${y - k * 0.22}L${x + k} ${y}L${x + k * 0.22} ${y + k * 0.22}L${x} ${y + k}L${x - k * 0.22} ${y + k * 0.22}L${x - k} ${y}L${x - k * 0.22} ${y - k * 0.22}Z`
+}
+
 /**
  * Sky, two ranges of hills and pines, drawn behind the board. Pale and flat on purpose
  * (pines 1.5:1 against the sky). Stretches to fill its box; nothing is drawn under the board.
  * `shadow` dims it while you play (TRI-104); the colours fade over 600 ms.
+ * A theme day (TRI-100) adds snow caps and falling flakes in December, lights on the pines
+ * at Christmas and gold sparkles at New Year. The flakes and lights rest while you play.
  */
-export function MountainScenery({ className, shadow = false }: { className?: string; shadow?: boolean }) {
+export function MountainScenery({ className, shadow = false, themeDay = null }: { className?: string; shadow?: boolean; themeDay?: ThemeDay | null }) {
+  const snow = !!themeDay?.snow
+  const lights = themeDay?.id === "christmas"
+  const sparkles = themeDay?.palette === "new-year"
   return (
-    <svg
-      viewBox="0 0 390 300"
-      preserveAspectRatio="none"
-      className={cn("mountain-scenery pointer-events-none", shadow && "scene-shadow", className)}
+    <div
+      className={cn("mountain-scenery pointer-events-none overflow-hidden", shadow && "scene-shadow", className)}
       data-shadow={shadow || undefined}
+      data-theme-day={themeDay?.id}
       aria-hidden="true"
     >
-      <rect x="0" y="0" width="390" height="300" style={{ fill: "var(--scene-sky)" }} />
-      {STARS.map(([x, y, r]) => (
-        <circle key={`${x}-${y}`} cx={x} cy={y} r={r} style={{ fill: "var(--scene-star)" }} />
-      ))}
-      <polygon points="-10,300 -10,190 40,150 85,182 130,128 175,176 230,300" style={{ fill: "var(--scene-far)" }} />
-      <polygon points="160,300 215,170 262,120 300,160 345,112 400,168 400,300" style={{ fill: "var(--scene-far)" }} />
-      <polygon points="-10,300 -10,236 30,214 70,240 112,200 150,236 200,300" style={{ fill: "var(--scene-near)" }} />
-      <polygon points="190,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
-      {/* A low ridge across the bottom, so no gap shows below the board; the hills above slope into it */}
-      <polygon points="-10,300 -10,262 195,252 400,262 400,300" style={{ fill: "var(--scene-near)" }} />
-      {TREES.map((pts) => (
-        <polygon key={pts} points={pts} style={{ fill: "var(--scene-tree)" }} />
-      ))}
-    </svg>
+      <svg viewBox="0 0 390 300" preserveAspectRatio="none" className="absolute inset-0 h-full w-full">
+        <rect x="0" y="0" width="390" height="300" style={{ fill: "var(--scene-sky)" }} />
+        {sparkles
+          ? STARS.map(([x, y, r]) => <path key={`${x}-${y}`} d={sparkle(x, y, r)} className="scene-sparkle" />)
+          : STARS.map(([x, y, r]) => <circle key={`${x}-${y}`} cx={x} cy={y} r={r} style={{ fill: "var(--scene-star)" }} />)}
+        <polygon points="-10,300 -10,190 40,150 85,182 130,128 175,176 230,300" style={{ fill: "var(--scene-far)" }} />
+        <polygon points="160,300 215,170 262,120 300,160 345,112 400,168 400,300" style={{ fill: "var(--scene-far)" }} />
+        {snow && PEAKS.map((p) => <polygon key={p[0]} points={peakCap(p)} style={{ fill: "var(--scene-snowcap)" }} />)}
+        <polygon points="-10,300 -10,236 30,214 70,240 112,200 150,236 200,300" style={{ fill: "var(--scene-near)" }} />
+        <polygon points="190,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
+        {/* A low ridge across the bottom, so no gap shows below the board; the hills above slope into it */}
+        <polygon points="-10,300 -10,262 195,252 400,262 400,300" style={{ fill: "var(--scene-near)" }} />
+        {TREES.map((pts) => (
+          <polygon key={pts} points={pts} style={{ fill: "var(--scene-tree)" }} />
+        ))}
+        {snow && PINES.map((t) => <polygon key={`cap-${t[0]}`} points={pineCap(t)} style={{ fill: "var(--scene-snowcap)" }} />)}
+        {lights &&
+          PINES.flatMap((t, i) => pineLights(t, i)).map((l) => (
+            <ellipse key={`${l.cx}-${l.cy}`} cx={l.cx} cy={l.cy} rx="2.3" ry="1.6" className="scene-light" style={{ fill: l.fill }} />
+          ))}
+      </svg>
+      {snow && (
+        <div className="scene-flakes absolute inset-0" style={{ containerType: "size" }}>
+          {FLAKES.map((f, i) => (
+            <span
+              key={i}
+              className="scene-flake"
+              style={{
+                left: `${f.left}%`,
+                width: f.size,
+                height: f.size,
+                animationDuration: `${f.dur}s`,
+                animationDelay: `${f.delay}s`,
+                ["--sway" as string]: `${f.sway}px`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 

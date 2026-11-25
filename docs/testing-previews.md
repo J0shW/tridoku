@@ -20,7 +20,7 @@ Previews are kept out of search engines, and Umami only counts visits on the pro
 
 Previews (and `pnpm dev`) show an amber **Preview** button in the bottom-left corner. It never appears in production. It opens a panel with:
 
-- **Clock.** Move the app's clock by a day either way, or jump to 23:58 tonight. The whole app (the daily puzzle, puzzle number, streaks and saved progress) behaves as if it's that time. The button shows the simulated date while the clock is shifted. Use **Real time** to undo.
+- **Clock.** Move the app's clock by a day either way, or jump to 23:58 tonight. The whole app (the daily puzzle, puzzle number, streaks and saved progress) behaves as if it's that time. The button shows the simulated date while the clock is shifted. Use **Real time** to undo. **Theme days** jumps straight to December, 25 Dec, 31 Dec or 1 Jan (TRI-100), and **Jump to** picks any date. Days past the published puzzles show the backup puzzle, but the theme follows the date.
 - **Fill all but 1 cell.** Solves the open puzzle except the last cell on the board, so you can reach the win screen in one tap.
 - **Seed 5-day streak.** Sets a 5-day streak ending yesterday for the current difficulty. Solve today's puzzle and the streak should read 6.
 - **Clear all saved data and reload.** Starts over as a first-time player.

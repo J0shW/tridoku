@@ -65,11 +65,11 @@ Every event also carries `days_since_first` (whole days since this browser's fir
 | Event | When | Data |
 |---|---|---|
 | `{difficulty}_loaded` | A difficulty is chosen | — |
-| `puzzle_started` | First digit or note in a puzzle (once per puzzle) | `difficulty`, `ms_since_load`, `rules_seen` |
+| `puzzle_started` | First digit or note in a puzzle (once per puzzle) | `difficulty`, `ms_since_load`, `rules_seen`, `theme_day` (Mountain on a theme day only: `winter` / `christmas` / `new-years-eve` / `new-years-day`, TRI-100) |
 | `{difficulty}_completed` | Puzzle solved (once per puzzle) | `difficulty`, `time` (s), `errors` (entries that broke a rule), `pencil_marks` (notes added), `resets`, `quick_clears` (digits cleared within 2 s of being entered in the same cell: likely mis-taps, TRI-059), `undos` (times Undo was used, TRI-052), `undo_reentries` (digits entered again in the same cell straight after an undo removed them: a sign Redo is needed) |
 | `{difficulty}_abandoned` | Reset, or switching difficulty mid-puzzle | `difficulty`, `reason` (`reset` / `switch_difficulty`), `time`, `pct_filled` |
 | `session_end` | Page hidden with an unfinished, started puzzle (once per page load) | `difficulty`, `pct_filled`, `time` |
-| `result_shared` | Share button | `difficulty`, `method` (`native_share` / `clipboard`), `outcome` (`shared` / `cancelled` / `copied` / `failed`) |
+| `result_shared` | Share button | `difficulty`, `method` (`native_share` / `clipboard`), `outcome` (`shared` / `cancelled` / `copied` / `failed`), `theme_day` (as on `puzzle_started`, TRI-100) |
 | `result_copied` | Copy button | `difficulty` |
 | `difficulty_rated` | Too easy / Just right / Too hard tapped in the win modal (once per puzzle) | `difficulty`, `rating` (`too_easy` / `just_right` / `too_hard`), `time` (s). `tier` is added once TRI-046 grades puzzles |
 | `rules_opened` | How to Play opened | — |

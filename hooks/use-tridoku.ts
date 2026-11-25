@@ -15,6 +15,8 @@ import { getDailyPuzzle, PuzzleLoadError, type DailyPuzzle } from "@/lib/puzzle-
 import { trackEvent } from "@/lib/analytics"
 import { bumpCounter, getCounters } from "@/lib/play-counters"
 import { awardPins, pinsForWin, runId } from "@/lib/pins"
+import { boardThemeStore } from "@/lib/board-theme"
+import { themeDayFor } from "@/lib/theme-days"
 import { normalizeDateKey, todayKey, type DateKey } from "@/lib/dates"
 import { defaultStats, DIFFICULTIES, normalizeStats, recordStart, recordWin, type GameStats } from "@/lib/stats"
 import { buildMountainShareText, buildShareText, type RunTimes } from "@/lib/share"
@@ -388,10 +390,13 @@ export function useTridoku() {
     const next = recordStart(all[difficulty], puzzleDate)
     if (!next) return
     setStats({ ...all, [difficulty]: next })
+    // TRI-100: Mountain players on a theme day
+    const themeDay = boardThemeStore.get() === "mountain" ? themeDayFor(puzzleDate) : null
     trackEvent("puzzle_started", {
       difficulty,
       ms_since_load: Math.round(performance.now()),
       rules_seen: hasSeenRules(),
+      ...(themeDay ? { theme_day: themeDay.id } : {}),
     })
   }, [])
 
