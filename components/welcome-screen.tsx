@@ -68,7 +68,7 @@ export function WelcomeScreen({
         <div className={`relative pointer-events-none select-none ${mountain ? "pb-5" : ""}`} aria-hidden="true">
           {/* On Mountain, today's board is the peak at the trailhead (TRI-101) */}
           {/* From the header (through the page's top padding) to a little below the board (Josh, 20 Nov) */}
-          {mountain && <MountainScenery themeDay={themeDay} className="absolute -top-6 bottom-0 left-1/2 h-[calc(100%+1.5rem)] w-screen -translate-x-1/2" />}
+          {mountain && <MountainScenery themeDay={themeDay} ground={22} className="absolute -top-6 bottom-0 left-1/2 h-[calc(100%+1.5rem)] w-screen -translate-x-1/2" />}
           <div className="relative mx-auto w-full max-w-[15rem]">
             {previewCells ? (
               <TridokuBoard cells={previewCells} selectedCellId={null} onCellClick={() => {}} isPaused={false} />

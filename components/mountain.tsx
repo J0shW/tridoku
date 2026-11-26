@@ -128,7 +128,18 @@ const sparkle = (x: number, y: number, r: number) => {
  * A theme day (TRI-100) adds snow caps and falling flakes in December, lights on the pines
  * at Christmas and gold sparkles at New Year. The flakes and lights rest while you play.
  */
-export function MountainScenery({ className, shadow = false, themeDay = null }: { className?: string; shadow?: boolean; themeDay?: ThemeDay | null }) {
+export function MountainScenery({
+  className,
+  shadow = false,
+  themeDay = null,
+  ground = 0,
+}: {
+  className?: string
+  shadow?: boolean
+  themeDay?: ThemeDay | null
+  /** How far above the scenery's bottom the board's base sits, in px: the pines stand on it (Josh, 26 Nov) */
+  ground?: number
+}) {
   const snow = !!themeDay?.snow
   const lights = themeDay?.id === "christmas"
   const sparkles = themeDay?.palette === "new-year"
@@ -151,6 +162,14 @@ export function MountainScenery({ className, shadow = false, themeDay = null }: 
         <polygon points="190,300 240,232 282,206 320,234 360,198 400,226 400,300" style={{ fill: "var(--scene-near)" }} />
         {/* A low ridge across the bottom, so no gap shows below the board; the hills above slope into it */}
         <polygon points="-10,300 -10,262 195,252 400,262 400,300" style={{ fill: "var(--scene-near)" }} />
+      </svg>
+      {/* The pines stand on the board's base line, not the bottom of the scenery below it */}
+      <svg
+        viewBox="0 0 390 300"
+        preserveAspectRatio="none"
+        className="absolute inset-x-0 top-0 w-full"
+        style={{ height: `calc(100% - ${ground}px)` }}
+      >
         {TREES.map((pts) => (
           <polygon key={pts} points={pts} style={{ fill: "var(--scene-tree)" }} />
         ))}

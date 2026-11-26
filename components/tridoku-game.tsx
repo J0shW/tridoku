@@ -423,7 +423,7 @@ export function TridokuGame() {
             {/* The run picker and the board share one backdrop on Mountain: the scenery starts
                 behind the signs and ends a little below the board (TRI-101) */}
             <div className={`relative flex flex-col gap-2 ${mountain ? "pb-3" : ""}`}>
-            {mountain && <MountainScenery shadow={inShadow} themeDay={themeDay} className="absolute -top-4 bottom-0 left-1/2 h-[calc(100%+1rem)] w-screen -translate-x-1/2" />}
+            {mountain && <MountainScenery shadow={inShadow} themeDay={themeDay} ground={15} className="absolute -top-4 bottom-0 left-1/2 h-[calc(100%+1rem)] w-screen -translate-x-1/2" />}
             {/* Difficulty selector: trail signs on the Mountain theme (TRI-101) */}
             <div className="relative flex justify-center mb-3">
               {mountain ? (
