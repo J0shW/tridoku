@@ -7,6 +7,7 @@
 // tests/palettes.test.ts checks every palette.
 
 import type { Difficulty } from './tridoku.ts'
+import type { ThemeDay } from './theme-days.ts'
 
 export type BoardTheme = 'classic' | 'mountain'
 export const BOARD_THEMES: BoardTheme[] = ['classic', 'mountain']
@@ -50,9 +51,24 @@ const MOUNTAIN: Record<Difficulty, Palette> = {
 }
 const MOUNTAIN_NIGHT = mountain('#e9eef4', '#c9dbea', '#ecd6bc', '#a9b2cf')
 
-/** The palette for a theme, run and light or dark mode. */
-export function getPalette(theme: BoardTheme, difficulty: Difficulty, dark: boolean): Palette {
+// Theme days (TRI-100), the same on every run. Christmas: the board is a tree, so the
+// sides are pine, the inner triangle a warm ribbon red, and the cells on both the deepest
+// pine. New Year: champagne inside, a midnight lilac on the sides.
+const THEME_PALETTES: Record<NonNullable<ThemeDay['palette']>, { day: Palette; night: Palette }> = {
+  christmas: {
+    day: mountain('#fdfcf8', '#cfe6d3', '#f6d6cf', '#a9c79f'),
+    night: mountain('#eef1ec', '#c3dbc8', '#ecc9c2', '#9fbb98'),
+  },
+  'new-year': {
+    day: mountain('#fdfcf7', '#e3dcf3', '#f5e5b9', '#c0b3dc'),
+    night: mountain('#eceaf2', '#cdc6e5', '#eadba9', '#aca1cf'),
+  },
+}
+
+/** The palette for a theme, run and light or dark mode, dressed for a theme day on Mountain. */
+export function getPalette(theme: BoardTheme, difficulty: Difficulty, dark: boolean, themeDay?: ThemeDay | null): Palette {
   if (theme === 'classic') return CLASSIC
+  if (themeDay?.palette) return dark ? THEME_PALETTES[themeDay.palette].night : THEME_PALETTES[themeDay.palette].day
   return dark ? MOUNTAIN_NIGHT : MOUNTAIN[difficulty]
 }
 
@@ -63,6 +79,10 @@ export const ALL_PALETTES: Record<string, Palette> = {
   'mountain-medium': MOUNTAIN.medium,
   'mountain-hard': MOUNTAIN.hard,
   'mountain-night': MOUNTAIN_NIGHT,
+  'christmas-day': THEME_PALETTES.christmas.day,
+  'christmas-night': THEME_PALETTES.christmas.night,
+  'new-year-day': THEME_PALETTES['new-year'].day,
+  'new-year-night': THEME_PALETTES['new-year'].night,
 }
 
 /** The selected cell's dashes (`--board-selection-stroke`), which must show on every shade (TRI-103). */

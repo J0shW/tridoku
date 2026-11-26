@@ -109,6 +109,19 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
     setOffsetAndReload(offset + (target.getTime() - Date.now()))
   }
 
+  // Jump to a calendar date at the current time of day, for theme days (TRI-100)
+  const jumpToDate = (key: string) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return
+    const target = new Date(now)
+    const [y, m, d] = key.split("-").map(Number)
+    target.setFullYear(y, m - 1, d)
+    setOffsetAndReload(offset + (target.getTime() - Date.now()))
+  }
+  const nextDate = (month: number, day: number) => {
+    const y = now.getMonth() + 1 > month || (now.getMonth() + 1 === month && now.getDate() > day) ? now.getFullYear() + 1 : now.getFullYear()
+    return `${y}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+  }
+
   const fillAllButOne = () => {
     if (!difficulty) return
     const givens = CELLS.map((c) => {
@@ -223,6 +236,21 @@ export function DevTools({ cells, difficulty, isViewMode, onReloadPuzzle }: DevT
               <button className={btn} onClick={jumpToTonight}>Tonight 23:58</button>
               <button className={btn} onClick={() => setOffsetAndReload(0)} disabled={offset === 0}>Real time</button>
             </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">Theme days:</span>
+              <button className={btn} onClick={() => jumpToDate(nextDate(12, 10))}>December</button>
+              <button className={btn} onClick={() => jumpToDate(nextDate(12, 25))}>25 Dec</button>
+              <button className={btn} onClick={() => jumpToDate(nextDate(12, 31))}>31 Dec</button>
+              <button className={btn} onClick={() => jumpToDate(nextDate(1, 1))}>1 Jan</button>
+            </div>
+            <label className="flex items-center gap-1.5 text-xs">
+              Jump to
+              <input
+                type="date"
+                className="rounded border border-border bg-background px-1.5 py-1 text-xs"
+                onChange={(e) => jumpToDate(e.target.value)}
+              />
+            </label>
           </section>
 
           <section className="space-y-2">

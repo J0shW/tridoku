@@ -19,7 +19,8 @@ import { Notice } from "@/components/ui/notice"
 import { getArrowTarget, TRIDOKU_BOARD } from "@/lib/tridoku"
 import { HelpCircle, BarChart3, Triangle, Moon, Sun, RotateCw, Share2 } from "lucide-react"
 import { format } from "date-fns"
-import { fromDateKey } from "@/lib/dates"
+import { fromDateKey, todayKey } from "@/lib/dates"
+import { themeDayFor } from "@/lib/theme-days"
 import { Spinner } from "@/components/ui/spinner"
 import { useTheme } from "next-themes"
 import { applyPalette, getPalette, type BoardTheme } from "@/lib/palettes"
@@ -99,10 +100,12 @@ export function TridokuGame() {
   const mountain = boardTheme === "mountain"
   // Mountain shares the whole day with run shapes and a ticket preview (TRI-106); Classic is unchanged
   const getShareText = mountain ? getMountainShareText : getClassicShareText
+  // TRI-100: Mountain dresses up for the day being played (the welcome screen uses today)
+  const themeDay = mountain ? themeDayFor(puzzleDate ?? todayKey()) : null
   useEffect(() => {
-    applyPalette(getPalette(boardTheme, difficulty ?? "easy", resolvedTheme === "dark"))
+    applyPalette(getPalette(boardTheme, difficulty ?? "easy", resolvedTheme === "dark", themeDay))
     applyLook(boardTheme, difficulty ?? "easy")
-  }, [boardTheme, difficulty, resolvedTheme])
+  }, [boardTheme, difficulty, resolvedTheme, themeDay])
   // TRI-104: on Mountain the scenery falls into shadow on your first tap on the board, or
   // after 4 s, and comes back out when you finish. Keyed to the run, so switching runs or
   // loading a new day starts in sunshine again.
@@ -369,7 +372,16 @@ export function TridokuGame() {
                   {fallback?.sourceDate ? `From ${format(fromDateKey(fallback.sourceDate), "d MMM")}` : "Backup puzzle"}
                 </button>
               ) : (
-                <><span className="max-[359px]:sr-only">Puzzle </span>#{puzzleNumber}</>
+                themeDay?.name ? (
+                  // A theme day names itself (TRI-100), stacked over the number so the header
+                  // keeps its width; a narrow header keeps just the number
+                  <span className="flex flex-col leading-[1.15]">
+                    <span className="text-[11px] font-semibold text-fg max-[359px]:sr-only">{themeDay.name}</span>
+                    <span>#{puzzleNumber}</span>
+                  </span>
+                ) : (
+                  <><span className="max-[359px]:sr-only">Puzzle </span>#{puzzleNumber}</>
+                )
               )}
             </p>
           </div>
@@ -403,6 +415,7 @@ export function TridokuGame() {
             onPlay={playFromWelcome}
             onOpenRules={openRules}
             mountain={mountain}
+            themeDay={themeDay}
           />
         ) : (
           /* Game view - active puzzle */
@@ -410,7 +423,7 @@ export function TridokuGame() {
             {/* The run picker and the board share one backdrop on Mountain: the scenery starts
                 behind the signs and ends a little below the board (TRI-101) */}
             <div className={`relative flex flex-col gap-2 ${mountain ? "pb-3" : ""}`}>
-            {mountain && <MountainScenery shadow={inShadow} className="absolute -top-4 bottom-0 left-1/2 h-[calc(100%+1rem)] w-screen -translate-x-1/2" />}
+            {mountain && <MountainScenery shadow={inShadow} themeDay={themeDay} ground={15} className="absolute -top-4 bottom-0 left-1/2 h-[calc(100%+1rem)] w-screen -translate-x-1/2" />}
             {/* Difficulty selector: trail signs on the Mountain theme (TRI-101) */}
             <div className="relative flex justify-center mb-3">
               {mountain ? (
@@ -477,7 +490,7 @@ export function TridokuGame() {
                   onResume={togglePause}
                   flash={undoFeedback}
                 />
-                {finishing && <MountainFinish key={runKey} run={difficulty ?? "easy"} onTicket={openTicket} />}
+                {finishing && <MountainFinish key={runKey} run={difficulty ?? "easy"} themeDay={themeDay} onTicket={openTicket} />}
               </div>
             </div>
             </div>

@@ -160,6 +160,9 @@
   --scene-near: #b8cadd;
   --scene-tree: #b3c5d8;
   --scene-star: transparent;
+  /* Theme days (TRI-100): snow on the peaks and pines, New Year sparkles */
+  --scene-snowcap: #ffffff;
+  --scene-sparkle: #d9a73a;
   /* Run colours: signs and toggles only, never big panels */
   --run-easy: #1d7a43;
   --run-medium: #1d5bb8;
@@ -188,6 +191,8 @@
   --scene-near: #22364f;
   --scene-tree: #1a2a40;
   --scene-star: #dfe8f3;
+  --scene-snowcap: #4b6282;
+  --scene-sparkle: #f2cf6b;
   /* At night the black diamond turns floodlight white so it stays visible */
   --run-easy: #8fd3a8;
   --run-medium: #8fb4ef;
@@ -233,6 +238,26 @@
   pointer-events: none;
   overflow: hidden;
 }
+/* TRI-100 theme day extras in the finish: under the snow wave and the ticket */
+.finish-santa,
+.finish-fireworks {
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 54;
+  pointer-events: none;
+}
+.finish-santa { will-change: transform; transform: translate(-200px, -100px); }
+.firework-spark {
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  opacity: 0;
+  box-shadow: 0 0 5px 1px currentColor;
+  will-change: transform, opacity;
+}
 .finish-skier {
   position: fixed;
   z-index: 66;
@@ -276,6 +301,8 @@
   --scene-far: #d3dde8;
   --scene-near: #c8d4e1;
   --scene-tree: #c4d0de;
+  --scene-snowcap: #e6edf4;
+  --scene-sparkle: #d3dde8;
 }
 .dark[data-look="mountain"] .scene-shadow {
   --scene-sky: #0c1625;
@@ -283,7 +310,37 @@
   --scene-near: #192a42;
   --scene-tree: #142238;
   --scene-star: transparent;
+  --scene-snowcap: #1f3048;
+  --scene-sparkle: transparent;
 }
+
+/* TRI-100 theme days. Christmas lights and New Year sparkles glow before you start and
+   after you finish, and rest while you play. */
+.scene-sparkle { fill: var(--scene-sparkle); }
+.scene-light { opacity: 1; }
+.dark .scene-light { filter: drop-shadow(0 0 1.5px currentColor); }
+.scene-shadow .scene-light { opacity: 0.25; }
+/* December flakes: fall through the scene; they fade and stop while you play */
+.scene-flakes { opacity: 1; transition: opacity var(--dur-scene, 600ms) ease; }
+.scene-shadow .scene-flakes { opacity: 0; }
+.scene-shadow .scene-flake { animation-play-state: paused; }
+.scene-flake {
+  position: absolute;
+  top: 0;
+  border-radius: 9999px;
+  background: #fff;
+  /* A cool rim, so white flakes still show against the pale day sky */
+  box-shadow: 0 0 0 0.75px rgb(110 140 178 / 0.55), 0 1px 2px rgb(70 100 140 / 0.35);
+  animation: scene-flake linear infinite;
+  will-change: transform;
+}
+.dark .scene-flake { box-shadow: none; opacity: 0.85; }
+@keyframes scene-flake {
+  from { transform: translate(0, -8px); }
+  50% { transform: translate(var(--sway, 0px), 50cqh); }
+  to { transform: translate(0, calc(100cqh + 8px)); }
+}
+@media (prefers-reduced-motion: reduce) { .scene-flakes { display: none; } }
 [data-look="mountain"] body {
   font-family: var(--font-barlow), 'Geist', system-ui, sans-serif;
 }

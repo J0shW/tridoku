@@ -14,6 +14,7 @@
 import { useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import type { Difficulty } from "@/lib/tridoku"
+import type { ThemeDay } from "@/lib/theme-days"
 
 const T = {
   mountainIn: 420,
@@ -119,13 +120,52 @@ function SkierFigure({ tuckRef, skisRef, bodyRef, carveRef }: SkierRefs) {
   )
 }
 
+const FIREWORK_COLOURS = ["#f2b33d", "#ec6fa4", "#2fb8b0"]
+
+/** Santa's sleigh and two reindeer, flying left: a silhouette with a red coat. */
+function SantaSleigh() {
+  return (
+    <svg width="132" height="44" viewBox="0 0 132 44" aria-hidden="true" className="text-fg">
+      <g fill="currentColor">
+        {/* reindeer: body, legs mid-leap, head and antlers */}
+        {[0, 34].map((x) => (
+          <g key={x} transform={`translate(${x} ${x ? 3 : 0})`}>
+            <path d="M8 18c2-3 8-4 14-3l5 1c2 0 3 2 2 4l-3 1c-4 1-10 1-14 0l-3 5-2-1 2-5c-1 0-2-1-1-2Z" />
+            <path d="M24 20l5 6-1 1-6-5ZM11 21l-5 5 1 1 6-4Z" />
+            <path d="M7 18c-2-1-4-3-4-6l2-1c0 2 1 4 3 5Z" />
+            <path d="M4 11 2 6M4 11 6 6.5M4 11 0.5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" fill="none" />
+          </g>
+        ))}
+        {/* reins */}
+        <path d="M27 20 C45 22 55 24 74 25" stroke="currentColor" strokeWidth="0.8" fill="none" />
+        {/* sleigh with a curled runner */}
+        <path d="M72 24h40c4 0 6-3 6-7l1-3h3l-1 4c0 7-4 11-10 11H76c-3 0-4-2-4-5Z" />
+        <path d="M70 33h42c4 0 6-1 8-3l1 1c-2 3-5 4-9 4H72c-2 0-3-1-2-2Z" />
+        <path d="M80 29v4M106 29v4" stroke="currentColor" strokeWidth="1.4" />
+      </g>
+      {/* Santa: red coat and hat, white trim, and his sack */}
+      <circle cx="108" cy="14" r="7" fill="#7a5a40" />
+      <path d="M88 24c0-7 3-12 8-12s8 5 8 12Z" fill="#d6453a" />
+      <path d="M88 23h16" stroke="#f2f4f7" strokeWidth="2" />
+      <circle cx="96" cy="9" r="3.4" fill="#f1c9a5" />
+      <path d="M92.5 7.5c1-4 5-5.5 8-3.5l1.5 3Z" fill="#d6453a" />
+      <circle cx="102.4" cy="7.2" r="1.3" fill="#f2f4f7" />
+      <path d="M93 10.5c1 3 5 3 6 0Z" fill="#f2f4f7" />
+    </svg>
+  )
+}
+
 interface MountainFinishProps {
   run: Difficulty
+  /** TRI-100: Christmas puts a star on the peak and sends Santa past; New Year sets off fireworks */
+  themeDay?: ThemeDay | null
   /** Open the ticket; `skipped` when the player tapped to skip */
   onTicket: (skipped: boolean) => void
 }
 
-export function MountainFinish({ run, onTicket }: MountainFinishProps) {
+export function MountainFinish({ run, themeDay = null, onTicket }: MountainFinishProps) {
+  const christmas = themeDay?.id === "christmas"
+  const newYear = themeDay?.palette === "new-year"
   const rootRef = useRef<HTMLButtonElement>(null)
   const mountainRef = useRef<SVGGElement>(null)
   const trackRefs = useRef<(SVGPathElement | null)[]>([])
@@ -136,6 +176,9 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
   const carveRef = useRef<SVGGElement>(null)
   const burstRef = useRef<HTMLDivElement>(null)
   const sprayRef = useRef<HTMLDivElement>(null)
+  const starRef = useRef<SVGGElement>(null)
+  const santaRef = useRef<HTMLDivElement>(null)
+  const fireworksRef = useRef<HTMLDivElement>(null)
   const done = useRef(false)
   const anims = useRef<Animation[]>([])
   const onTicketRef = useRef(onTicket)
@@ -346,6 +389,53 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
       )
     })
 
+    // 4. Theme day extras (TRI-100), while the skier comes down and before the snow
+    // Christmas: a star drops onto the peak (the board is the tree) and Santa crosses the sky
+    play(starRef.current, [
+      { transform: "translateY(-2.6px) scale(0)", opacity: 0 },
+      { transform: "translateY(0.2px) scale(1.25)", opacity: 1, offset: 0.6 },
+      { transform: "translateY(0) scale(1)", opacity: 1 },
+    ], { duration: 520, delay: 180, easing: "cubic-bezier(0.3, 1.4, 0.5, 1)" })
+    const santa = santaRef.current
+    if (santa) {
+      const y = Math.max(56, box.top + box.height * 0.04)
+      const sf: Keyframe[] = []
+      for (let i = 0; i <= 8; i++) {
+        const k = i / 8
+        const x = window.innerWidth + 30 - k * (window.innerWidth + 200)
+        sf.push({ offset: k, transform: `translate(${x}px, ${y - Math.sin(Math.PI * k) * 26 - k * 10}px) rotate(${-4 + 8 * k}deg)` })
+      }
+      play(santa, sf, { duration: 1500, delay: 250 })
+    }
+    // New Year: three bursts of fireworks over the peak
+    const fw = fireworksRef.current
+    if (fw) {
+      const bursts = Array.from(fw.children) as HTMLElement[]
+      const spots: [number, number, number][] = [[0.5, -0.02, 380], [0.22, 0.14, 680], [0.8, 0.08, 940]]
+      bursts.forEach((burstEl, b) => {
+        const [fx, fy, at] = spots[b]
+        const cx = box.left + box.width * fx
+        const cy = box.top + box.height * fy
+        const sparks = Array.from(burstEl.children) as HTMLElement[]
+        const reach = Math.min(window.innerWidth, 480) * 0.18
+        const fwRand = seeded(40 + b)
+        sparks.forEach((spark, i) => {
+          // Uneven, like a real shell: each spark flies its own distance, then droops and fades
+          const a = (i / sparks.length) * Math.PI * 2 + fwRand() * 0.5
+          const r = reach * (0.5 + fwRand() * 0.5)
+          const dx = Math.cos(a) * r
+          const dy = Math.sin(a) * r
+          const life = 950 + fwRand() * 350
+          play(spark, [
+            { transform: `translate(${cx}px, ${cy}px) scale(0.4)`, opacity: 0 },
+            { transform: `translate(${cx + dx * 0.7}px, ${cy + dy * 0.7}px) scale(1.1)`, opacity: 1, offset: 0.18 },
+            { transform: `translate(${cx + dx}px, ${cy + dy + reach * 0.12}px) scale(0.8)`, opacity: 0.9, offset: 0.45 },
+            { transform: `translate(${cx + dx * 1.08}px, ${cy + dy + reach * 0.55}px) scale(0.3)`, opacity: 0 },
+          ], { duration: life, delay: at + fwRand() * 40, easing: "cubic-bezier(0.1, 0.7, 0.4, 1)" })
+        })
+      })
+    }
+
     const t = setTimeout(() => {
       if (done.current) return
       done.current = true
@@ -365,6 +455,8 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
     anims.current.forEach((a) => a.finish())
     if (burstRef.current) burstRef.current.style.display = "none"
     if (sprayRef.current) sprayRef.current.style.display = "none"
+    if (santaRef.current) santaRef.current.style.display = "none"
+    if (fireworksRef.current) fireworksRef.current.style.display = "none"
     if (skierRef.current) skierRef.current.style.display = "none"
     onTicketRef.current(true)
   }
@@ -422,11 +514,39 @@ export function MountainFinish({ run, onTicket }: MountainFinishProps) {
               strokeDashoffset="1"
             />
           ))}
+          {christmas && (
+            // A star on top of the tree, landing at the peak
+            <g ref={starRef} style={{ transformOrigin: "9px -0.25px", transformBox: "view-box", opacity: 0 }}>
+              <path
+                d="M9 -1.55 9.36 -0.62 10.35 -0.58 9.58 0.04 9.84 1 9 0.45 8.16 1 8.42 0.04 7.65 -0.58 8.64 -0.62Z"
+                fill="#f2b33d"
+                stroke="#b8801f"
+                strokeWidth="0.08"
+                strokeLinejoin="round"
+              />
+            </g>
+          )}
         </g>
       </svg>
       {typeof document !== "undefined" &&
         createPortal(
           <>
+            {christmas && (
+              <div ref={santaRef} className="finish-santa" aria-hidden="true">
+                <SantaSleigh />
+              </div>
+            )}
+            {newYear && (
+              <div ref={fireworksRef} className="finish-fireworks" aria-hidden="true">
+                {FIREWORK_COLOURS.map((colour) => (
+                  <div key={colour}>
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <span key={i} className="firework-spark" style={{ background: colour, color: colour }} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
             <div ref={sprayRef} className="snow-burst" aria-hidden="true">
               {Array.from({ length: FLAKES }, (_, i) => (
                 <span key={i} className="snowball ski-spray" />

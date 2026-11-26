@@ -12,6 +12,7 @@ import { TridokuBoard } from "@/components/tridoku-board"
 import { formatTime, loadPuzzle, type Difficulty } from "@/lib/tridoku"
 import type { GameStats, PuzzleInProgress } from "@/hooks/use-tridoku"
 import { MountainScenery, TrailheadSigns } from "@/components/mountain"
+import type { ThemeDay } from "@/lib/theme-days"
 
 interface WelcomeScreenProps {
   stats: GameStats
@@ -23,6 +24,8 @@ interface WelcomeScreenProps {
   onOpenRules: () => void
   /** The Mountain theme's trailhead (TRI-101) instead of the Classic cards */
   mountain?: boolean
+  /** TRI-100: dresses the scenery for a theme day */
+  themeDay?: ThemeDay | null
 }
 
 // Text colors chosen for at least 4.5:1 contrast on each card (TRI-067).
@@ -48,6 +51,7 @@ export function WelcomeScreen({
   onPlay,
   onOpenRules,
   mountain = false,
+  themeDay = null,
 }: WelcomeScreenProps) {
   const previewCells = useMemo(() => (previewPuzzle ? loadPuzzle(previewPuzzle) : null), [previewPuzzle])
 
@@ -64,7 +68,7 @@ export function WelcomeScreen({
         <div className={`relative pointer-events-none select-none ${mountain ? "pb-5" : ""}`} aria-hidden="true">
           {/* On Mountain, today's board is the peak at the trailhead (TRI-101) */}
           {/* From the header (through the page's top padding) to a little below the board (Josh, 20 Nov) */}
-          {mountain && <MountainScenery className="absolute -top-6 bottom-0 left-1/2 h-[calc(100%+1.5rem)] w-screen -translate-x-1/2" />}
+          {mountain && <MountainScenery themeDay={themeDay} ground={22} className="absolute -top-6 bottom-0 left-1/2 h-[calc(100%+1.5rem)] w-screen -translate-x-1/2" />}
           <div className="relative mx-auto w-full max-w-[15rem]">
             {previewCells ? (
               <TridokuBoard cells={previewCells} selectedCellId={null} onCellClick={() => {}} isPaused={false} />

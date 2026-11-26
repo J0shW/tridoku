@@ -16,6 +16,7 @@ import { StatTile } from "@/components/ui/badge"
 import { KofiDialog } from "@/components/kofi-widget"
 import { LiftTicketBody } from "@/components/lift-ticket"
 import { trackEvent } from "@/lib/analytics"
+import type { ThemeDayId } from "@/lib/theme-days"
 import { msUntilNextDay, todayKey, type DateKey } from "@/lib/dates"
 import {
   compareWithBest,
@@ -65,7 +66,9 @@ export function WinModal({ open, onOpenChange, mountain = false, ...props }: Win
 }
 
 /** Share and Copy for a result, tracked by outcome (TRI-018). Used by both win cards and the finished-run card. */
-export function useShareResult(difficulty: Difficulty, getShareText: () => string) {
+export function useShareResult(difficulty: Difficulty, getShareText: () => string, themeDay?: ThemeDayId | null) {
+  // TRI-100: a Mountain theme day is reported with the share
+  const extra: Record<string, string> = themeDay ? { theme_day: themeDay } : {}
   const [copied, setCopied] = useState(false)
   const flash = () => {
     setCopied(true)
@@ -76,18 +79,18 @@ export function useShareResult(difficulty: Difficulty, getShareText: () => strin
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({ title: "Daily Tridoku", text })
-        trackEvent("result_shared", { difficulty, method: "native_share", outcome: "shared" })
+        trackEvent("result_shared", { difficulty, method: "native_share", outcome: "shared", ...extra })
       } catch (error) {
         const cancelled = error instanceof DOMException && error.name === "AbortError"
-        trackEvent("result_shared", { difficulty, method: "native_share", outcome: cancelled ? "cancelled" : "failed" })
+        trackEvent("result_shared", { difficulty, method: "native_share", outcome: cancelled ? "cancelled" : "failed", ...extra })
       }
     } else {
       try {
         await navigator.clipboard.writeText(text)
-        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "copied" })
+        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "copied", ...extra })
         flash()
       } catch {
-        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "failed" })
+        trackEvent("result_shared", { difficulty, method: "clipboard", outcome: "failed", ...extra })
       }
     }
   }

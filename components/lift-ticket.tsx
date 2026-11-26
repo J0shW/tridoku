@@ -17,6 +17,7 @@ import { compareWithBest, DIFFICULTY_LABEL, nextUnfinished } from "@/lib/share"
 import { formatTime, type Difficulty } from "@/lib/tridoku"
 import { claimKofiPrompt } from "@/lib/win-prompts"
 import { PINS, readPins, runId } from "@/lib/pins"
+import { themeDayFor } from "@/lib/theme-days"
 import { PinBadge } from "@/components/season-pass"
 import { cn } from "@/lib/utils"
 import type { GameStats } from "@/hooks/use-tridoku"
@@ -57,7 +58,7 @@ function Punches({ punched }: { punched: boolean[] }) {
 export function LiftTicketBody(props: Omit<WinModalProps, "open" | "onOpenChange" | "mountain">) {
   // The result this ticket opened with (see WinBody)
   const [{ stats, difficulty, elapsedTime, puzzleNumber, puzzleDate, getShareText, onPlayNext }] = useState(props)
-  const { share, copy, copied } = useShareResult(difficulty, getShareText)
+  const { share, copy, copied } = useShareResult(difficulty, getShareText, themeDayFor(puzzleDate ?? todayKey())?.id)
   const s = stats[difficulty]
   const date = puzzleDate ?? todayKey()
   const next = nextUnfinished(difficulty, stats, todayKey())
@@ -246,7 +247,7 @@ interface RunCompleteCardProps {
 
 /** In place of the number pad once a run is finished: the board above stays, read only. */
 export function RunCompleteCard({ difficulty, elapsedTime, stats, puzzleDate, getShareText, onPlayNext, onShowTicket }: RunCompleteCardProps) {
-  const { share, copied } = useShareResult(difficulty, getShareText)
+  const { share, copied } = useShareResult(difficulty, getShareText, themeDayFor(puzzleDate ?? todayKey())?.id)
   const next = nextUnfinished(difficulty, stats, todayKey())
   return (
     <section aria-label="Run complete" className="flex flex-col gap-3 rounded-card border-[1.5px] border-border bg-surface-raised p-4">

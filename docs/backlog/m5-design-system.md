@@ -372,20 +372,25 @@ The rule from that review: **the board is the boldest thing on screen.** Blur a 
 |---|---|---|---|---|---|
 | Low | M | S | Return visits, shares | [TRI-102](#tri-102), [TRI-107](#tri-107) | Owner idea, 11 Nov; designer review 18 Nov |
 
-**Problem.** Palettes make it cheap to dress the game for a date. Josh wants theme days, starting with the Halloween and Christmas drafts on the [canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK).
+**Problem.** Palettes make it cheap to dress the game for a date. Josh wants theme days. The first drafts (Halloween and Christmas) are on the [canvas](https://claude.ai/artifact/Np9VNxf9yQnakVWoxkCAzK), from the folder direction.
 
 **Done when**
 **Mountain (19 Nov).** Theme days now dress the mountain. The review's Christmas ideas: lights on the pines, Santa flying past, and a star placed on the peak when you finish. The board is a triangle, so it really is a tree. Keep extras to the start and finish, never while you're solving (TRI-104). The review also noted that a full Christmas is very specific, so give Christmas Day the full version and the rest of December a general winter look.
 
-- [ ] A theme day is a dated entry: board palette, run colours, scenery extras and a header line ("Halloween · No. 304"). It's chosen with `lib/dates.ts` for the puzzle's date.
-- [ ] Claude proposes a theme calendar at the start of this item. Josh picks the days.
-- [ ] Halloween and Christmas ship first. Their entry inks are darkened to pass the palette check (the drafts are 3.9:1 and 4.3:1).
-- [ ] Every theme passes the TRI-102 palette test.
-- [ ] Each theme day is checked in light and dark at 390 px, with screenshots in the PR.
-- [ ] A `theme_day` property on `puzzle_started` and `result_shared`, through `trackEvent`, and listed in `docs/metrics.md`.
-- [ ] The puzzle, timer and share text are unchanged.
+- [x] A theme day is a dated entry: board palette, scenery extras and a header line ("Christmas Day · #359"). It's chosen with the puzzle's own date. *`lib/theme-days.ts`. Run colours stay as they are, so each run keeps its identity. The header stacks the name over the number, and under 360 px keeps just the number.*
+- [x] **[Decision]** Claude proposes a theme calendar at the start of this item. Josh picks the days. *Josh (25 Nov): December's winter look and Christmas Day, plus New Year's Eve and Day. Mountain only. Halloween, Valentine's, St Patrick's and Pi Day were offered and not picked for now.*
+- [x] December (every day, unless a day below): snow caps on the peaks and pines, and flakes falling before you start. The board keeps each run's palette.
+- [x] Christmas Day: the board is a tree (pine sides, ribbon-red inner triangle), lights on the pines, and at the finish a star lands on the peak and Santa's sleigh crosses the sky.
+- [x] New Year's Eve and Day: a champagne-and-lilac board, gold sparkles in the sky, and three bursts of fireworks over the peak at the finish. New Year's Eve keeps December's snow.
+- [x] Extras only at the start and finish: flakes stop and fade, and lights and sparkles dim, while you play (TRI-104). No flakes with reduced motion; the finish extras are part of the finish, which reduced motion skips.
+- [x] Every theme passes the TRI-102 palette test. *Four new palettes (Christmas and New Year, day and night).*
+- [x] Each theme day is checked in light and dark at 390 px, with screenshots in the PR. *[docs/reviews/2026-11-25-tri-100](../reviews/2026-11-25-tri-100/).*
+- [x] A `theme_day` property on `puzzle_started` and `result_shared`, through `trackEvent`, and listed in `docs/metrics.md`. *Mountain players on a theme day only.*
+- [x] The puzzle, timer and share text are unchanged.
+- [x] The preview dev tools jump straight to a theme day (December, 25 Dec, 31 Dec, 1 Jan) or any date.
+- [ ] Josh signs it off in the preview.
 
-**Check it in a preview.** Set the date to 31 October with the dev tools: the board, mountain and header switch to Halloween. Set it to 25 December for Christmas, then back to today.
+**Check it in a preview.** Pick Mountain in ⋯ → Look. In the dev tools, tap Theme days → 25 Dec: the header says Christmas Day, the board turns pine and red, and the pines have lights. Finish a run (Preview → Fill all but 1 cell) to see the star and Santa. Try 31 Dec for fireworks, December for the snow, then Real time.
 
 <a id="tri-094"></a>
 ## TRI-094 · Dialogs and menus on the system
